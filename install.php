@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html>
 <head>
 <title>ZebraFeeds installation</title>
@@ -57,11 +57,11 @@ padding: 10px;
 </head>
 <body>
 <div id="header">
-<a href="http://cazalet.org/zebrafeeds"><img src="images/zflogo.png" border="0" alt="ZebraFeeds logo"/></a> ZebraFeeds installation
+<a href="http://cazalet.org/zebrafeeds"><img src="newsfeeds/images/zflogo.png" border="0" alt="ZebraFeeds logo"/></a> ZebraFeeds installation
 </div>
 <?php
 
-require_once('init.php');
+require_once('newsfeeds/init.php');
 require_once($zf_path.'admin/adminfuncs.php');
 
 function displayProceedGotoButton($nextStep) {
@@ -237,7 +237,7 @@ if (!isset($_POST['step'])) {
         displayStatus('Basic configuration saved.');
         echo 'You must now go to the administration panel to complete the installation<br/><br/>';
         echo 'For security reasons, make sure to delete the file <code>install.php</code><br/><br/>';
-        echo 'Go to the <a href="admin/index.php?zfaction=config">Administration Panel</a>';
+        echo 'Go to the <a href="newsfeeds/admin/index.php?zfaction=config">Administration Panel</a>';
 
     } else {
         echo "Cannot continue the installation";
