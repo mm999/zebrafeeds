@@ -2,3 +2,7 @@
 newsfeeds/config.php
 
 newsfeeds/admin/.htaccess
+
+newsfeeds/categories/Home.opml
+
+newsfeeds/data/*
