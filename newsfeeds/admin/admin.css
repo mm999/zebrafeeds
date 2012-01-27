@@ -1,0 +1,413 @@
+/* ZebraFeeds admin panel style sheet */
+html, body{
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	background: #dbca95;
+	font-size: 12px;
+	font-family: Verdana, Arial, Helvetica, sans-serif
+}
+a:link {
+	color: #0084ff;
+}
+
+a:visited {
+	color: #0084ff;
+}
+
+a:hover {
+	color: #ff9000;
+}
+
+a:active {
+	color: blue
+}
+
+.normaltext {
+	color: #000;
+	font-size: 100%;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin: 0 40px 0 40px;
+
+}
+
+.smallprint {
+	color: #ff9000;
+	font-size: 80%;
+	font-family: sans-serif;
+}
+#top {
+	margin-top: 10px;
+}
+#banner {
+	text-align: center;
+	float: left;
+}
+
+#core {
+	background-color: #fff;
+	margin: 0 auto 0 auto; 
+	padding: 30px 20px 20px 20px;
+	width: 85%;
+	text-align: justify;
+	border: 1px solid #666;
+	border-width: 0;
+}
+#core h2 {
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	text-align: center;
+}
+#core2 {
+	padding: 10px 20px 0 20px;
+	background-color: #fff;
+	text-align: justify;
+	width: 85%;
+	margin: 0 auto 0 auto;  
+	border: 1px solid #666;
+	border-width: 0;
+}
+
+#saveconfig {
+	text-align: center;
+}
+#status {
+	padding: 5px;
+	margin: 15px;
+	text-align: left;
+	background-color: #FFF;
+	border: 1px dashed #F66;
+}
+
+#startmenu li {
+	list-style-image: url(../images/arrow.png);
+	line-height: 2em;
+}
+
+
+.menuitem {
+	padding: 6px;
+	text-align: left;
+	margin: 15px; 
+	border: 1px dotted #ff9000;
+}
+
+
+
+zftable {
+	border: 1px solid #666;
+}
+
+#bottom {
+	text-align: center;
+	font-size: 10px;
+	background: #fff;
+	padding: 10px 20px 0 20px;
+	margin: 0 auto 20px auto;
+	width: 85%;
+	height: 20px;
+	/*           border: 1px solid #666;
+	border-width: 0 0 2px;*/
+}
+
+
+/* Subscription list 
+------------------------ */
+#listsform {
+	text-align: left;
+	padding: 0 0 10px 0;
+	margin: 0px;
+	/*border-bottom: 1px solid #000;*/
+}
+
+.listctrl{
+	position: absolute; 
+	right: 10px;
+	top: 5px;
+}
+
+#subscriptions {
+	border-spacing: 0px;
+	width: 100%;
+	background-color: #fff;
+	border-width: 0;
+	margin: auto;
+	position: relative;
+}
+
+#chancolumn {
+	margin: 0px;
+	width: 43%;
+	height: 450px;
+}
+
+#chancolumnheader{
+	margin-top:10px; 
+	margin-bottom: -15px;
+	margin-left: 13px;
+}
+	
+#chanlist {
+	overflow-y: auto;
+	overflow-x: hidden;
+	max-height: 320px;
+	min-height: 120px;
+	position: relative;
+	padding: 5px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	text-align: left;
+}
+
+.chanlistcheck {
+	position: relative; 
+	left: 60px; 
+	color: #aaa;
+}
+
+#editcolumn {
+	position: absolute;
+	width: 55%;
+	top: 50px;
+	right: 0px;
+	margin: 0px;
+
+}
+
+#opresult {
+	margin: 20px;
+	border: 1px solid #ccc;
+	text-align: center;
+	display: none;
+}
+
+
+.sub-feed {
+	border-bottom: 1px dotted #ff9000;
+}
+
+.sub-line {
+	border-bottom: 1px dotted #ff9000;
+	border-width: 1px;
+	padding: 3px;
+}
+.sub-line:hover {
+	background-color: #eee;
+}
+.sub-number {
+
+	text-align: right;
+}
+.editfeed {
+	border: 1px dotted #ff9000;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.savepanel {
+	text-align: center; 
+	margin-top: 15px;
+}
+
+#firstline, #lastline {
+	background: #fff;
+	padding: 10px 0 10px 0;
+}
+#lastline td {
+	padding-top: 15px;
+}
+
+.link {
+	cursor: pointer;
+	text-decoration: underline;
+	color: #0084ff;
+}
+
+.unsubscribed {
+	font-style: italic;
+	font-size: 80%;
+}
+.subscribed {
+}
+
+
+/*#firstline { border-bottom: 1px solid #000; }*/
+/*#firstline td, #lastline td {
+background: #eee;
+padding: 10px 0 10px 0;
+border-bottom: 1px solid #000;
+}*/
+#firstline td{
+	text-align: center;
+	border-bottom: 1px solid #000;
+}
+
+.legend {
+	font-weight: bold;
+}
+
+/* Main menu
+-------------------------------------------------------- */
+
+#header {
+	text-align: left;
+	font-size:90%;
+	background: transparent;
+	padding: 0 20px 0 20px;
+	width: 85%;
+	margin: 0 auto 0 auto;
+
+}
+
+ul.tabs {
+
+	clear: both;
+	background-color: transparent;
+	padding: 20px 0 0 0;
+	height: 22px;
+	margin: 0 auto 0 -20px;
+	list-style: none;
+}
+
+ul.tabs li {
+	float: left;
+	background: transparent url(../images/right.png) no-repeat right top;
+}
+
+ul.tabs li {
+	text-align: center;
+	background: transparent url(../images/left.png) no-repeat left top;
+	margin:0 auto 0 auto;
+	padding: 0 2px 0 4px;
+}
+
+ul.tabs a {
+	display:block;
+	background: url(../images/left.png) no-repeat left top;
+	padding: 5px 15px 4px;
+}
+ul.tabs a:hover {
+	text-decoration: underline;
+	color: #000;
+}
+ul.tabs a:visited {
+	text-decoration: none;
+	color: #000;
+}
+
+ul.tabs .active{
+	background-image: url(../images/right_on.png);
+}
+
+
+ul.tabs .active a {
+	background-image: url(../images/left_on.png);
+	color: #000;
+	padding-bottom:5px;
+}
+
+
+ul.tabs a, ul.tabs strong, ul.tabs span {
+	display:block;
+	background: url(../images/right.png) no-repeat right top;
+	padding:5px 15px 4px 6px;
+}
+
+ul.tabs .active {
+	background-image: url(../images/left_on.png);
+}
+
+ul.tabs .active a {
+	background-image: url(../images/right_on.png);
+	padding-bottom:5px;
+}
+
+ul.tabs a {
+	display:block;
+	background: url(../images/left.png) no-repeat left top;
+	padding:5px 15px 4px 6px;
+}
+
+ul.tabs a {
+	display:block;
+	background: url(../images/right.png) no-repeat right top;
+	padding:5px 6px 4px 5px;
+	text-decoration:none;
+	font-weight:bold;
+	color:#000;
+}
+
+/* Le hack de l'antislash commenté
+cache cette règle à IE5-Mac \*/
+
+ul.tabs a {float:none;}
+/* End IE5-Mac hack */
+
+
+
+ul.tabs a {
+	/* Pour IE Mac uniquement \*//*/   
+	float:left;
+	/**/
+}
+/* Config form
+--------------------------------------*/
+.twocols {
+	margin-bottom: 40px;
+	position : static;
+}
+.twocols h2 {
+	border: 2px solid #000;
+	color: #0084ff;
+}
+.twocols .col1 {
+	width : 49%;
+	margin-left : 1%;
+	float : left;
+	text-align: left;
+}
+.twocols .col1, .col2:first-child {
+	width : 35%;
+	margin-left : 0;
+
+}
+
+.col1 p {
+	height: 5em;
+	padding: 0 5em 0 5em;
+}
+
+/* tooltips
+found here : http://www.peutetreunereponse.net/article-1528160.html
+-----------------------------------------*/
+a.info {
+	position:relative;
+	text-decoration: none; 
+	font-weight: bold;
+}
+a:hover.info {
+	text-decoration: none;
+	background: none;
+	cursor: help;
+}
+a.info span {display: none;}
+a:hover.info span {
+	display: inline;
+	position: absolute; 
+	top:1.5em;
+	left:0.5em;
+	z-index: 20;
+	background: #446D87;
+	color: #fff;
+	border:1px solid #000;
+	width:150px;
+	text-align:center;
+	font-weight:normal;
+	font-size: 10px;
+	line-height:12px;
+	padding:2px 4px;
+}
+
+ 

@@ -1,0 +1,238 @@
+<!--	ZebraFeeds template
+	name / description: portal
+	author: Laurent (laurent@cazalet.org)
+
+	note: Do NOT delete or modify comments in the template files -
+-->
+
+
+<!-- templateHeader -->
+
+<style type="text/css">
+
+	.zfchannelstatus {
+		font-size: 9px;
+		color: #666;
+		margin-right: 3px;
+	}
+
+
+	.fold, .logo {
+		display: inline-block;
+		margin: 0px;
+		padding: 1px;
+		margin-right: 5px;
+		vertical-align: middle;
+	}
+
+	.zfchannelbox {
+		padding: 3px;
+		background-color: #fff;
+		color: #999;
+		/*height: 16px;*/
+		border: 1px solid #aaa;
+		display: inline-block;
+		width: 295px;
+		vertical-align: top;
+		margin: 5px;
+	}
+
+	.zfchannelbox img {
+/*		width: auto;
+		height: auto;*/
+		max-height: 64px;
+	}
+
+	.feed {
+		margin: 0 auto;
+	}
+
+	.newsitem {
+		margin: 0px;
+		padding: 0px;
+
+	}
+
+	.newstitle {
+		color: #333;
+		background-color: #fff;
+		padding: 3px;
+		font-size: 80%;
+	}
+
+	.newstitle a:hover {
+		text-decoration: underline;
+	}
+	.newsdesc a:hover {
+		text-decoration: underline;
+	}
+	
+	.newsdesc {
+		margin-left:auto;
+		margin-right:auto;
+		width: 70%;
+		padding-bottom:20px;
+		font-size:14pt;
+		font-family: Times New Roman, Georgia, serif;
+		text-align:left;
+	}
+
+	.newsdesc img {
+		display: block;
+		text-align: center;
+		max-width: 100%;
+		margin: 25px;
+		border: 1px solid #888;
+	}
+	
+	.chanlink {
+		font-family: Palatino, Georgia, Times New Roman, serif;
+		margin-left: 0px;
+		display: block;
+		padding: 5px;
+	}
+
+
+	.chanlink a {
+		font-size: 140%;
+		font-weight: bold;
+		text-decoration: none;
+	}
+
+	.controls {
+		vertical-align: middle;
+		float: right;
+		margin: 5px;
+		height: 12px;
+		width: auto;
+	}
+
+	.datelabel, .dateline {
+		color: #999;
+		font-size: 80%;
+		text-align: right;
+		padding-top: 2px;
+	}
+	.datelabel a:link {
+		color: #621b2f; 
+		text-decoration: none; 
+	}
+
+	.datelabel a:visited {
+		color: #939393; 
+		text-decoration: none; 
+	}
+
+	.datelabel a:hover {
+		text-decoration: none; 
+	}
+
+
+	.chantitle {
+		color: #AAA;
+		text-align: right;
+		/*position: absolute; */
+		padding-top: 2px;
+		/*right: 65px;*/
+	}
+	
+	.chantitle a:link {
+		color: #777;
+	}
+	
+	.enclosure {
+		color: #229;
+		font-size: 90%;
+		text-decoration: none;
+	}
+
+	.enclosure a {
+		text-decoration: underline;
+	}
+	.newsbottom {
+		font-size: 80%; 
+		margin-top:30px;
+	}
+	.articletitle {
+		width:70%;
+		margin:0 auto;
+		text-align:left;
+		font-size:150%;
+	}
+	.articlewrapper {
+		max-width:80%;
+		margin:0 auto;
+		padding-top: 25px;
+		background:#fff;
+	}
+
+	#zfwrapper {
+		background:#eee;
+		padding: 5px;
+	}
+
+</style>
+<!-- ENDtemplateHeader -->
+
+
+<!-- header -->
+{dynamicnews}
+<div id="zfwrapper">
+<!-- ENDheader -->
+<!-- channel -->
+<div class="zfchannelbox" id="ZFCHANNELBOX{chanid}">
+	<div class="controls">
+		{morebutton}
+		{refreshbutton}
+	</div>
+	<div class="chanlink">
+		<div class="logo">
+			{chanfavicon}
+		</div>
+		<a href="{chanlink}">{chantitle}</a>
+	</div>
+	<div class="dateline">
+		last updated: {lastupdated}
+	</div>
+	<div class="zfnewsbox" id="ZFCHANNELITEMS{chanid}">
+<!-- ENDchannel -->
+<!-- news -->
+<div class="newsitem" id="ITEM{itemid}">
+	<div class="newstitle" id="HEAD{itemid}">
+		{isnew} <a href="{articleurl}">{title}</a>&nbsp; 
+		<a href="{link}" title="{chantitle}">&raquo;&raquo;</a>&nbsp;<span class="datelabel">{relativedate}</span>
+	</div> <!-- end newstitle -->
+</div> <!-- end newsitem -->
+ <!-- ENDnews -->
+<!-- newsDay -->
+<div class="chanlink">
+	{date}
+</div>
+<!-- ENDnewsDay -->
+<!-- channelFooter -->
+	</div>
+</div>
+<!-- ENDchannelFooter -->
+<!-- newsDayFooter -->
+<!-- ENDnewsDayFooter -->
+<!-- footer -->
+</div>
+<!-- ENDfooter -->
+<!-- dynamicDescription -->
+<div class="articlewrapper">
+	<div class="articletitle">
+		<h3><a href="{link}" title="{chantitle}">{title}</a></h3>
+		{chantitle}
+		<span class="enclosure">{enclosures}</span>
+	</div>
+	<div class="newsdesc">
+		{description}
+		<p class="newsbottom">
+		<a href="http://www.facebook.com/share.php?u={link_encoded}">Share on Facebook</a>
+		</p>
+	</div>
+</div>
+<!-- ENDdynamicDescription -->
+<!-- between -->
+<!-- ENDbetween -->
+

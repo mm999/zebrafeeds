@@ -1,0 +1,231 @@
+<!--	ZebraFeeds template
+	name / description: infojunkie / template for a large number of feeds
+	author: Laurent (laurent@cazalet.org)
+
+	note: Do NOT delete or modify comments in the template files -
+-->
+
+
+<!-- templateHeader -->
+
+<style type="text/css">
+
+
+.zfchannelstatus {
+ font-size: 9px;
+ background-color: #eeeeee;
+ color: #666;
+ margin-right: 3px;
+}
+
+
+.fold, .logo {
+    float: left;
+    margin: 0px;
+    padding: 1px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.channel {
+    vertical-align: middle;
+    padding: 1px;
+    color: #999;
+    /*height: 16px;*/
+}
+
+.channel img {
+    max-height: 16px;
+    width: auto;
+    height: auto;
+}
+
+.feed {
+    margin-bottom: 1px;
+    display: block;
+}
+
+.newsitem {
+    margin-top: 1px;
+    margin-bottom: 1px;
+    margin-left: 1px;
+    margin-right: 3px;
+   /* border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;*/
+    padding: 2px;
+}
+
+.newstitle {
+ color: #333;
+	background-color: #f8faf7;
+    padding: 2px;
+    margin-bottom: 0px;
+    border: 1px solid #ccd;*/
+}
+
+.dateline a:link {
+     color: #621b2f; 
+     text-decoration: none; 
+}
+
+.dateline a:visited {
+     color: #939393; 
+     text-decoration: none; 
+}
+
+.dateline a:hover {
+     text-decoration: none; 
+
+}
+
+.zfnewscontent {
+    text-align: left;
+    color: #000;
+    padding-right: 25px;
+    padding-left: 15px;
+    margin-left: 10px;
+    margin-right: 30px;
+    margin-top: 5px;
+    margin-bottom: 0px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 1.4em;
+    border-left: 1px solid #ddd;
+}
+
+.newsdesc a:hover {
+    text-decoration: underline;
+}
+
+.chanlink {
+    font-family: Palatino, Georgia, Times New Roman, sans-serif;
+    margin-left: 0px;
+}
+
+
+.chanlink a {
+    font-size: 100%;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+
+.itemtitle {
+    cursor: pointer;
+}
+
+.controls {
+    vertical-align: middle;
+    float: right;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 5px;
+    height: 12px;
+    width: auto;
+}
+
+.dateline {
+    color: #999;
+    font-size: 80%;
+    text-align: right;
+}
+
+.enclosure {
+    color: #229;
+    font-size: 90%;
+    text-decoration: none;
+}
+
+.enclosure a {
+    text-decoration: underline;
+}
+
+.newslist {
+    padding-bottom: 3px;
+    padding-left: 25px;
+}
+
+
+</style>
+<!-- ENDtemplateHeader -->
+
+
+<!-- header -->
+{dynamicnews}
+<div class="feed">
+<!-- ENDheader -->
+<!-- channel -->
+    <div class="channel">
+            <div class="logo">
+              {foldbutton}
+							{chanlogo}
+            </div>
+            <div class="controls">
+              {morebutton}
+              <a href="{feedurl}" target="_blank"><img src="{scripturl}/images/feed.png" alt="View The Raw XML Source Of {chantitle}." title="View The Raw XML Source Of {chantitle}" width="36" height="14" border="0" /></a>
+              {hidebutton}
+            </div>
+            <div class="chanlink">
+                <a href="{chanlink}">{chantitle}</a>
+                <span class="dateline">
+										last updated: {lastupdated}
+                    {refreshbutton}
+										<br/>
+										{chandesc}.
+								</span>
+            </div>
+     </div>
+     <div class="newslist">
+<!-- ENDchannel -->
+<!-- news -->
+            <div class="newsitem">
+                <div class="newstitle">
+                    <!-- this is the tricky bit, to have ajaxed news items -->
+										{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}');">{title}</span>
+                    <span class="dateline"><a href="{link}" title="{chantitle}">&raquo; {pubdate}</a></span>
+										<span class="enclosure">{enclosures}</span>
+                </div>
+                <div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');">
+                    {dynamic_description}
+                </div>
+            </div>
+ <!-- ENDnews -->
+<!-- newsDay -->
+    <div class="channel">
+        <div class="chanlink">
+            {date}
+        </div>
+     </div>
+     <div class="newslist">
+<!-- ENDnewsDay -->
+<!-- newsByDate -->
+            <div class="newsitem" id="ITEM{itemid}">
+                <div class="newstitle">
+										{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}');">{title}</span>
+                    <span class="dateline"><a href="{link}" title="{chantitle}">&raquo; {chantitle}</a></span>
+										<span class="enclosure">{enclosures}</span>
+                </div>
+                <div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');">
+                    {dynamic_description}
+                </div>
+            </div>
+ <!-- ENDnewsByDate -->
+ <!-- dynamicDescription -->
+<div style="padding-left: 10px; max-width: 75%;">
+    <div style="background-color: #fff;padding-left: 10px;">
+        <span class="enclosure">{enclosures}</span>
+    </div>
+    <div style="padding: 10px; font-size: 10pt;">
+        {description}
+    </div>
+</div>
+<!-- ENDdynamicDescription -->
+<!-- channelFooter -->
+    </div> <!-- end newslist section -->
+<!-- ENDchannelFooter -->
+<!-- footer -->
+</div> <!-- feed section -->
+<!-- ENDfooter -->
+<!-- between -->
+<!-- ENDbetween -->
+

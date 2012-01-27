@@ -1,0 +1,145 @@
+<!--	ZebraFeeds template
+	name / description: css / CSS template
+	author: AB & Laurent Cazalet
+	note: Do NOT delete or modify comments in the template files
+
+-->
+
+<!-- templateHeader -->
+
+<style type="text/css">
+
+/*	zFeeder CSS style sheet
+	works with the css template
+	author: AB & LCX
+	note: set elements to display:none if you don't want them showed
+*/
+
+#wrap {
+padding: 10px;
+
+}
+/* the header part in the css template */
+.zf_header {
+    margin-bottom: 1px;
+}
+
+/* the channel part in the css template */
+.zf_channel {
+	padding: 1px;
+	background-color: #6495ED;
+	border: 1px solid #000;
+	min-height: 30px;
+}
+
+.zf_day {
+	padding: 3px;
+	background-color: #6F5EF8;
+	border: 1px solid #999;
+}
+
+/* the channel logo part in the css template */
+.zf_logo {
+    float: left;
+    padding: 5px;
+}
+
+/* the channel title part in the css template */
+.zf_chantitle {
+}
+
+
+/* the lastupdated part in the css template */
+.zf_lastupdated {
+	font-style: italic;
+	color: #FFFFFF;
+}
+
+.newswrapper{
+
+
+}
+
+/* the news container part in the css template */
+.zf_news {
+	background-color: #DFDFDF;
+	margin-top: 12px;
+	padding: 2px;
+	border: 1px solid #999;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	border-radius: 4px;
+}
+
+.zf_news img { max-height: 20px; max-width: 20px; display: inline; }
+
+
+/* the news title part in the css template */
+.zf_title {
+    background-color: #fff;
+    margin: 5px;
+}
+
+/* the news description part in the css template */
+.zfnewscontent {
+    text-align: left;
+    margin: 1px;
+    font-size: 80%;
+    font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+/* the news publication date part in the css template */
+.zf_pubdate {
+    color: #666;
+    font-size: 80%;
+    text-align: left;
+}
+
+/* the footer part in the css template */
+.zf_footer {
+	height: 10px;
+}
+
+/* the between channels part in the css template */
+.zf_between {
+	height: 10px;
+}
+
+</style>
+<!-- ENDtemplateHeader -->
+
+<!-- header -->
+    <div class="zf_header"></div>
+<!-- ENDheader -->
+<!-- channel -->
+<!-- ENDchannel -->
+<!-- news -->
+    <div class="newswrapper">
+		<div class="zf_news">
+			{enclosures} <i>{chantitle}</i>: {description}
+			<span class="zf_pubdate">{relativedate}</span>
+		</div>
+	</div>
+<!-- ENDnews -->
+<!-- newsByDate -->
+    <div class="newswrapper">
+		<div class="zf_news">
+			{enclosures} <i>{chantitle}</i>: {description}
+			<span class="zf_pubdate">{relativedate}</span>
+		</div>
+	</div>
+>!-- ENDnewsByDate -->
+<!-- newsDay -->
+    <div class="zf_day">
+        <div class="zf_chantitle">{date}</div>
+   </div>
+<!-- ENDnewsDay -->
+<!-- footer -->
+    <div class="zf_footer"></div>
+<!-- ENDfooter -->
+<!-- newsDayFooter -->
+    <div class="zf_footer"></div>
+<!-- ENDnewsDayFooter -->
+<!-- between -->
+    <div class="zf_between"></div>
+<!-- ENDbetween -->
+

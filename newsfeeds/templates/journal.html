@@ -1,0 +1,239 @@
+<!--	ZebraFeeds template
+	name / description: journal - great for ipad!
+	author: Laurent (laurent@cazalet.org)
+
+	note: Do NOT delete or modify comments in the template files -
+-->
+
+
+<!-- templateHeader -->
+
+<style type="text/css">
+
+	.zfchannelstatus {
+		font-size: 9px;
+		color: #666;
+		
+	}
+
+
+	.fold, .logo {
+		display: inline-block;
+		margin: 0px;
+		padding: 1px;
+		margin-right: 5px;
+		vertical-align: middle;
+	}
+
+	.zfchannelbox {
+		background: #fff;		
+	}
+
+	.zfchannelbox img {
+		/*width: auto;
+		height: auto;*/
+		max-height: 64px;
+	}
+
+	.newsitem {
+		margin: 5px;
+		padding: 5px;
+		border-bottom: 1px solid #bbb;
+		display: inline-block;
+		max-width: 300px;
+		vertical-align: top;
+	}
+
+	.newstitle {
+		padding: 3px;
+		font-size: 160%;
+		font-weight: bold;
+		font-family: Helvetica, sans-serif;
+	}
+	.newstitle a { 
+		color: #000; 
+	}
+
+	.newsdesc a:hover {
+		text-decoration: underline;
+	}
+	
+	.newsdesc {
+		padding-bottom:25px;
+		font-size:14pt;
+		font-family: Times New Roman, Georgia, serif;
+		text-align:left;
+	}
+
+	
+	.newsdesc img {
+		float: right;
+		margin: 25px;
+		border: 1px solid #888;
+	}
+
+	.summary {
+		text-align:left;
+		text-indent:15px;
+		font-size:12pt;
+		font-family: Times New Roman, Georgia, serif;
+		overflow: hidden;
+	}
+
+	.summary img {
+		display: block;
+		width: auto;
+		height: auto;
+		max-width: 50%;
+		margin: 10px;
+	}
+	
+	.chanlink {
+		font-family: Palatino, Georgia, Times New Roman, serif;
+		margin-left: 0px;
+		vertical-align: middle;		
+	}
+
+
+	.chanlink a {
+		font-size: 140%;
+		font-weight: bold;
+		text-decoration: none;
+	}
+
+	.controls {
+		vertical-align: middle;
+		float: right;
+		margin: 5px;
+		height: 12px;
+		width: auto;
+	}
+
+	.datelabel, .dateline {
+		color: #999;
+		font-size: 60%;
+		text-align: right;
+	}
+
+	.chantitle {
+		color: #AAA;
+		text-align: right;
+	}
+	
+	.chantitle a:link {
+		color: #777;
+	}
+	
+	.enclosure {
+		color: #229;
+		font-size: 90%;
+		text-decoration: none;
+	}
+
+	.enclosure a {
+		text-decoration: underline;
+	}
+	
+	section {/*
+		-webkit-column-count:3;
+		-moz-column-count:3;
+		column-count:3;
+		-webkit-column-rule:1px solid #BBB;
+		-moz-column-rule:1px solid #BBB;
+		column-rule:1px solid #BBB;
+		-webkit-column-gap:30px;
+		-moz-column-gap:30px;
+		column-gap:30px;*/
+		border-bottom: 3px double black;
+		padding-top: 20px;
+		padding-bottom: 20px;
+	}
+	.sectionhead {
+		font-size: 150%;
+		background-color:#DDD;
+		border-radius: 10px;
+		padding: 10px;
+		border-bottom:: 1px solid #BBB;
+		border-right: 1px solid #BBB;
+		font-family: Palatino, Georgia, Times New Roman, serif;
+		margin-top: 20px;
+	}
+
+	.articlewrapper {
+		width:80%; 
+		margin:0 auto;
+		padding-top: 25px; 
+		padding-bottom:25px;
+	}
+	
+	.chantitlewrapper {
+		margin:0 auto;
+		text-align:left;
+		font-size:150%;
+	}
+
+</style>
+<!-- ENDtemplateHeader -->
+
+
+<!-- header -->
+<!-- ENDheader -->
+<!-- listHeader -->
+<!-- ENDlistHeader -->
+<!-- channel -->
+<div class="sectionhead">
+	<div class="controls">
+		<span class="dateline">
+			last updated: {lastupdated}
+		</span>
+		{morebutton}
+		{refreshbutton}
+	</div>
+	<div class="chanlink">
+		<div class="logo">
+			{chanfavicon}
+		</div>
+		<a href="{chanlink}">{chantitle}</a>
+	</div>
+</div>
+<section>
+<!-- ENDchannel -->
+<!-- news -->
+<div class="newsitem">
+	<div class="newstitle">
+		<a href="{articleurl}">{title}</a>&nbsp; 
+		<a href="{link}" title="{chantitle}">&raquo;&raquo;</a>
+	</div> <!-- end newstitle -->
+	<div class="summary">
+		<span class="datelabel">{relativedate}</span>&nbsp;::&nbsp;{summary} {readfullnewslink}
+	</div>
+</div> <!-- end newsitem -->
+ <!-- ENDnews -->
+<!-- newsDay -->
+<div class="sectionhead">
+	{date}
+</div>
+<section>
+<!-- ENDnewsDay -->
+<!-- newsDayFooter -->
+</section>
+<!-- ENDnewsDayFooter -->
+<!-- channelFooter -->
+</section>
+<!-- ENDchannelFooter -->
+<!-- footer -->
+<!-- ENDfooter -->
+<!-- dynamicDescription -->
+<div class="articlewrapper">
+	<div class="chantitlewrapper">
+		<div class="newstitle"><a href="{link}" title="{chantitle}">{title}</a></div>
+		{chantitle}
+		<span class="enclosure">{enclosures}</span>
+	</div>
+	<div class="newsdesc">
+		{description}
+	</div>
+</div>
+<!-- ENDdynamicDescription -->
+<!-- between -->
+<!-- ENDbetween -->

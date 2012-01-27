@@ -1,0 +1,56 @@
+<!--	ZebraFeeds template
+	name / description: bluelogos / simple html tables blue scheme with channel logos (images)
+	author: AB
+	note: Do NOT delete or modify comments in the template files
+-->
+
+<!-- templateHeader -->
+<!-- ENDtemplateHeader -->
+
+<!-- header -->
+ <table width="100%" cellpadding="0" cellspacing="0">
+<!-- ENDheader -->
+  <!-- channel -->
+  <tr>
+     <td> <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#66CCFF">
+         <tr>
+          <td height="19" align="right" valign="middle"> <font face="Verdana, Arial, Helvetica, sans-serif" size="2"><a href="{chanlink}" title="{chandesc}" target="_blank">{chantitle}</a></font>&nbsp;&nbsp;&nbsp;{hidebutton}</td>
+          <td width="1" align="right" valign="middle">&nbsp;</td>
+        </tr>
+       </table>
+      <br /> </td>
+   </tr>
+  <!-- ENDchannel -->
+  <!-- news -->
+  <tr align="left" valign="middle">
+     <td bgcolor="#E7F6FF"><font face="Verdana, Arial, Helvetica, sans-serif" size="2"> &nbsp;<a href="{link}" title="{link}" target="_blank">{pubdate}&nbsp;{title}</a> </font></td>
+   </tr>
+  <tr align="left">
+     <td bgcolor="#FBFBFB"><font face="Verdana, Arial, Helvetica, sans-serif" size="2">{description}</font></td>
+   </tr>
+  <!-- ENDnews -->
+<!-- newsByDate -->
+  <tr align="left" valign="middle">
+     <td bgcolor="#E7F6FF"><font face="Verdana, Arial, Helvetica, sans-serif" size="2"> &nbsp;<a href="{link}" title="{link}" target="_blank">{title}</a> <em>{chantitle}</em></font></td>
+   </tr>
+  <tr align="left">
+     <td bgcolor="#FBFBFB"><font face="Verdana, Arial, Helvetica, sans-serif" size="2">{description}</font></td>
+   </tr>
+<!-- ENDnewsByDate -->
+<!-- newsDay -->
+  <tr>
+     <td> <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#66CCFF">
+         <tr>
+          <td height="19" align="right" valign="middle"> <font face="Verdana, Arial, Helvetica, sans-serif" size="2">{date}</font></td>
+					<td width="1" align="right" valign="middle">&nbsp;</td>
+        </tr>
+       </table>
+      <br /> </td>
+   </tr>
+<!-- ENDnewsDay -->
+ <!-- footer -->
+</table>
+<!-- ENDfooter -->
+<!-- between -->
+<br />
+<!-- ENDbetween -->

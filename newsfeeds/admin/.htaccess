@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "protected area"
+AuthUserFile /data/www/org/t/e/cazalet.org/www/htdocs/secur/.htpasswd_perso
+require valid-user

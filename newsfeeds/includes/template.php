@@ -1,0 +1,627 @@
+<?php
+// ZebraFeeds - copyright (c) 2006 Laurent Cazalet
+// http://www.cazalet.org/zebrafeeds
+//
+// zFeeder 1.6 - copyright (c) 2003-2004 Andrei Besleaga
+// http://zvonnews.sourceforge.net
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+// GNU General Public License for more details.
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+
+// ZebraFeeds template management
+
+if (!defined('ZF_VER')) exit;
+
+require_once($zf_path . 'includes/common.php');
+
+class template {
+	/* properties {{{*/ 
+	var $name;
+
+	var $pageHeader;
+	var $header;
+	var $footer;
+	var $channel;
+	var $channelFooter ;
+	var $newsDay;
+	var $newsDayFooter;
+	var $news;
+	var $newsByDate;
+	var $between;
+	var $dynamicDescription;
+
+	var $hasButtons;
+	var $isDynamic;
+	var $isInvalid;
+
+	// optional tags to convert
+	var $_optionsTags;
+	// option to convert everything using htmlspecialchars 
+	var $_useSpecialChars;
+	var $_wrappingType; 
+	var $_showDisplayButtons;
+	var $_showDynamicButtons;
+	var $_useStandardDateFormat;
+
+	var $_html;
+	// string for the template part being parsed. contained semi-processed output
+	var $_buffer;
+	var $_filename;/*}}}*/
+
+	function template($name) {
+		$this->pageHeader = '';
+		$this->header = '';
+		$this->footer = '';
+		$this->channel = '';
+		$this->channelFooter = '';
+		$this->listHeader = '';
+		$this->listFooter = '';
+		$this->newsDay = '';
+		$this->newsDayFooter = '';
+		$this->news = '';
+		$this->newsByDate = '';
+		$this->between = '';
+		$this->dynamicDescription = '';
+
+		$this->hasButtons = false;
+		$this->isDynamic = false;
+		$this->isInvalid = false;
+
+		$this->_html = '';
+		// string for the template part being parsed. contained semi-processed output
+		$this->_buffer = '';
+		$this->_filename = '';
+		$this->_optionsTags = array();
+
+		// rendering options
+		$this->_useSpecialChars = false;
+		$this->_showDisplayButtons = true;
+		$this->_showDynamicButtons = true;
+		$this->_useStandardDateFormat = false;
+		$this->_dynamicMode = false;
+
+		/* wrapping types: ways to format the output
+		supported values: 
+		"none", just echo
+		"js", wraps the output into javascript code
+		*/
+		$this->_wrappingType = 'none';
+
+		$this->name = $name;
+		if (file_exists($this->_getFileName())) {
+			$this->load();
+		}
+	}
+
+	function load() {
+
+		$this->_loadFile();
+		/* here are our template parts */
+		$this->pageHeader	  = $this->_extractSection('templateHeader');
+		$this->header		  = $this->_extractSection('header','',true);
+		$this->footer		  = $this->_extractSection('footer','',true);
+		$this->listHeader     = $this->_extractSection('listHeader','',true);
+		$this->listFooter     = $this->_extractSection('listFooter','',true);
+		$this->channel		  = $this->_extractSection('channel'); 
+		$this->channelFooter  = $this->_extractSection('channelFooter', '', true); 
+		$this->news			  = $this->_extractSection('news');
+		$this->newsByDate	  = $this->_extractSection('newsByDate', 'news');
+		$this->newsDay		  = $this->_extractSection('newsDay','',true);
+		$this->newsDayFooter  = $this->_extractSection('newsDayFooter', 'channelFooter', true);
+		$this->between		  = $this->_extractSection('between','',true);
+		$this->dynamicDescription	  = $this->_extractSection('dynamicDescription');
+
+		// dynamicnews tag can be either in pageHeader or in header
+		$this->isDynamic = strpos($this->header, '{dynamicnews}') || strpos($this->pageHeader, '{dynamicnews}');
+		// unset to free memory
+		unset($this->_html);
+	}
+
+	/* buffer print: format optional tags, and sends to print 
+	use this function if we have to process the optional tags*/
+	function _printBuffer() {
+		//last pass at tags substitution
+		$this->_formatOptions();
+
+		if ($this->_wrappingType == 'js') {
+			$this->javascriptOutput($this->_buffer);
+		} else {
+			echo $this->_buffer;
+		}
+		unset($this->_buffer);
+
+	}
+
+	// simple print of a string, without any formatting
+	function _print($output) {
+		if ($this->_wrappingType == 'js') {
+			$this->javascriptOutput($output);
+		} else {
+			echo $output;
+		}		
+	}
+
+	function javascriptOutput(&$output) {
+		// remove all eol chars and escape single quotes
+		echo "document.write('".str_replace(array("\r","\n","'"), array("", "", "\\'"), $output)."');\n";
+	}
+
+	function printPageHeader() {
+		$this->_buffer = $this->pageHeader;
+		$this->_formatCommon();
+		$this->_formatDynamicCode();
+		$this->_printBuffer();
+	}
+
+	function printHeader() {
+		$code = '';
+		if ($this->hasButtons) {
+			$code .= '<script type="text/javascript" id="head" src="'.ZF_URL.'/zfcontrol.js"></script>';
+		}
+		if ($this->hasButtons || $this->isDynamic) {
+			$code .= '<script type="text/javascript">var ZFURL="'.ZF_URL.'"; var ZFTEMPLATE="'.$this->name.'";</script>';
+			$this->_buffer = $code. "\n". $this->header;
+			$this->_formatDynamicCode();
+		} else {
+			$this->_buffer = $this->header;
+		}
+		$this->_formatCommon();
+		// allow options in this sections, for RSS feed generation
+		$this->_formatOptions();
+		$this->_printBuffer();
+	}
+
+	function printListHeader(&$feed) {
+		$this->_buffer = $this->listHeader;
+		$this->_formatCommon();
+		// allow options in this sections, for RSS feed generation
+		$this->_formatOptions();
+		$this->_printBuffer();
+	}
+
+
+	function _formatDynamicCode() {
+		$this->_buffer = str_replace('{dynamicnews}', '<script type="text/javascript" src="'.ZF_URL.'/zfclientside.js"></script>', $this->_buffer);
+
+	}
+
+
+	function printNews(&$item, $unfold) {
+		$this->_buffer = $this->news;
+		$this->_formatCommon();
+		$this->_formatChannel($item['channel']);
+		$this->_formatNews($item, $unfold);
+		$this->_printBuffer();
+
+	}
+
+	function printNewsByDate(&$item, $unfold) {
+		$this->_buffer = $this->newsByDate;
+		$this->_formatCommon();
+		$this->_formatChannel($item['channel']);
+		$this->_formatNews($item, $unfold);
+		$this->_printBuffer();
+	}
+
+	/* normally called in ajax requests when containing
+	element is always the same	*/
+	function printDynamicDescription(&$item) {
+		$this->_buffer = $this->dynamicDescription;
+		$this->_dynamicMode = true;
+		$this->_formatCommon();
+		$this->_formatChannel($item['channel']);
+		$this->_formatNews($item, true);
+		$this->_printBuffer();
+		$this->_dynamicMode = false;
+	}
+
+	function printFooter() {
+		$this->_buffer = $this->footer;
+		$this->_formatCommon();
+		$this->_printBuffer();
+
+	}
+	function printListFooter() {
+		$this->_buffer = $this->listFooter;
+		$this->_formatCommon();
+		$this->_printBuffer();
+
+	}
+
+	function printDay($date) {
+		$this->_print( str_replace('{date}', $date, $this->newsDay));
+	}
+
+	function printDayFooter($date) {
+		$this->_print(str_replace('{date}', $date, $this->newsDayFooter));
+	}
+
+	function printBetween() {
+		$this->_buffer = $this->between;
+		$this->_printBuffer();
+	}
+
+
+	function printChannel(&$feed) {
+		$channel = $feed->channel;
+		$last_fetched = $feed->last_fetched;
+
+		$this->_buffer = $this->channel;
+		$this->_formatCommon();
+		$this->_formatChannel($channel);
+
+		/* now, replace the channel header specific tags */
+		
+		if ($last_fetched >0) {
+			if ($this->_useStandardDateFormat) {
+				$chantime = date('r', $last_fetched);
+			} else {
+				$chantime = zf_transcode(strftime(ZF_PUBDATEFORMAT, $last_fetched));
+			} 
+		} else {
+			$chantime = "?";
+		}	 
+
+		$this->_buffer = str_replace('{lastupdated}', $chantime, $this->_buffer);
+
+		/* controls */		  
+		/* Hide button */
+		if ($this->_showDisplayButtons) {
+			$button = '<span style="cursor: pointer" onclick="toggleVisibleById(\'ZFCHANNEL'.$channel['id'].'\', \'block\'); return false;"><img src="'.ZF_URL.'/images/close.png" border="0" alt="hide" title="Hide"/></span>';
+		} else {
+			$button = '';
+		}
+		$this->_buffer = str_replace('{hidebutton}', $button, $this->_buffer);
+
+		/* fold button */
+		if ($this->_showDisplayButtons) {
+			$button = '<span style="cursor: pointer" onclick="toggleVisibleById(\'ZFCHANNELITEMS'.$channel['id'].'\', \'block\'); return false;" title="Fold"><img src="'.ZF_URL.'/images/fold.png" border="0" alt="fold" title="fold/unfold news"/></span>';
+		} else {
+			$button = '';
+		}
+		$this->_buffer = str_replace('{foldbutton}', $button, $this->_buffer);
+
+		/* More button */
+		if ($this->_showDynamicButtons) {
+			$button = '<span style="cursor: pointer" onclick="getAllItems(\''.htmlspecialchars($channel['xmlurl']).'\','.$feed->refreshTime.'); return false;" title="Get all items"><img src="'.ZF_URL.'/images/more.png" border="0" alt="more" title="see all news"/></span>';
+		} else {
+			$button = '';
+		}
+		$this->_buffer = str_replace('{morebutton}', $button, $this->_buffer);
+
+		/* Refresh button */
+		if ($this->_showDynamicButtons) {
+			$button = '<span style="cursor: pointer" onclick="refreshChannel(\''.htmlspecialchars($channel['xmlurl']).'\','.$feed->showedItems.','.$feed->refreshTime.'); return false;" title="Force refresh"><img src="'.ZF_URL.'/images/refresh.png" border="0" alt="refresh" title="refresh feed"/></span>';
+		} else {
+			$button = '';
+		}
+		$this->_buffer = str_replace('{refreshbutton}', $button, $this->_buffer);
+
+		$this->_printBuffer();
+
+	}
+
+	function printChannelFooter() {
+		if (!empty($this->channelFooter)) {
+			$this->_buffer = $this->channelFooter;
+			$this->_printBuffer();
+		}
+
+	}
+
+
+	/* process tags that can be in any part of the template 
+	*/
+	function _formatCommon() {
+		$this->_buffer = str_replace('{scripturl}', ZF_URL, $this->_buffer);
+	}
+
+	function _formatOptions(){
+		/* do options */
+		foreach($this->_optionsTags as $tag => $value) {
+			$this->_buffer = str_replace('{'.$tag.'}', $value, $this->_buffer);
+		}
+	}
+
+	/* process channel-related template tags 
+	*/
+	function _formatChannel(&$channel) {
+		$schannel = $channel;
+		if ($this->_useSpecialChars) {
+			$schannel['title'] = htmlspecialchars($channel['title'], ENT_QUOTES);
+			$schannel['description'] = htmlspecialchars($channel['description'], ENT_QUOTES);
+			//$schannel['image']['title'] = htmlspecialchars($channel['image']['title'], ENT_QUOTES);
+		} 
+		$schannel['link'] = htmlspecialchars($channel['link'], ENT_QUOTES);
+		$schannel['xmlurl'] = htmlspecialchars($channel['xmlurl'], ENT_QUOTES);
+
+		if (isset($channel['logo']) && ($channel['logo'] != "")) {
+			$schannel['logo'] = htmlspecialchars($channel['logo'], ENT_QUOTES);
+			$this->_buffer = str_replace('{chanlogo}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['logo']. "\" border=\"0\" alt=\"" . $schannel['title']. "\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
+		} else {
+			$this->_buffer = str_replace('{chanlogo}', '', $this->_buffer);
+		}
+
+		if (isset($channel['favicon']) && ($channel['favicon'] != "")) {
+			$schannel['favicon'] = htmlspecialchars($channel['favicon'], ENT_QUOTES);
+			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['favicon']. "\" border=\"0\" width=\"16\" height=\"16\" halt=\"" . $schannel['title']. "\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
+		} else {
+			$this->_buffer = str_replace('{chanfavicon}', '', $this->_buffer);
+		}
+		
+		$this->_buffer = str_replace('{chanlink}', $schannel['link'], $this->_buffer);
+		$this->_buffer = str_replace('{chanid}', $schannel['id'], $this->_buffer);
+		$this->_buffer = str_replace('{chandesc}', $schannel['description'], $this->_buffer);
+
+		$this->_buffer = str_replace('{chantitle}', $schannel['title'], $this->_buffer);
+		$this->_buffer = str_replace('{feedurl}', $schannel['xmlurl'], $this->_buffer);
+
+	}
+
+	/* process item-related template tags 
+	*/
+	function _formatNews(&$item, $unfolded) {
+		$sitem = $item;
+		if ($this->_useSpecialChars) {
+			$sitem['title'] = htmlspecialchars($item['title'], ENT_QUOTES);
+			$sitem['description'] = htmlspecialchars($item['description'], ENT_QUOTES);
+			$sitem['summary'] = htmlspecialchars($item['summary'], ENT_QUOTES);
+		} 
+		$sitem['link'] = htmlspecialchars($item['link'], ENT_QUOTES);
+
+		$this->_buffer = str_replace('{itemid}', $item['id'], $this->_buffer);
+		$this->_buffer = str_replace('{link}', $sitem['link'], $this->_buffer);
+		$this->_buffer = str_replace('{link_encoded}', urlencode($sitem['link']), $this->_buffer);
+		if (isset($item['date_timestamp']) && ($item['date_timestamp'] != -1)) {
+			if ($this->_useStandardDateFormat) {
+				$pubdate = date('r', $item['date_timestamp']);
+			} else {
+				$pubdate = zf_transcode(strftime(ZF_PUBDATEFORMAT, date($item['date_timestamp'])));
+			}
+		} else {
+			$pubdate = $item['pubdate'];
+			//$pubdate='';
+		}
+
+		$this->_buffer = str_replace('{pubdate}', $pubdate, $this->_buffer);
+		$this->_buffer = str_replace('{relativedate}', getRelativeTime($item['date_timestamp']), $this->_buffer);
+		$this->_buffer = str_replace('{title}', $sitem['title'], $this->_buffer);
+		if (ZF_NEWITEMS!='no' && isset($item['isnew']) && $item['isnew']) {
+			$this->_buffer = str_replace('{isnew}', ZF_ISNEW_STRING, $this->_buffer);
+
+		} else {
+			$this->_buffer = str_replace('{isnew}', '', $this->_buffer);
+		}
+
+		/* description */
+		$this->_buffer = str_replace('{description}', $sitem['description'], $this->_buffer);
+
+		$this->_formatEnclosures($item);
+
+		$hasSummary = strpos( $this->_buffer, '{summary}');
+		$this->_buffer = str_replace('{summary}', $sitem['summary'], $this->_buffer);
+
+		// now craft the link to article according to the settings
+		$articlelinktype = $item['channel']['articlelink'];
+		$zfarticleurl = ZF_HOMEURL.'?type=article&itemid='.$item['id'].'&xmlurl='.urlencode($item['channel']['xmlurl']);
+		$zfprocessedarticleurl = str_replace('%s', urlencode($item['link']), ZF_ARTICLELINKPROCESSOR);
+
+		if ($articlelinktype == 'original' ) {
+			$zfarticleurl = $sitem['link'];
+		} else if ($articlelinktype == 'processed' ) {
+			$zfarticleurl = $zfprocessedarticleurl;
+		}
+		
+		if ($hasSummary && $item['istruncated'])
+			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';
+		else
+			$readmorelink = '';
+		$this->_buffer = str_replace('{readfullnewslink}', $readmorelink, $this->_buffer);
+		$this->_buffer = str_replace('{articleurl}', $zfarticleurl, $this->_buffer);
+		$this->_buffer = str_replace('{processedarticleurl}', $zfprocessedarticleurl, $this->_buffer);
+
+
+		// for RSS feeds only
+		$this->_buffer = str_replace('{guid}', md5($sitem['link']), $this->_buffer);
+
+		//if we are not already processing an dynamic description
+		if (!$this->_dynamicMode) {
+			$this->_formatDynamicDescription($item, $unfolded);
+		}
+
+	}
+
+
+	function _formatDynamicDescription(&$item, $unfolded) {
+		// do we find an dynamic_description tag?
+		if (strpos($this->_buffer, '{dynamic_description}') !== false) {
+
+			$this->_dynamicMode = true;
+
+			// save our state
+			$currentBuffer = $this->_buffer;
+
+			// generate the dynamic description in a separate buffer
+			$this->_buffer = $this->dynamicDescription;
+			$this->_formatCommon();
+			$this->_formatChannel($item['channel']);
+			$this->_formatNews($item, true);
+			$dynamic = $this->_buffer;
+
+			// put our buffer back
+			$this->_buffer = $currentBuffer;
+			$this->_dynamicMode = false;
+
+
+			if ($this->isDynamic && ZF_DYNAMICNEWSLENGTH > 0 ) {
+				/* for news shorter than a certain number of characters
+				send them right away to the browser, instead of making it ask for them dynamically 
+				*/
+				if ((strlen($item['description']) < ZF_DYNAMICNEWSLENGTH))	{
+//echo "show dynamic: ".strlen($item['description']);
+						$descToShow = $dynamic;
+				} else {
+//echo "show nothing".strlen($item['description']);	   
+					$descToShow = '';
+				}
+
+				/* if the news has to be forced open, we show it anyway, 
+				* and fill the div with the content, whatever its length */
+				if ($unfolded){
+					$descToShow = $dynamic;
+					$display = 'block';
+				} else {
+					$display = 'none';
+				}
+
+
+				/* we don't have to show only the headlines, so put also the description */
+
+				/* if we the item content is not empty, style it up */
+				if (strlen($descToShow)>0) {
+					$class = 'class="zfnewscontent"';
+				} else {
+					$class = '';
+				}
+
+
+				$this->_buffer = str_replace('{dynamic_description}', 
+						'<div '.$class.
+						' id="ZFCONTENT'.$item['id'].
+						'" style="display: '.$display.';">'.
+						$descToShow.'</div>', 
+						$this->_buffer);
+
+			} else {
+				// normal case: display dynamic description
+				$this->_buffer = str_replace('{dynamic_description}', $dynamic, $this->_buffer);
+			}
+		} // dynamic_description found?
+	}
+
+	
+	function _formatEnclosures(&$item) {
+		// enclosures
+		$enclosurelist = "";
+		if (isset($item['enclosures'])) {
+			if ($this->name == 'SYSTEM.rss') {
+				foreach($item['enclosures'] as $enclosure) {
+					$enclosurelist .= ' <enclosure url="'.$enclosure['link'].'" length="'.$enclosure['length'].'" type="'.$enclosure['type'].'" />';
+				}
+			
+			} else {
+				foreach($item['enclosures'] as $enclosure) {
+					//special treatment for images: inline
+					if (!(strpos($enclosure['type'], 'image') === false)) {
+						$enclosurelist .= '<img src="'.$enclosure['link'].'" style="margin: 4px" border="0" alt="embedded image"/>';
+						continue;
+					}
+
+					$icon = $enclosure['type'];
+					$title= 'Undetected file';
+					if (!(strpos($enclosure['type'], 'audio') === false)) {
+						$icon = '<img src="'.ZF_URL.'/images/audio.png" border="0" alt="Audio content"/>';
+						$title = 'Audio content.';
+					}
+					if (!(strpos($enclosure['type'], 'video') === false)) {
+						$icon = '<img src="'.ZF_URL.'/images/video.png" border="0" alt="Video content"/>';
+						$title = 'Video content.';
+					}
+					// nice output format for the size
+					$size = sprintf("%01.2f MB",$enclosure['length'] / 1048576);
+					$enclosurelist .= ' <a href="'.htmlentities($enclosure['link']).
+					'" title="'.$title.' Size: '.$size.'">'.
+					$icon.'</a> ';					   
+				}
+			}
+		} else {
+			// give nbsp to avoid aving a possible empty span or div that breaks the validation
+			if ($this->name !== 'SYSTEM.rss') {
+				$enclosurelist = ' ';
+			}
+		}
+		$this->_buffer = str_replace('{enclosures}', $enclosurelist, $this->_buffer);
+
+	}
+
+
+	/* parse the template file. looks for the string in $section to extract parts 
+	delimited by $section and "END".$section
+	if section is not found, can optionally use a substitute 
+	otherwise returns an empty string and marks template as invalid, unless optional is true*/
+	function _extractSection($section, $substitute='', $optional=false) {
+		$startdelim='<!-- ' . $section . ' -->';
+		$len = strlen($startdelim);
+		$startPos = strpos($this->_html, $startdelim);
+		$endPos = strpos($this->_html, '<!-- END' . $section . ' -->');
+		// do we find our markers?
+		if ($startPos != false && $endPos != false) {
+			$result = substr($this->_html, $startPos + $len, ($endPos - $startPos- $len));
+			// check for buttons in template, to allow the string to appear in comments
+			$this->hasButtons = $this->hasButtons || strpos($result, 'button}');
+
+		} else if (!empty($substitute)) {
+			// we have a replacement
+			$result = $this->_extractSection($substitute,'', $optional);
+		} else {
+			$result = '';
+			// if the section is not optional, make sure we mark the template as invalid
+			$this->isInvalid = $this->isInvalid || (!$optional);
+		}
+		return($result);
+	}
+
+	function _getFileName(){
+		global $zf_path;
+		return $zf_path .'templates/'.$this->name.'.html';
+	}
+
+	function _loadFile() {
+		// could use file_get_contents, but it would require php >= 4.3.0
+		$this->_html = '';
+		$htmlData = '';
+		$temp = file($this->_getFileName());
+		foreach($temp as $i => $htmlData) {
+			$this->_html .= $htmlData;
+		}
+	}
+
+	/* add options tags that will be 
+	replaced once for all after rendering
+	$tags: associative array */
+	function addTags($tags) {
+		$this->_optionsTags = array_merge($this->_optionsTags, $tags);
+	}
+
+	/* set the useSpecialChars options */
+	function enableSpecialChars() {
+		$this->_useSpecialChars = true;
+	}
+
+	function useStandardDateFormat() {
+		$this->_useStandardDateFormat = true;
+	}
+	/* do not render the hide and fold buttons
+	   to use only in per-channel views */
+	function disableDisplayButtons() {
+		$this->_showDisplayButtons = false;
+	}
+
+	/* do not render the more and refresh buttons - 
+	   must be disabled when showing list of aggregated news (as opposed as per channel) */
+	function disableDynamicButtons() {
+		$this->_showDynamicButtons = false;
+	}
+}
+
+?>

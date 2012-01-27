@@ -1,0 +1,47 @@
+<!--	ZebraFeeds template
+	name / description: modern / template with embedded styles
+	author: Laurent Cazalet
+	note: Do NOT delete or modify comments in the template files
+
+-->
+
+<!-- templateHeader -->
+<!-- ENDtemplateHeader -->
+
+<!-- header -->
+<div style="border: 1px dashed #15253d; margin: 10px; padding: 5px; max-width: 450px;">
+<!-- ENDheader -->
+<!-- channel -->
+<div style="margin: 15px; background-color: #DEDEDE;border: 1px solid #999;">
+		<div style="float: left">{chanlogo}</div>
+		<div style="float:right">
+				{hidebutton} {foldbutton}
+		</div>
+		<div style="color: #333; padding: 7px;">
+				<a href="{chanlink}" title="{chandesc}" target="_blank"><span>{chantitle}</span></a>
+				<a href="{feedurl}" title="RSS" target="_blank">(RSS)</a>
+		</div>
+</div>
+<!-- ENDchannel -->
+<!-- news -->
+<div>
+		<a href="{link}" target="_blank">{title}</a>
+		<span style="font-size: 80%">{pubdate}</span>
+</div>
+<!-- ENDnews -->
+<!-- newsByDate -->
+<div style="margin-left: 2px">
+		<div style="margin: 2px">&raquo;&nbsp;<a href="{link}" target="_blank">{title}</a> ({chantitle})</div>
+</div>
+<!-- ENDnewsByDate -->
+<!-- newsDay -->
+<div style="font-size: 80%; background-color: #cbf; padding:2px; margin-left: 5px; margin-right: 5px; margin-top: 20px">
+		Published on {date}
+</div>
+<!-- ENDnewsDay -->
+<!-- footer -->
+    </div>
+<!-- ENDfooter -->
+<!-- between -->
+<!-- ENDbetween -->
+

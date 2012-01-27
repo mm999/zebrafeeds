@@ -1,0 +1,51 @@
+/* Zebrafeeds login page */
+
+
+html, body{
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	background: #dbca95;
+	font-size: 12px;
+	font-family: Verdana, Arial, Helvetica, sans-serif
+}
+
+a:link {
+	color: #000;
+}
+
+a:visited {
+	color: #000;
+}
+
+a:hover {
+	color: #ff9000;
+	text-decoration: none;
+}
+
+a:active {
+	color: blue
+}
+/* Login form 
+ ------------------------ */
+#loginform {
+	text-align: center;
+	margin: 10px auto 10px auto;
+	padding: 20px 40px;
+	width: 200px;
+/*	background: #fff;*/
+}
+
+#user,#pass {
+	text-align: left;
+	margin: 0 auto 30px auto;
+}
+#user input, #pass input {
+	width: 200px;
+}
+.accessdenied {
+	margin: 40px;
+	font-size: 1.5em;
+	font-weight: bold;
+	color: #F00;
+}

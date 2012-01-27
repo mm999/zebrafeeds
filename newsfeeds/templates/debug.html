@@ -1,0 +1,130 @@
+<!--    ZebraFeeds tests template
+
+-->
+
+<!-- templateHeader -->
+
+<!-- SIMPLE TEST TEMPLATE HEADER -->
+<!-- ENDtemplateHeader -->
+
+<!-- header -->
+<pre>
+---
+HEADER scripturl        {scripturl}
+---
+</pre>
+<!-- ENDheader -->
+<!-- channel -->
+<pre>
+---
+CHANNEL chanid          {chanid}
+CHANNEL chantitle       {chantitle}
+CHANNEL chanlink        {chanlink}
+CHANNEL chandesc        {chandesc}
+CHANNEL chanlogo        {chanlogo}
+CHANNEL feedurl         {feedurl}
+CHANNEL lastupdated     {lastupdated}
+
+CHANNEL morebutton      {morebutton}
+CHANNEL refreshbutton   {refreshbutton}
+CHANNEL hidebutton      {hidebutton}
+CHANNEL foldbutton      {foldbutton}
+
+CHANNEL list            {list}
+--- end channel
+</pre>
+<!-- ENDchannel -->
+<!-- news -->
+<pre>
+        ---
+        NEWS title           {title}
+        NEWS pubdate         {pubdate}
+        NEWS link            {link}
+        NEWS itemid          {itemid}
+        NEWS isnew           {isnew}
+        
+        NEWS chantitle       {chantitle}
+        NEWS chanlink        {chanlink}
+        NEWS chandesc        {chandesc}
+        NEWS feedurl         {feedurl}
+        NEWS scripturl       {scripturl}
+        NEWS list            {list}
+        
+        NEWS description     <div style="display:none">{description}</div>
+        NEWS summary        <div style="display:block">{summary}</div>
+        NEWS enclosures      {enclosures}
+        NEWS dynamic_description  {dynamic_description}
+        ------ END NEWS
+</pre>
+<!-- ENDnews -->
+<!-- newsByDate -->
+<pre>
+        ---
+        NEWSBYDATE title           {title}
+        NEWSBYDATE pubdate         {pubdate}
+        NEWSBYDATE link            {link}
+        NEWSBYDATE itemid          {itemid}
+        NEWSBYDATE isnew           {isnew}
+        
+        NEWSBYDATE chantitle       {chantitle}
+        NEWSBYDATE chanlink        {chanlink}
+        NEWSBYDATE chandesc        {chandesc}
+        NEWSBYDATE feedurl         {feedurl}
+        NEWSBYDATE scripturl       {scripturl}
+        NEWSBYDATE list            {list}
+        
+        NEWSBYDATE description     <div style="display:none">{description}</div>
+        NEWSBYDATE summary         <div style="display:block">{summary}</div>
+        NEWSBYDATE enclosures      {enclosures}
+        NEWSBYDATE dynamic_description  {dynamic_description}
+        ------ end newsbydate
+</pre>
+<!-- ENDnewsByDate -->
+<!-- newsDay -->
+<pre>
+---
+NEWSDAY date            {date}
+------
+</pre>
+<!-- ENDnewsDay -->
+<!-- footer -->
+<pre>
+---
+FOOTER
+-----
+</pre>
+<!-- ENDfooter -->
+<!-- newsDayFooter -->
+<pre>
+---
+NEWSDAYFOOTER
+-----
+</pre>
+<!-- ENDnewsDayFooter -->
+<!-- between -->
+<pre>
+---
+BETWEEN
+-----
+</pre>
+<!-- ENDbetween -->
+<!-- dynamicDescription -->
+<pre>
+                    ---
+                    DYNAMIC title           {title}
+                    DYNAMIC pubdate         {pubdate}
+                    DYNAMIC link            {link}
+                    DYNAMIC isnew           {isnew}
+                    DYNAMIC chantitle       {chantitle}
+                    DYNAMIC chanlink        {chanlink}
+                    DYNAMIC chandesc        {chandesc}
+                    DYNAMIC feedurl         {feedurl}
+                    DYNAMIC scripturl       {scripturl}
+                    DYNAMIC list            {list}
+                    
+                    DYNAMIC description     <div style="display:none;">{description}"</div>
+                    DYNAMIC enclosures      {enclosures}
+                    DYNAMIC summary         <div style="display:block">{summary}</div>
+                    ------ end dynamic
+</pre>
+<!-- ENDdynamicDescription -->

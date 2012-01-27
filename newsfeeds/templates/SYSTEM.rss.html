@@ -1,0 +1,50 @@
+<!--	RSs export template
+	sname / description: SYSTEM.rss / RSS2 template
+	author: LC
+	
+	Warning: contains tags not normally supported in regular templates
+	and many sections are simply ignored. Feelfree to modify it to 
+	set stuff like language, or change the feed title
+
+	note: Do NOT delete or modify comments in the template files
+-->
+
+<!-- header --><?xml version="1.0" encoding="{encoding}"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xml:base="{publisherurl}">
+<!-- ENDheader -->
+<!-- channel --><channel>
+<title>{chantitle}</title>
+  <link>{publisherurl}</link>
+  <generator>ZebraFeeds</generator>
+  <description>{chandesc}</description>
+  <atom:link href="{feedurl}" rel="self" type="application/rss+xml" />
+<!-- ENDchannel -->
+<!-- news --> <item>
+   <title>{title} ({chantitle})</title>
+   <link>{link}</link>
+   <pubDate>{pubdate}</pubDate>
+   <description>{description}</description>
+   <guid isPermaLink="false">{guid}</guid>
+   {enclosures}
+ </item>
+<!-- ENDnews -->
+<!-- channelFooter --></channel>
+<!-- ENDchannelFooter -->
+<!-- footer --></rss>
+<!-- ENDfooter -->
+
+
+
+<!-- templateHeader -->
+<!DOCTYPE rss [<!ENTITY % HTMLlat1 PUBLIC "-//W3C//ENTITIES Latin 1 for XHTML//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent">]>
+ignored
+<!-- ENDtemplateHeader -->
+<!-- newsDay -->
+ignored
+<!-- ENDnewsDay -->
+<!-- newsByDate -->
+ignored
+<!-- ENDnewsByDate -->
+<!-- between -->
+ignored
+<!-- ENDbetween -->

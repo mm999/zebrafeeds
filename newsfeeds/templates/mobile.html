@@ -1,0 +1,51 @@
+<!--	ZebraFeeds template
+	name / description: Mobile template
+	author: Laurent Cazalet
+	note: Do NOT delete or modify comments in the template files
+
+-->
+
+<!-- templateHeader -->
+<style type="text/css">
+body {color:#333;background:#AAA;margin:0;padding:0;}
+a img {border:none;}
+#blackberrywrap {margin: 4px;padding:3px; background-color:#fff; border:1px solid #888;}
+hr{display:none;}
+h1,h2{font-size:1.4em;line-height:1.2;}
+.item{position:relative;clear:left;padding:10px 20px 10px 5px;border-bottom:1px solid;}
+.item h2,.item h3{border-right:1px solid;padding-right:5px;}
+.item a{text-decoration:none;color:#34A}
+.source{font-size:0.6em;color:#999}
+.desc{color:#444;padding:3px;text-align:left;overflow:hidden}
+.desc a, .source a{text-decoration:none;color:#444}
+.desc img{display:block; max-width:100%}
+.desc blockquote{margin-left: 2em}
+.zfchannelstatus{font-size:0.6em;color:#888}
+</style>
+<!-- ENDtemplateHeader -->
+
+<!-- header -->	
+<div id="blackberrywrap">
+<!-- ENDheader -->
+<!-- channel -->
+<!-- ENDchannel -->
+<!-- news -->
+<div class="item"><a href="{articleurl}">{title}</a>&nbsp;<br/><span class="source"> {chantitle}, {relativedate} </span></div>
+<!-- ENDnews -->
+<!-- dynamicDescription -->
+<div id="blackberrywrap">
+<div class="item"><a href="{processedarticleurl}">{title}</a><br/><span class="source">{chantitle}, {pubdate}</span> 
+</div>
+<div class="desc">{description}</div>
+</div>
+<!-- ENDdynamicDescription -->
+<!-- newsDay -->
+<!-- ENDnewsDay -->
+<!-- footer -->
+</div>
+<!-- ENDfooter -->
+<!-- newsDayFooter -->
+<!-- ENDnewsDayFooter -->
+<!-- between -->
+<!-- ENDbetween -->
+

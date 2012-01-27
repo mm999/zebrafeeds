@@ -1,0 +1,283 @@
+<!--	ZebraFeeds template
+	name / description: newsflow
+	author: Laurent (laurent@cazalet.org)
+
+	note: Do NOT delete or modify comments in the template files -
+-->
+
+
+<!-- templateHeader -->
+
+<style type="text/css">
+
+#zfwrapper {
+	margin-bottom: 1px;
+	display: block;
+	font-family: Times New Roman, serif;
+}
+
+.zfchannelstatus {
+	font-size: 9px;
+	background-color: #eeeeee;
+	color: #666;
+	margin-right: 3px;
+}
+
+.logo {
+	float: left;
+	margin: 0px;
+	padding: 1px;
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+.channel {
+	vertical-align: middle;
+	padding: 1px;
+}
+
+.channel img {
+	max-height: 16px;
+}
+
+
+.newsitem {
+}
+
+.newstitle {
+	padding: 5px;
+	margin-bottom: -1px;
+	border: 1px solid #dde;
+}
+
+.newstitle img {
+	margin-right: 4px;
+}
+
+.newsdesc {
+	text-align: left;
+}
+
+.newsdesc a:hover {
+	text-decoration: underline;
+}
+
+.channame, .day {
+	padding: 10px;
+	font-size: 130%;
+	border-radius: 3px;
+	border: 2px solid #666;
+	margin: 10px;
+	background: #ddd;
+	color: #555;
+}
+
+
+.channame a {
+	font-size: 100%;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+
+.itemtitle {
+	cursor: pointer;
+	font-size: 14pt;
+}
+
+.controls {
+	vertical-align: middle;
+	float: right;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 5px;
+	height: 12px;
+	width: auto;
+	font-size: 8pt;
+}
+
+.datelabel {
+	color: #777;
+	font-size: 8pt;
+	text-align: right;
+	position: absolute;
+	padding-top: 3px;
+	right: 40px;
+}
+.datelabel a:link {
+	color: #621b2f; 
+	text-decoration: none; 
+}
+
+.datelabel a:visited {
+	color: #939393; 
+	text-decoration: none; 
+}
+
+.datelabel a:hover {
+	text-decoration: none; 
+}
+
+
+.chantitle {
+	color: #AAA;
+	font-size: 8pt;
+}
+
+.chantitle a:link {
+	color: #777;
+}
+
+.enclosure {
+	color: #229;
+	font-size: 90%;
+	text-decoration: none;
+}
+
+.enclosure a {
+	text-decoration: underline;
+}
+
+.newslist {
+	padding-bottom: 3px;
+	padding-left: 25px;
+	padding-right: 25px;
+}
+
+.storywrapper {
+	padding: 10px;
+}
+
+.storycontent {
+	margin-top: 25px;
+	padding-left: 35px; 
+	padding-right:30px; 
+	padding-bottom: 20px; 
+	font-size:14pt;
+	max-width: 80%;
+}
+
+.storycontent img {
+	display: block;
+	float: none;
+	margin: 10px;
+}
+
+.storycontent h3 {
+	font-size: 140%;
+}
+
+.newclass {
+	font-weight: bold;
+}
+</style>
+
+<script type="text/javascript">
+var ZFCURRENTNEWSID = 0;
+/* this script handles marking elements as read with a different color */
+function highlightCurrent(newcurrentid) {
+	newcurrentelement = document.getElementById('ITEM' + newcurrentid);
+	/* if an item is already selected (open) */
+	if (ZFCURRENTNEWSID != 0) {
+		/* close it*/
+		toggleVisibleById('ZFCONTENT'+ZFCURRENTNEWSID);
+		/* remove border */
+		zfcurrentelement = document.getElementById('ITEM' + ZFCURRENTNEWSID);
+		zfcurrentelement.style.border = null;
+		/* mark as read */
+		/*if it's the same as already selected */
+		if (ZFCURRENTNEWSID == newcurrentid) {
+			/* reset our marker and exit, we don't want to reopen it */
+			ZFCURRENTNEWSID = 0;
+			return;
+		}
+	}
+	/* finally, open the one the user clicked on, remember it for next time, 
+	 and give it a border */
+	ZFCURRENTNEWSID = newcurrentid;
+	zfcurrentelement = newcurrentelement;
+	
+	zfcurrentelement.style.border = '2px solid #66c';
+	document.getElementById('HEAD' + ZFCURRENTNEWSID).style.backgroundColor = '#EFEFEF';
+	document.getElementById('TITLE' + ZFCURRENTNEWSID).style.color = '#AEAEAE';
+	toggleVisibleById('ZFCONTENT' + ZFCURRENTNEWSID);
+
+	// now the magic trick to bring the news to the top of the viewport
+	newcurrentelement.scrollIntoView(true);
+}
+
+</script>
+		
+<!-- ENDtemplateHeader -->
+
+
+<!-- header -->
+{dynamicnews}
+<div id="zfwrapper">
+<!-- ENDheader -->
+<!-- channel -->
+<div class="channel">
+	<div class="channame">
+		{chanfavicon} <a href="{chanlink}">{chantitle}</a>
+		<span class="dateline">{chandesc}</span>
+		<div class="controls">
+			last updated: {lastupdated}
+			{refreshbutton}
+			{morebutton}
+		</div>		
+	</div>
+</div>
+<div class="newslist">
+<!-- ENDchannel -->
+<!-- news -->
+<div id="ITEM{itemid}">
+	<div class="newstitle" id="HEAD{itemid}">
+		<!-- this is the tricky bit, to have ajaxed news items -->
+		<span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="fetchItem('{feedurl}','{itemid}');highlightCurrent('{itemid}');">{title}</span>
+		<span class="datelabel">{relativedate}</span>
+	</div>
+	<div class="newsdesc">
+		{dynamic_description}
+	</div>
+</div>
+<!-- ENDnews -->
+<!-- newsDay -->
+<div class="channel">
+	<div class="day">
+		{date}
+	</div>
+</div>
+<div class="newslist">
+<!-- ENDnewsDay -->
+<!-- newsByDate -->
+<div id="ITEM{itemid}">
+<div class="newstitle" id="HEAD{itemid}">
+	{chanfavicon} <span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="fetchItem('{feedurl}','{itemid}');highlightCurrent('{itemid}');">{title}</span> <span class="chantitle"><a href="{link}">{chantitle}</a></span>
+	
+	<span class="datelabel">{relativedate}</span>
+</div>
+<div class="newsdesc">
+	{dynamic_description}
+</div>
+</div>
+ <!-- ENDnewsByDate -->
+<!-- channelFooter -->
+		</div> <!-- end newslist section -->
+<!-- ENDchannelFooter -->
+<!-- footer -->
+</div> <!-- zfwrapper div -->
+<!-- ENDfooter -->
+<!-- dynamicDescription -->
+<div class="storywrapper">
+	<div class="storycontent">
+	<div>
+		<h3><a href="{link}" title="{chantitle}" target="_parent">{title}</a></h3>
+	</div>
+		<span class="enclosure">{enclosures}</span><br/>
+		{description}
+	</div>
+	<a href="{processedarticleurl}">Read in instapaper</a> - <a href="https://twitter.com/share?url={link_encoded}&text={title}">Tweet this</a>
+</div>
+<!-- ENDdynamicDescription -->
+<!-- between -->
+<!-- ENDbetween -->
