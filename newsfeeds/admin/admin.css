@@ -137,22 +137,22 @@ zftable {
 
 #chancolumn {
 	margin: 0px;
-	width: 43%;
-	height: 450px;
+	/*width: 43%;
+	height: 450px;*/
 }
 
 #chancolumnheader{
 	margin-top:10px; 
-	margin-bottom: -15px;
-	margin-left: 13px;
+	margin-bottom: 5px;
+	margin-left: 7px;
 }
 	
 #chanlist {
-	overflow-y: auto;
+/*	overflow-y: auto;
 	overflow-x: hidden;
 	max-height: 320px;
 	min-height: 120px;
-	position: relative;
+	position: relative;*/
 	padding: 5px;
 	margin-top: 20px;
 	margin-bottom: 20px;
@@ -165,16 +165,8 @@ zftable {
 	color: #aaa;
 }
 
-#editcolumn {
-	position: absolute;
-	width: 55%;
-	top: 50px;
-	right: 0px;
-	margin: 0px;
 
-}
-
-#opresult {
+.opresult {
 	margin: 20px;
 	border: 1px solid #ccc;
 	text-align: center;
@@ -189,7 +181,7 @@ zftable {
 .sub-line {
 	border-bottom: 1px dotted #ff9000;
 	border-width: 1px;
-	padding: 3px;
+	padding: 7px;
 }
 .sub-line:hover {
 	background-color: #eee;
@@ -199,11 +191,11 @@ zftable {
 	text-align: right;
 }
 .editfeed {
-	border: 1px dotted #ff9000;
 	padding-left: 10px;
 	padding-right: 10px;
 	padding-top: 5px;
-	padding-bottom: 5px;
+	padding-bottom: 15px;
+	position: relative;
 }
 
 .savepanel {
@@ -221,7 +213,7 @@ zftable {
 
 .link {
 	cursor: pointer;
-	text-decoration: underline;
+	/*text-decoration: underline;*/
 	color: #0084ff;
 }
 
