@@ -46,12 +46,10 @@ class template {
 
 	// optional tags to convert
 	var $_optionsTags;
-	// option to convert everything using htmlspecialchars 
-	var $_useSpecialChars;
+
 	var $_wrappingType; 
 	var $_showDisplayButtons;
 	var $_showDynamicButtons;
-	var $_useStandardDateFormat;
 
 	var $_html;
 	// string for the template part being parsed. contained semi-processed output
@@ -84,10 +82,8 @@ class template {
 		$this->_optionsTags = array();
 
 		// rendering options
-		$this->_useSpecialChars = false;
 		$this->_showDisplayButtons = true;
 		$this->_showDynamicButtons = true;
-		$this->_useStandardDateFormat = false;
 		$this->_dynamicMode = false;
 
 		/* wrapping types: ways to format the output
@@ -263,7 +259,7 @@ class template {
 		/* now, replace the channel header specific tags */
 		
 		if ($last_fetched >0) {
-			if ($this->_useStandardDateFormat) {
+			if ($this->name == 'SYSTEM.rss') {
 				$chantime = date('r', $last_fetched);
 			} else {
 				$chantime = zf_transcode(strftime(ZF_PUBDATEFORMAT, $last_fetched));
@@ -337,10 +333,9 @@ class template {
 	*/
 	function _formatChannel(&$channel) {
 		$schannel = $channel;
-		if ($this->_useSpecialChars) {
+		if ($this->name == 'SYSTEM.rss') {
 			$schannel['title'] = htmlspecialchars($channel['title'], ENT_QUOTES);
 			$schannel['description'] = htmlspecialchars($channel['description'], ENT_QUOTES);
-			//$schannel['image']['title'] = htmlspecialchars($channel['image']['title'], ENT_QUOTES);
 		} 
 		$schannel['link'] = htmlspecialchars($channel['link'], ENT_QUOTES);
 		$schannel['xmlurl'] = htmlspecialchars($channel['xmlurl'], ENT_QUOTES);
@@ -372,7 +367,7 @@ class template {
 	*/
 	function _formatNews(&$item, $unfolded) {
 		$sitem = $item;
-		if ($this->_useSpecialChars) {
+		if ($this->name == 'SYSTEM.rss') {
 			$sitem['title'] = htmlspecialchars($item['title'], ENT_QUOTES);
 			$sitem['description'] = htmlspecialchars($item['description'], ENT_QUOTES);
 			$sitem['summary'] = htmlspecialchars($item['summary'], ENT_QUOTES);
@@ -383,14 +378,13 @@ class template {
 		$this->_buffer = str_replace('{link}', $sitem['link'], $this->_buffer);
 		$this->_buffer = str_replace('{link_encoded}', urlencode($sitem['link']), $this->_buffer);
 		if (isset($item['date_timestamp']) && ($item['date_timestamp'] != -1)) {
-			if ($this->_useStandardDateFormat) {
+			if ($this->name == 'SYSTEM.rss') {
 				$pubdate = date('r', $item['date_timestamp']);
 			} else {
 				$pubdate = zf_transcode(strftime(ZF_PUBDATEFORMAT, date($item['date_timestamp'])));
 			}
 		} else {
 			$pubdate = $item['pubdate'];
-			//$pubdate='';
 		}
 
 		$this->_buffer = str_replace('{pubdate}', $pubdate, $this->_buffer);
@@ -593,14 +587,6 @@ class template {
 		$this->_optionsTags = array_merge($this->_optionsTags, $tags);
 	}
 
-	/* set the useSpecialChars options */
-	function enableSpecialChars() {
-		$this->_useSpecialChars = true;
-	}
-
-	function useStandardDateFormat() {
-		$this->_useStandardDateFormat = true;
-	}
 	/* do not render the hide and fold buttons
 	   to use only in per-channel views */
 	function disableDisplayButtons() {

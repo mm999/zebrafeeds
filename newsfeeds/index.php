@@ -96,8 +96,6 @@ if ($list->load()) {
 
 
 	if ($type == 'rss') {
-		$templ->enableSpecialChars();
-		$templ->useStandardDateFormat();
 		$zf_aggregator->exportAggregatedChannels();
 	} else {
 
