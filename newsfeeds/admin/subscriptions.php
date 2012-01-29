@@ -72,9 +72,9 @@ function displayChannelList($channels) {
 
 	if ($channelcount > 0) {
 		$namehtmldata = <<<EOD
-<div title="Edit feed properties" class="sub-line link" onclick="showEditForm({i}); return false;">
+<div title="Edit feed properties" class="sub-line">
 	<input type="checkbox" name="actionbox{i}" value="checkbox"/>
-		<span id="title{i}" class="{class}">{chantitle}</span>&nbsp;
+		<span id="title{i}" class="{class} link" onclick="showEditForm({i}); return false;">{chantitle}</span>&nbsp;
 	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" border="0" alt="website"/></a>
 </div>
 EOD;
@@ -419,6 +419,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 						currentid = id;
 						toggleVisibleById('editform' + currentid);
 					}
+					document.getElementById('title' + currentid).scrollIntoView(true);
 
 				/* hide the last operation result */
 				document.getElementById('opresult'+currentid).style.display = 'none';
