@@ -69,7 +69,7 @@ if (isset($_GET['type']) && isset($_GET['xmlurl'])) {
 
 
 	$itemid = isset($_GET['itemid']) ? $_GET['itemid'] : '';
-	$outputid = isset($_GET['outputid']) ? $_GET['outputid'] : '';
+	$outputid = isset($_GET['outputelementid']) ? $_GET['outputelementid'] : '';
 	//set only if force refresh
 	$maxitems = isset($_GET['maxitems']) ? $_GET['maxitems'] : '';
 	$refreshtime = isset($_GET['refreshtime']) ? $_GET['refreshtime'] : '';
@@ -87,11 +87,8 @@ if (isset($_GET['type']) && isset($_GET['xmlurl'])) {
 		// force output encoding for AJAX request
 		Header('Content-Type: text/html; charset='.ZF_ENCODING);
 
-		if ($outputid == $itemid) {
-			echo "ZFCONTENT".$outputid."|,|,|";
-		} else if ($outputid != '') {
-			echo $outputid."|,|,|";
-		}
+		echo $outputid."|,|,|";
+		
 		// if outputid is empty, display nothing, it comes probably from a "Read full story" call
 
 
@@ -140,8 +137,7 @@ if (isset($_GET['type']) && isset($_GET['xmlurl'])) {
 	if ($type == "channelallitems") {
 		// force output encoding for AJAX request
 		Header('Content-Type: text/html; charset='.ZF_ENCODING);
-		$id = zf_makeId($xmlurl, "");
-		echo "ZFCHANNELITEMS".$id."|,|,|";
+		echo $outputid."|,|,|";
 		$zf_aggregator->displayStatus('Showing all news');
 		if ($zf_aggregator->loadFeed($channeldata, -1)) {
 			// true, true: all items, only items (no title)
@@ -156,8 +152,7 @@ if (isset($_GET['type']) && isset($_GET['xmlurl'])) {
 	if ($type == "channelforcerefresh") {
 		// force output encoding for AJAX request
 		Header('Content-Type: text/html; charset='.ZF_ENCODING);
-		$id = zf_makeId($xmlurl, "");
-		echo "ZFCHANNELITEMS".$id."|,|,|";
+		echo $outputid."|,|,|";
 		$zf_aggregator->displayStatus('Showing refreshed news');
 		// false: dont show all
 		// true: we only want the items

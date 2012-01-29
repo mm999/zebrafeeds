@@ -35,7 +35,6 @@ function requestContent(requestparams) {
 	//http.onload = null;
 	http.open("GET", scripturl + '?zftemplate='+ ZFTEMPLATE + '&' + requestparams, true);
 	//alert(scripturl + '?' + requestparams);
-	//xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
 	http.onreadystatechange = handleResponse;
 	http.send(null);
@@ -43,7 +42,7 @@ function requestContent(requestparams) {
 
 /* when data returning from server arrives
 structured this way
-<OBJECT ID>|,|,|<content>
+<id of element to populate>|,|,|<content>
 */
 
 function handleResponse() {
@@ -73,51 +72,28 @@ function handleResponse() {
 }
 
 
-/* all in one: fetch and show
-itemid is the zfeeder news item id, not the html element id
-outputid is the id of the element to send the output to. 
-the server know what to do...
-*/
-function showItem(feedurl, itemid, outputid) {
 
-	fetchItem(feedurl, itemid, outputid);
-	toggleVisibleById('ZFCONTENT' + itemid, "none");
-}
-
-function fetchItem(feedurl, itemid, outputid) {
+/* lookup in <feedurl>, item with id <itemid>, and put it in <outputelementid>*/
+function zf_getArticle(feedurl, itemid, outputelementid) {
 	/* if the output element id exists in the document, then 
 	 we have to send the result of the ajax query to a fixed
-	 CSS element whose id is outputid */
-	if (outputid != null && document.getElementById(outputid) )  {
+	 CSS element whose id is outputelementid */
+	if (outputelementid != null && document.getElementById(outputelementid) )  {
 		// we have to output in another div
-		requestparams = "type=item&xmlurl=" + escape(feedurl) + "&outputid=" + outputid + "&itemid=" + itemid;
+		requestparams = "type=item&xmlurl=" + escape(feedurl) + "&outputelementid=" + outputelementid + "&itemid=" + itemid;
 		requestContent(requestparams);
 		
-	} else {
-		/* if we have to output in the same div as the caller */
-		if(document.getElementById('ZFCONTENT'+ itemid))  {
-			var element = document.getElementById('ZFCONTENT'+ itemid);
-
-			// if the element is empty, load from server
-			var contentlen = element.innerHTML.trim().length;
-			if ( contentlen == 0 ) {
-				element.innerHTML = '<br/><br/><br/><br/><br/>';
-				requestparams = "type=item&xmlurl=" + escape(feedurl) + "&outputid=" + itemid + "&itemid=" + itemid;
-				requestContent(requestparams);
-			}
-
-		}
 	}
 }
 
 
-function getAllItems(feedurl,refreshtime) {
-	requestparams = "type=channelallitems&xmlurl=" + escape(feedurl) + "&refreshtime="+refreshtime;
+function zf_getAllNews(feedurl,refreshtime, outputelementid) {
+	requestparams = "type=channelallitems&xmlurl=" + escape(feedurl) + "&refreshtime="+refreshtime+"&outputelementid=" + outputelementid;
 	requestContent(requestparams);
 }
 
-function refreshChannel(feedurl,showeditems,refreshtime) {
-	requestparams = "type=channelforcerefresh&xmlurl=" + escape(feedurl) + "&maxitems="+showeditems+ "&refreshtime="+refreshtime;
+function zf_getRefreshedNews(feedurl,showeditems,refreshtime,outputelementid) {
+	requestparams = "type=channelforcerefresh&xmlurl=" + escape(feedurl) + "&maxitems="+showeditems+ "&refreshtime="+refreshtime+"&outputelementid=" + outputelementid;
 	requestContent(requestparams);
 
 }

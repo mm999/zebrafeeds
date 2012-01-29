@@ -20,133 +20,169 @@
 
 
 .fold, .logo {
-    float: left;
-    margin: 0px;
-    padding: 1px;
-    margin-right: 5px;
-    vertical-align: middle;
+	float: left;
+	margin: 0px;
+	padding: 1px;
+	margin-right: 5px;
+	vertical-align: middle;
 }
 
 .channel {
-    vertical-align: middle;
-    padding: 1px;
-    color: #999;
-    /*height: 16px;*/
+	vertical-align: middle;
+	padding: 1px;
+	color: #999;
+	/*height: 16px;*/
 }
 
 .channel img {
-    max-height: 16px;
-    width: auto;
-    height: auto;
+	max-height: 16px;
+	width: auto;
+	height: auto;
 }
 
 .feed {
-    margin-bottom: 1px;
-    display: block;
+	margin-bottom: 1px;
+	display: block;
 }
 
 .newsitem {
-    margin-top: 1px;
-    margin-bottom: 1px;
-    margin-left: 1px;
-    margin-right: 3px;
+	margin-top: 1px;
+	margin-bottom: 1px;
+	margin-left: 1px;
+	margin-right: 3px;
    /* border-bottom: 1px solid #ddd;
-    border-left: 1px solid #ddd;*/
-    padding: 2px;
+	border-left: 1px solid #ddd;*/
+	padding: 2px;
 }
 
 .newstitle {
  color: #333;
 	background-color: #f8faf7;
-    padding: 2px;
-    margin-bottom: 0px;
-    border: 1px solid #ccd;*/
+	padding: 2px;
+	margin-bottom: 0px;
+	border: 1px solid #ccd;*/
 }
 
 .dateline a:link {
-     color: #621b2f; 
-     text-decoration: none; 
+	 color: #621b2f; 
+	 text-decoration: none; 
 }
 
 .dateline a:visited {
-     color: #939393; 
-     text-decoration: none; 
+	 color: #939393; 
+	 text-decoration: none; 
 }
 
 .dateline a:hover {
-     text-decoration: none; 
+	 text-decoration: none; 
 
 }
 
 .zfnewscontent {
-    text-align: left;
-    color: #000;
-    padding-right: 25px;
-    padding-left: 15px;
-    margin-left: 10px;
-    margin-right: 30px;
-    margin-top: 5px;
-    margin-bottom: 0px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    line-height: 1.4em;
-    border-left: 1px solid #ddd;
+	text-align: left;
+	color: #000;
+	padding-right: 25px;
+	padding-left: 15px;
+	margin-left: 10px;
+	margin-right: 30px;
+	margin-top: 5px;
+	margin-bottom: 0px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	line-height: 1.4em;
+	border-left: 1px solid #ddd;
 }
 
 .newsdesc a:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .chanlink {
-    font-family: Palatino, Georgia, Times New Roman, sans-serif;
-    margin-left: 0px;
+	font-family: Palatino, Georgia, Times New Roman, sans-serif;
+	margin-left: 0px;
 }
 
 
 .chanlink a {
-    font-size: 100%;
-    font-weight: bold;
-    text-decoration: none;
+	font-size: 100%;
+	font-weight: bold;
+	text-decoration: none;
 }
 
 
 .itemtitle {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .controls {
-    vertical-align: middle;
-    float: right;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    margin-left: 5px;
-    height: 12px;
-    width: auto;
+	vertical-align: middle;
+	float: right;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 5px;
+	height: 12px;
+	width: auto;
 }
 
 .dateline {
-    color: #999;
-    font-size: 80%;
-    text-align: right;
+	color: #999;
+	font-size: 80%;
+	text-align: right;
 }
 
 .enclosure {
-    color: #229;
-    font-size: 90%;
-    text-decoration: none;
+	color: #229;
+	font-size: 90%;
+	text-decoration: none;
 }
 
 .enclosure a {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .newslist {
-    padding-bottom: 3px;
-    padding-left: 25px;
+	padding-bottom: 3px;
+	padding-left: 25px;
 }
 
 
 </style>
+<script type="text/javascript">
+
+function toggleVisible(element, initial) {
+
+	var state = element.style.display;
+	if (state == "") {
+		state = initial;
+	}
+
+	if (state == "none") {
+	   element.style.display = "block";
+	} else {
+	   element.style.display = "none";
+	}
+}
+
+function toggleVisibleById(id, initial) {
+
+	if(document.getElementById(id))  {
+
+		var element = document.getElementById(id);
+		toggleVisible(element, initial);
+	}
+}
+
+/* all in one: fetch and show
+itemid is the zfeeder news item id, not the html element id
+outputid is the id of the element to send the output to. 
+the server know what to do...
+*/
+function showItem(feedurl, itemid, outputid) {
+	zf_getArticle(feedurl, itemid, "ZFCONTENT" + itemid);
+	toggleVisibleById('ZFCONTENT' + itemid, "none");
+}
+
+</script>
 <!-- ENDtemplateHeader -->
 
 
@@ -155,71 +191,69 @@
 <div class="feed">
 <!-- ENDheader -->
 <!-- channel -->
-    <div class="channel">
-            <div class="logo">
-              {foldbutton}
-							{chanlogo}
-            </div>
-            <div class="controls">
-              {morebutton}
-              <a href="{feedurl}" target="_blank"><img src="{scripturl}/images/feed.png" alt="View The Raw XML Source Of {chantitle}." title="View The Raw XML Source Of {chantitle}" width="36" height="14" border="0" /></a>
-              {hidebutton}
-            </div>
-            <div class="chanlink">
-                <a href="{chanlink}">{chantitle}</a>
-                <span class="dateline">
-										last updated: {lastupdated}
-                    {refreshbutton}
-										<br/>
-										{chandesc}.
-								</span>
-            </div>
-     </div>
-     <div class="newslist">
+	<div class="channel">
+			<div class="logo">
+				{chanlogo}
+			</div>
+			<div class="controls">
+				<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" width="36" height="14" border="0" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
+			  	<a href="{feedurl}" target="_blank"><img src="{scripturl}/images/feed.png" alt="[XML]" title="View The Raw XML Source Of {chantitle}" width="36" height="14" border="0" /></a>
+			</div>
+			<div class="chanlink">
+				<a href="{chanlink}">{chantitle}</a>
+				<span class="dateline">
+					last updated: {lastupdated}
+					<img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" width="36" height="14" border="0" onclick="zf_getRefreshedNews('{feedurl}', 10, 0, 'NEWSLIST'+'{chanid}');" />
+					<br/>
+					{chandesc}.
+				</span>
+			</div>
+	 </div>
+	 <div class="newslist" id="NEWSLIST{chanid}">
 <!-- ENDchannel -->
 <!-- news -->
-            <div class="newsitem">
-                <div class="newstitle">
-                    <!-- this is the tricky bit, to have ajaxed news items -->
-										{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}'); this.scrollIntoView()">{title}</span>
-                    <span class="dateline"><a href="{link}" title="{chantitle}">&raquo; {pubdate}</a></span>
-										<span class="enclosure">{enclosures}</span>
-                </div>
-                <div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');" id="ZFCONTENT{itemid}">
-                </div>
-            </div>
+			<div class="newsitem">
+				<div class="newstitle">
+					<!-- this is the tricky bit, to have ajaxed news items -->
+					{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}'); this.scrollIntoView();">{title}</span>
+					<span class="dateline"><a href="{link}" title="{chantitle}">&raquo; {pubdate}</a></span>
+					<span class="enclosure">{enclosures}</span>
+				</div>
+				<div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');" id="ZFCONTENT{itemid}">
+				</div>
+			</div>
  <!-- ENDnews -->
 <!-- newsDay -->
-    <div class="channel">
-        <div class="chanlink">
-            {date}
-        </div>
-     </div>
-     <div class="newslist">
+	<div class="channel">
+		<div class="chanlink">
+			{date}
+		</div>
+	 </div>
+	 <div class="newslist">
 <!-- ENDnewsDay -->
 <!-- newsByDate -->
-            <div class="newsitem" id="ITEM{itemid}">
-                <div class="newstitle">
-										{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}');this.scrollIntoView()">{title}</span>
-                    <span class="dateline"><a href="{link}" title="{chantitle}">&raquo; {chantitle}</a></span>
-										<span class="enclosure">{enclosures}</span>
-                </div>
-                <div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');" id="ZFCONTENT{itemid}">
-                </div>
-            </div>
+			<div class="newsitem" id="ITEM{itemid}">
+				<div class="newstitle">
+					{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}');this.scrollIntoView()">{title}</span>
+					<span class="dateline"><a href="{link}" title="{chantitle}">&raquo; {chantitle}</a></span>
+					<span class="enclosure">{enclosures}</span>
+				</div>
+				<div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');" id="ZFCONTENT{itemid}">
+				</div>
+			</div>
  <!-- ENDnewsByDate -->
  <!-- dynamicDescription -->
 <div style="padding-left: 10px; max-width: 75%;">
-    <div style="background-color: #fff;padding-left: 10px;">
-        <span class="enclosure">{enclosures}</span>
-    </div>
-    <div style="padding: 10px; font-size: 10pt;">
-        {description}
-    </div>
+	<div style="background-color: #fff;padding-left: 10px;">
+		<span class="enclosure">{enclosures}</span>
+	</div>
+	<div style="padding: 10px; font-size: 10pt;">
+		{description}
+	</div>
 </div>
 <!-- ENDdynamicDescription -->
 <!-- channelFooter -->
-    </div> <!-- end newslist section -->
+	</div> <!-- end newslist section -->
 <!-- ENDchannelFooter -->
 <!-- footer -->
 </div> <!-- feed section -->

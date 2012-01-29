@@ -2,7 +2,7 @@
 ZebraFeeds - copyright (c) 2006 Laurent Cazalet
 http://www.cazalet.org/zebrafeeds
 
-client side functions - default, always included
+show/hide functions - can be included by templates
 */
 
 

@@ -40,16 +40,13 @@ class template {
 	var $between;
 	var $dynamicDescription;
 
-	var $hasButtons;
 	var $isDynamic;
 	var $isInvalid;
 
 	// optional tags to convert
 	var $_optionsTags;
 
-	var $_wrappingType; 
-	var $_showDisplayButtons;
-	var $_showDynamicButtons;
+	var $_wrappingType;
 
 	var $_html;
 	// string for the template part being parsed. contained semi-processed output
@@ -71,7 +68,6 @@ class template {
 		$this->between = '';
 		$this->dynamicDescription = '';
 
-		$this->hasButtons = false;
 		$this->isDynamic = false;
 		$this->isInvalid = false;
 
@@ -80,10 +76,6 @@ class template {
 		$this->_buffer = '';
 		$this->_filename = '';
 		$this->_optionsTags = array();
-
-		// rendering options
-		$this->_showDisplayButtons = true;
-		$this->_showDynamicButtons = true;
 
 		/* wrapping types: ways to format the output
 		supported values: 
@@ -160,10 +152,7 @@ class template {
 
 	function printHeader() {
 		$code = '';
-		if ($this->hasButtons) {
-			$code .= '<script type="text/javascript" id="head" src="'.ZF_URL.'/zfcontrol.js"></script>';
-		}
-		if ($this->hasButtons || $this->isDynamic) {
+		if ($this->isDynamic) {
 			$code .= '<script type="text/javascript">var ZFURL="'.ZF_URL.'"; var ZFTEMPLATE="'.$this->name.'";</script>';
 			$this->_buffer = $code. "\n". $this->header;
 			$this->_formatDynamicCode();
@@ -266,39 +255,6 @@ class template {
 		}	 
 
 		$this->_buffer = str_replace('{lastupdated}', $chantime, $this->_buffer);
-
-		/* controls */		  
-		/* Hide button */
-		if ($this->_showDisplayButtons) {
-			$button = '<span style="cursor: pointer" onclick="toggleVisibleById(\'ZFCHANNEL'.$channel['id'].'\', \'block\'); return false;"><img src="'.ZF_URL.'/images/close.png" border="0" alt="hide" title="Hide"/></span>';
-		} else {
-			$button = '';
-		}
-		$this->_buffer = str_replace('{hidebutton}', $button, $this->_buffer);
-
-		/* fold button */
-		if ($this->_showDisplayButtons) {
-			$button = '<span style="cursor: pointer" onclick="toggleVisibleById(\'ZFCHANNELITEMS'.$channel['id'].'\', \'block\'); return false;" title="Fold"><img src="'.ZF_URL.'/images/fold.png" border="0" alt="fold" title="fold/unfold news"/></span>';
-		} else {
-			$button = '';
-		}
-		$this->_buffer = str_replace('{foldbutton}', $button, $this->_buffer);
-
-		/* More button */
-		if ($this->_showDynamicButtons) {
-			$button = '<span style="cursor: pointer" onclick="getAllItems(\''.htmlspecialchars($channel['xmlurl']).'\','.$feed->refreshTime.'); return false;" title="Get all items"><img src="'.ZF_URL.'/images/more.png" border="0" alt="more" title="see all news"/></span>';
-		} else {
-			$button = '';
-		}
-		$this->_buffer = str_replace('{morebutton}', $button, $this->_buffer);
-
-		/* Refresh button */
-		if ($this->_showDynamicButtons) {
-			$button = '<span style="cursor: pointer" onclick="refreshChannel(\''.htmlspecialchars($channel['xmlurl']).'\','.$feed->showedItems.','.$feed->refreshTime.'); return false;" title="Force refresh"><img src="'.ZF_URL.'/images/refresh.png" border="0" alt="refresh" title="refresh feed"/></span>';
-		} else {
-			$button = '';
-		}
-		$this->_buffer = str_replace('{refreshbutton}', $button, $this->_buffer);
 
 		$this->_printBuffer();
 
@@ -477,8 +433,6 @@ class template {
 		// do we find our markers?
 		if ($startPos != false && $endPos != false) {
 			$result = substr($this->_html, $startPos + $len, ($endPos - $startPos- $len));
-			// check for buttons in template, to allow the string to appear in comments
-			$this->hasButtons = $this->hasButtons || strpos($result, 'button}');
 
 		} else if (!empty($substitute)) {
 			// we have a replacement
@@ -513,17 +467,6 @@ class template {
 		$this->_optionsTags = array_merge($this->_optionsTags, $tags);
 	}
 
-	/* do not render the hide and fold buttons
-	   to use only in per-channel views */
-	function disableDisplayButtons() {
-		$this->_showDisplayButtons = false;
-	}
-
-	/* do not render the more and refresh buttons - 
-	   must be disabled when showing list of aggregated news (as opposed as per channel) */
-	function disableDynamicButtons() {
-		$this->_showDynamicButtons = false;
-	}
 }
 
 ?>

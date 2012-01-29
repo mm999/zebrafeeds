@@ -175,6 +175,37 @@
 
 <script type="text/javascript">
 var ZFCURRENTNEWSID = 0;
+
+function toggleVisible(element, initial) {
+	var state = element.style.display;
+	if (state == "") {
+		state = initial;
+	}
+	if (state == "none") {
+	   element.style.display = "block";
+	} else {
+	   element.style.display = "none";
+	}
+}
+
+function toggleVisibleById(id, initial) {
+	if(document.getElementById(id))  {
+		var element = document.getElementById(id);
+		toggleVisible(element, initial);
+	}
+}
+
+/* all in one: fetch and show
+itemid is the zfeeder news item id, not the html element id
+outputid is the id of the element to send the output to. 
+the server know what to do...
+*/
+function showItem(feedurl, itemid, outputid) {
+	zf_getArticle(feedurl, itemid, "ZFCONTENT" + itemid);
+	toggleVisibleById('ZFCONTENT' + itemid, "none");
+	highlightCurrent(itemid);
+}
+
 /* this script handles marking elements as read with a different color */
 function highlightCurrent(newcurrentid) {
 	newcurrentelement = document.getElementById('ITEM' + newcurrentid);
@@ -234,7 +265,7 @@ function highlightCurrent(newcurrentid) {
 <div id="ITEM{itemid}">
 	<div class="newstitle" id="HEAD{itemid}">
 		<!-- this is the tricky bit, to have ajaxed news items -->
-		<span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{feedurl}','{itemid}');highlightCurrent('{itemid}');">{title}</span>
+		<span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{feedurl}','{itemid}');">{title}</span>
 		<span class="datelabel">{relativedate}</span>
 	</div>
 	<div class="newsdesc" id="ZFCONTENT{itemid}">
@@ -252,7 +283,8 @@ function highlightCurrent(newcurrentid) {
 <!-- newsByDate -->
 <div id="ITEM{itemid}">
 <div class="newstitle" id="HEAD{itemid}">
-	{chanfavicon} <span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{feedurl}','{itemid}');highlightCurrent('{itemid}');">{title}</span> <span class="chantitle"><a href="{link}">{chantitle}</a></span>
+	{chanfavicon} <span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{feedurl}','{itemid}');">{title}</span> 
+	<span class="chantitle"><a href="{link}">{chantitle}</a></span>
 	
 	<span class="datelabel">{relativedate}</span>
 </div>
