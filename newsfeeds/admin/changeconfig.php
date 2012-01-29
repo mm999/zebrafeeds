@@ -65,40 +65,40 @@ else
 	<div class="twocols">
 		<div class="col1">
 			<label for="zfhomeurl">Location of your web site</label>
-<a class="info" href="#">(?)<span>Points to the page embedding ZebraFeeds. Used also in the RSS feed publisher URL.</span></a> : 	
+<a class="info" href="#">(?)<span>Points to the page embedding ZebraFeeds. Used also in the RSS feed publisher URL.</span></a>: 	
 		</div>
 		<div class="col2">
 			<input name="zfhomeurl" id="zfhomeurl" type="text" size="50" value="<?php echo ZF_HOMEURL; ?>" />
 		</div>		
 			
 		<div class="col1">
-			<label for="zfurl">ZebraFeeds script URL : </label>
+			<label for="zfurl">ZebraFeeds script path URL: </label>
 		</div>
 		<div class="col2">
 			<input name="zfurl" id="zfurl" type="text" size="50" value="<?php if(ZF_URL!='') { echo ZF_URL; } else {if(zfurl()!=false) {echo zfurl();}} ?>" />
 		</div>
 		<div class="col1">
-			<label for="adminname">Admin username : </label>
+			<label for="adminname">Admin username: </label>
 		</div>
 		<div class="col2">
 			<input name="adminname" type="text" id="adminname"  value="<?php echo ZF_ADMINNAME;?>" />
 		</div>
 		<div class="col1">
 			<label for="newpassword">Admin new password</label>
-<a href="#" class="info">(?)<span>leave empty if you don't want to change pass</span></a> : 
+<a href="#" class="info">(?)<span>leave empty if you don't want to change pass</span></a>: 
 		</div>
 		<div class="col2">
 			<input type="password" name="newpassword" id="newpassword" />
 		</div>
 		<div class="col1">
-			<label for="confirmpassword">Admin new password confirm : </label>
+			<label for="confirmpassword">Admin new password confirm: </label>
 		</div>
 		<div class="col2">
 			<input type="password" name="confirmpassword" id="confirmpassword"/>
 		</div>
 		<div class="col1">
 			<label for="zflogintype">Admin panel login mechanism</label>
-<a href="#" class="info">(?)<span>session: will use cookies. server: requires .htaccess and .htpasswd on server</span></a> : 
+<a href="#" class="info">(?)<span>session: will use cookies. server: requires .htaccess and .htpasswd on server</span></a>: 
 		</div>
 		<div class="col2">
 			<select name="zflogintype" id="zflogintype" >
@@ -112,7 +112,7 @@ else
 <h2>News feeds options</h2>
 	<div class="twocols">
 		<div class="col1">
-			<label for="usesubs">Use subscription lists : </label>
+			<label for="usesubs">Use subscription lists: </label>
 		</div>
 		<div class="col2">
 			<select name="usesubs" id="usesubs" >
@@ -124,7 +124,7 @@ else
 			<label for="subfilename">Default subscription list</label>
 		        <a href="#" class="info">(?)
 			<span>the list of feeds displayed by default</span>
-			</a> : 
+			</a>: 
 		</div>
 		<div class="col2">
 			<select name="subfilename" id="subfilename" >
@@ -139,7 +139,7 @@ else
 			<span>How to refresh feeds.<br/> Automatic: when page is generated. <br/>
                            On request:  manual/scheduled refresh of feeds (by a cronjob for example).
 			</span>
-			</a> : 
+			</a>: 
 		</div>
 		<div class="col2">
 			<select name="refreshmode" id="refreshmode" >
@@ -154,7 +154,7 @@ else
 	
 	<div class="twocols">
 		<div class="col1">
-			<label for="template">Template used to display news : </label>
+			<label for="template">Template used to display news: </label>
 		</div>
 		<div class="col2">
 			<select name="template" id="template">
@@ -174,7 +174,7 @@ else
 			<label for="displayerror">Display errors</label>
 			<a href="#" class="info">(?)
 			<span>if feed cannot be retrieved or parsed</span>
-			</a> : 
+			</a>: 
 		</div>
 		<div class="col2">
 			<select name="displayerror" id="displayerror">
@@ -188,7 +188,7 @@ else
 
 	<div class="twocols">	
 		<div class="col1">
-			<label for="encoding">Page encoding : </label>
+			<label for="encoding">Page encoding: </label>
 		</div>
 		<div class="col2">
 		        <select name="encoding" id="encoding">
@@ -222,7 +222,7 @@ else
 			<label for="locale">Locale</label>
            		<a href="#" class="info">(?)
 			<span>Value to pass to the setlocale PHP function. It tells which language to display dates in.
-			</span></a> : 
+			</span></a>: 
 		</div>
 		<div class="col2">
             <input name="locale" type="text" id="locale" value="<?php echo ZF_LOCALE;?>"/>
@@ -231,7 +231,7 @@ else
 		<div class="col1">
 			<label for="pubdateformat">News date/Time format</label>
  			<a href="#" class="info">(?)
-			<span>Format dates received from feeds (if possible). Used by the strftime PHP function.</span></a> : 
+			<span>Format dates received from feeds (if possible). Used by the strftime PHP function.</span></a>: 
 		</div>
 		<div class="col2">
             <input name="pubdateformat" type="text" id="pubdateformat" value="<?php echo ZF_PUBDATEFORMAT;?>"/>
@@ -240,7 +240,7 @@ else
 		<div class="col1">
 <label for="dateformat">Day date format</label>
         	<a href="#" class="info">(?)
-		<span>Format used to display date when news are grouped by date. Should only be a date (no time) format. See the strftime PHP function.</span></a> : 
+		<span>Format used to display date when news are grouped by date. Should only be a date (no time) format. See the strftime PHP function.</span></a>: 
 		</div>
 		<div class="col2">
             <input name="dateformat" type="text" id="dateformat" value="<?php echo ZF_DATEFORMAT;?>"/>
@@ -254,7 +254,7 @@ else
 <label for="nofuture">Discard future news</label>
 		<a href="#" class="info">(?)
 		<span>fight RSS spamming by hiding news that want to stay on top!</span>
-		</a> : 
+		</a>: 
 		</div>
 		<div class="col2">
             <select name="nofuture" id="nofuture">
@@ -267,7 +267,7 @@ else
 <label for="newitems">Mark new items</label>
 		<a href="#" class="info">(?)
 		<span>Mark items appeared since last visit, for each visitor (use cookies) or on server, i.e. since last time page was generated</span>
-		</a> : 
+		</a>: 
 		</div>
 		<div class="col2">
             <select name="newitems" id="newitems">
@@ -282,7 +282,7 @@ else
 		<a href="#" class="info">(?)
 		<span>Automatic: automatically display feeds where <code>zebrafeeds.php</code> is included. <br/>
                            Manual: including zebrafeeds.php does nothing. The user functions <strong>MUST</strong> be used to see aggregated news</span>
-		</a> : 
+		</a>: 
 		</div>
 		<div class="col2">
               <select name="rendermode" id="rendermode" >
@@ -292,14 +292,14 @@ else
 		</div>
 
 		<div class="col1">
-			<label for="ownername">Feed list owner name : </label>
+			<label for="ownername">Feed list owner name: </label>
 		</div>
 		<div class="col2">
             <input name="ownername" type="text" id="ownername" value="<?php echo ZF_OWNERNAME;?>"/>
 		</div>
 
 		<div class="col1">
-			<label for="owneremail">Feed list owner email : </label>
+			<label for="owneremail">Feed list owner email: </label>
 		</div>
 		<div class="col2">
            		<input name="owneremail" type="text" id="owneremail" value="<?php echo ZF_OWNEREMAIL;?>"/>
