@@ -84,7 +84,6 @@ class template {
 		// rendering options
 		$this->_showDisplayButtons = true;
 		$this->_showDynamicButtons = true;
-		$this->_dynamicMode = false;
 
 		/* wrapping types: ways to format the output
 		supported values: 
@@ -192,20 +191,20 @@ class template {
 	}
 
 
-	function printNews(&$item, $unfold) {
+	function printNews(&$item) {
 		$this->_buffer = $this->news;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
-		$this->_formatNews($item, $unfold);
+		$this->_formatNews($item);
 		$this->_printBuffer();
 
 	}
 
-	function printNewsByDate(&$item, $unfold) {
+	function printNewsByDate(&$item) {
 		$this->_buffer = $this->newsByDate;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
-		$this->_formatNews($item, $unfold);
+		$this->_formatNews($item);
 		$this->_printBuffer();
 	}
 
@@ -213,12 +212,10 @@ class template {
 	element is always the same	*/
 	function printDynamicDescription(&$item) {
 		$this->_buffer = $this->dynamicDescription;
-		$this->_dynamicMode = true;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
-		$this->_formatNews($item, true);
+		$this->_formatNews($item);
 		$this->_printBuffer();
-		$this->_dynamicMode = false;
 	}
 
 	function printFooter() {
@@ -365,7 +362,7 @@ class template {
 
 	/* process item-related template tags 
 	*/
-	function _formatNews(&$item, $unfolded) {
+	function _formatNews(&$item) {
 		$sitem = $item;
 		if ($this->name == 'SYSTEM.rss') {
 			$sitem['title'] = htmlspecialchars($item['title'], ENT_QUOTES);
@@ -418,80 +415,9 @@ class template {
 		// for RSS feeds only
 		$this->_buffer = str_replace('{guid}', md5($sitem['link']), $this->_buffer);
 
-		//if we are not already processing an dynamic description
-		if (!$this->_dynamicMode) {
-			$this->_formatDynamicDescription($item, $unfolded);
-		}
-
 	}
 
 
-	function _formatDynamicDescription(&$item, $unfolded) {
-		// do we find an dynamic_description tag?
-		if (strpos($this->_buffer, '{dynamic_description}') !== false) {
-
-			$this->_dynamicMode = true;
-
-			// save our state
-			$currentBuffer = $this->_buffer;
-
-			// generate the dynamic description in a separate buffer
-			$this->_buffer = $this->dynamicDescription;
-			$this->_formatCommon();
-			$this->_formatChannel($item['channel']);
-			$this->_formatNews($item, true);
-			$dynamic = $this->_buffer;
-
-			// put our buffer back
-			$this->_buffer = $currentBuffer;
-			$this->_dynamicMode = false;
-
-
-			if ($this->isDynamic && ZF_DYNAMICNEWSLENGTH > 0 ) {
-				/* for news shorter than a certain number of characters
-				send them right away to the browser, instead of making it ask for them dynamically 
-				*/
-				if ((strlen($item['description']) < ZF_DYNAMICNEWSLENGTH))	{
-//echo "show dynamic: ".strlen($item['description']);
-						$descToShow = $dynamic;
-				} else {
-//echo "show nothing".strlen($item['description']);	   
-					$descToShow = '';
-				}
-
-				/* if the news has to be forced open, we show it anyway, 
-				* and fill the div with the content, whatever its length */
-				if ($unfolded){
-					$descToShow = $dynamic;
-					$display = 'block';
-				} else {
-					$display = 'none';
-				}
-
-
-				/* we don't have to show only the headlines, so put also the description */
-
-				/* if we the item content is not empty, style it up */
-				if (strlen($descToShow)>0) {
-					$class = 'class="zfnewscontent"';
-				} else {
-					$class = '';
-				}
-
-
-				$this->_buffer = str_replace('{dynamic_description}', 
-						'<div '.$class.
-						' id="ZFCONTENT'.$item['id'].
-						'" style="display: '.$display.';">'.
-						$descToShow.'</div>', 
-						$this->_buffer);
-
-			} else {
-				// normal case: display dynamic description
-				$this->_buffer = str_replace('{dynamic_description}', $dynamic, $this->_buffer);
-			}
-		} // dynamic_description found?
-	}
 
 	
 	function _formatEnclosures(&$item) {

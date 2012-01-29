@@ -181,12 +181,11 @@
             <div class="newsitem">
                 <div class="newstitle">
                     <!-- this is the tricky bit, to have ajaxed news items -->
-										{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}');">{title}</span>
+										{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}'); this.scrollIntoView()">{title}</span>
                     <span class="dateline"><a href="{link}" title="{chantitle}">&raquo; {pubdate}</a></span>
 										<span class="enclosure">{enclosures}</span>
                 </div>
-                <div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');">
-                    {dynamic_description}
+                <div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');" id="ZFCONTENT{itemid}">
                 </div>
             </div>
  <!-- ENDnews -->
@@ -201,12 +200,11 @@
 <!-- newsByDate -->
             <div class="newsitem" id="ITEM{itemid}">
                 <div class="newstitle">
-										{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}');">{title}</span>
+										{isnew}<span class="itemtitle" onclick="showItem('{feedurl}','{itemid}');this.scrollIntoView()">{title}</span>
                     <span class="dateline"><a href="{link}" title="{chantitle}">&raquo; {chantitle}</a></span>
 										<span class="enclosure">{enclosures}</span>
                 </div>
-                <div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');">
-                    {dynamic_description}
+                <div class="newsdesc" ondblclick="showItem('{feedurl}','{itemid}');" id="ZFCONTENT{itemid}">
                 </div>
             </div>
  <!-- ENDnewsByDate -->

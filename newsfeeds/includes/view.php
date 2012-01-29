@@ -99,7 +99,7 @@ return;*/
 				$titleToShow = "Recent news";
 				$this->template->printDay($titleToShow);
 			}
-			$this->template->printNewsByDate($item, false);
+			$this->template->printNewsByDate($item);
 		} // end foreach
 		
 		// print day footer
@@ -114,9 +114,6 @@ return;*/
 		$currentDay = '';
 		//$today = date('m.d.Y');
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
-
-		// if only one news, show it unfolded
-		//$forceUnfold = count($this->feed->items) == 1;
 
 		//foreach item
 		foreach ($this->feed->items as $item) {
@@ -148,10 +145,10 @@ return;*/
 					//echo zf_formatTemplate(array(), $day, array(), $template->newsDay, false);
 					$this->template->printDay($currentDay);
 				}
-				$this->template->printNewsByDate($item, false);
+				$this->template->printNewsByDate($item);
 
 			} else {
-				$this->template->printNews($item, false);
+				$this->template->printNews($item);
 			}
 
 		} // end foreach

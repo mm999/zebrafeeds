@@ -54,12 +54,12 @@ function handleResponse() {
 			/* split according to our separator */
 			results = http.responseText.split("|,|,|");
 
-			//alert(results[0]);
-			//alert('ZFCONTENT' + results[0]);
+			//alert(results);
 			element = parent.document.getElementById(results[0]);
 			if (element == null) {
 				element = document.getElementById(results[0]);
 			}
+
 
 			if (element == null) {
 				alert('Problem with response: ' + http.responseText);
@@ -81,7 +81,7 @@ the server know what to do...
 function showItem(feedurl, itemid, outputid) {
 
 	fetchItem(feedurl, itemid, outputid);
-	toggleVisibleById('ZFCONTENT' + itemid, 'none');
+	toggleVisibleById('ZFCONTENT' + itemid, "none");
 }
 
 function fetchItem(feedurl, itemid, outputid) {
@@ -99,7 +99,8 @@ function fetchItem(feedurl, itemid, outputid) {
 			var element = document.getElementById('ZFCONTENT'+ itemid);
 
 			// if the element is empty, load from server
-			if ( element.innerHTML == "" ) {
+			var contentlen = element.innerHTML.trim().length;
+			if ( contentlen == 0 ) {
 				element.innerHTML = '<br/><br/><br/><br/><br/>';
 				requestparams = "type=item&xmlurl=" + escape(feedurl) + "&outputid=" + itemid + "&itemid=" + itemid;
 				requestContent(requestparams);

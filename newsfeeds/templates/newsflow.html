@@ -56,6 +56,7 @@
 
 .newsdesc {
 	text-align: left;
+	display: none;
 }
 
 .newsdesc a:hover {
@@ -180,7 +181,7 @@ function highlightCurrent(newcurrentid) {
 	/* if an item is already selected (open) */
 	if (ZFCURRENTNEWSID != 0) {
 		/* close it*/
-		toggleVisibleById('ZFCONTENT'+ZFCURRENTNEWSID);
+		document.getElementById('ZFCONTENT'+ZFCURRENTNEWSID).style.display = "none";;
 		/* remove border */
 		zfcurrentelement = document.getElementById('ITEM' + ZFCURRENTNEWSID);
 		zfcurrentelement.style.border = null;
@@ -200,7 +201,7 @@ function highlightCurrent(newcurrentid) {
 	zfcurrentelement.style.border = '2px solid #66c';
 	document.getElementById('HEAD' + ZFCURRENTNEWSID).style.backgroundColor = '#EFEFEF';
 	document.getElementById('TITLE' + ZFCURRENTNEWSID).style.color = '#AEAEAE';
-	toggleVisibleById('ZFCONTENT' + ZFCURRENTNEWSID);
+	//toggleVisibleById('ZFCONTENT' + ZFCURRENTNEWSID);
 
 	// now the magic trick to bring the news to the top of the viewport
 	newcurrentelement.scrollIntoView(true);
@@ -233,11 +234,10 @@ function highlightCurrent(newcurrentid) {
 <div id="ITEM{itemid}">
 	<div class="newstitle" id="HEAD{itemid}">
 		<!-- this is the tricky bit, to have ajaxed news items -->
-		<span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="fetchItem('{feedurl}','{itemid}');highlightCurrent('{itemid}');">{title}</span>
+		<span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{feedurl}','{itemid}');highlightCurrent('{itemid}');">{title}</span>
 		<span class="datelabel">{relativedate}</span>
 	</div>
-	<div class="newsdesc">
-		{dynamic_description}
+	<div class="newsdesc" id="ZFCONTENT{itemid}">
 	</div>
 </div>
 <!-- ENDnews -->
@@ -252,12 +252,12 @@ function highlightCurrent(newcurrentid) {
 <!-- newsByDate -->
 <div id="ITEM{itemid}">
 <div class="newstitle" id="HEAD{itemid}">
-	{chanfavicon} <span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="fetchItem('{feedurl}','{itemid}');highlightCurrent('{itemid}');">{title}</span> <span class="chantitle"><a href="{link}">{chantitle}</a></span>
+	{chanfavicon} <span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{feedurl}','{itemid}');highlightCurrent('{itemid}');">{title}</span> <span class="chantitle"><a href="{link}">{chantitle}</a></span>
 	
 	<span class="datelabel">{relativedate}</span>
 </div>
-<div class="newsdesc">
-	{dynamic_description}
+<div class="newsdesc" id="ZFCONTENT{itemid}">
+
 </div>
 </div>
  <!-- ENDnewsByDate -->
