@@ -411,16 +411,7 @@ class template {
 		$hasSummary = strpos( $this->_buffer, '{summary}');
 		$this->_buffer = str_replace('{summary}', $sitem['summary'], $this->_buffer);
 
-		// now craft the link to article according to the settings
-		$articlelinktype = $item['channel']['articlelink'];
 		$zfarticleurl = ZF_HOMEURL.'?type=article&itemid='.$item['id'].'&xmlurl='.urlencode($item['channel']['xmlurl']);
-		$zfprocessedarticleurl = str_replace('%s', urlencode($item['link']), ZF_ARTICLELINKPROCESSOR);
-
-		if ($articlelinktype == 'original' ) {
-			$zfarticleurl = $sitem['link'];
-		} else if ($articlelinktype == 'processed' ) {
-			$zfarticleurl = $zfprocessedarticleurl;
-		}
 		
 		if ($hasSummary && $item['istruncated'])
 			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';
@@ -428,7 +419,6 @@ class template {
 			$readmorelink = '';
 		$this->_buffer = str_replace('{readfullnewslink}', $readmorelink, $this->_buffer);
 		$this->_buffer = str_replace('{articleurl}', $zfarticleurl, $this->_buffer);
-		$this->_buffer = str_replace('{processedarticleurl}', $zfprocessedarticleurl, $this->_buffer);
 
 
 		// for RSS feeds only

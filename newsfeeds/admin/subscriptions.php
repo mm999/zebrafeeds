@@ -105,12 +105,6 @@ EOD;
 			<label for="showeditems">Shown items:</label>
 			<input name="showeditems" type="text" size="4" value="{showeditems}"/>
 			<br/>
-			<label for="articlelink">Article template tags links to:</label>
-			<select name="articlelink">
-				<option value="default" {default_selected}>ZebraFeeds article view</option>
-				<option value="original" {original_selected}>Source article</option>
-				<option value="processed" {processed_selected}>Processed article</option>
-			</select>
 			<div class="savepanel">
 				<input type="button" name="save" value="Save" onclick="saveChannel({i}, this.form); return false;"/>&nbsp;
 				<input type="reset" name="reset" value="Reset"/>
@@ -157,21 +151,6 @@ EOD;
 			} else {
 				$tempdata = str_replace('{issubscribed}', '', $tempdata);
 			}
-			
-			if ($channel['articlelink'] == 'default') {
-				$tempdata = str_replace('{default_selected}', 'selected="selected"', $tempdata);
-			}
-			
-			if ($channel['articlelink'] == 'original') {
-				$tempdata = str_replace('{original_selected}', 'selected="selected"', $tempdata);
-			}
-			if ($channel['articlelink'] == 'processed') {
-				$tempdata = str_replace('{processed_selected}', 'selected="selected"', $tempdata);
-			}
-
-			$tempdata = str_replace('{default_selected}', '', $tempdata);
-			$tempdata = str_replace('{original_selected}', '', $tempdata);
-			$tempdata = str_replace('{processed_selected}', '', $tempdata);
 			echo $tempdata;			
 		}
 	} else {
@@ -486,7 +465,6 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 				}
 				var showeditems = aform.elements["showeditems"].value;
 				var refreshtime = aform.elements["refreshtime"].value;
-				var articlelink = aform.elements["articlelink"].value;
 				
 				savebutton = aform.elements["save"];
 				savebutton.disabled = true;
@@ -513,8 +491,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 								+ "&position=" + position
 								+ "&issubscribed=" + issubscribed
 								+ "&showeditems=" + showeditems
-								+ "&refreshtime=" + refreshtime
-								+ "&articlelink=" + articlelink;
+								+ "&refreshtime=" + refreshtime;
 				http.send(query);
 			}
 			

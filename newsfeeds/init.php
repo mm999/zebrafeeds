@@ -13,7 +13,7 @@ require_once($zf_path . 'config.php');
 // hidden settings, no GUI for these
 define('ZF_DEFAULT_NEWS_COUNT', 10);
 define('ZF_DEFAULT_REFRESH_TIME', 300);
-define("ZF_DYNAMICNEWSLENGTH","500"); // news longer than that will be dynamically obtained. 0 to disable. Requires compatible templates. 
+define("ZF_DYNAMICNEWSLENGTH", 500); // news longer than that will be dynamically obtained. 0 to disable. Requires compatible templates. 
 define('ZF_SESSION_DURATION', 900); // 15 minutes before unmarking items as new
 define('ZF_VISITOR_COOKIE_EXPIRATION',60*60*24*30); //30 days life-expectancy for client-side cookies to mark items as new
 define('ZF_FORCE_ENCODED_CONTENT', 'yes'); // ONLY FOR MAGPIE. stored in cache. if this is changed, it will be active only after cache is refreshed
@@ -24,7 +24,6 @@ define('ZF_SHOWCREDITS', 'no');
 define('ZF_RSSEXPORTSIZE', 25); //25 news exported in RSS,  max
 define('ZF_ONLYNEW', 'no'); // if yes, show only never seen news
 define('ZF_NEWONTOP', 'no'); // if yes, will show first the new/unseen items on top in views grouped by date
-define('ZF_ARTICLELINKPROCESSOR', 'http://www.instapaper.com/text?u=%s'); // when building article link, if process is to be used. %s replace with encoded link to original article link
 // ideally, this should be defined in the template
 //define('ZF_ISNEW_STRING', '<img src="'.ZF_URL.'/images/new.png" border="0" title="is new since last visit" alt="New"/>');
 define('ZF_ISNEW_STRING', 'newclass');
@@ -48,7 +47,7 @@ if (ZF_USEOPML == 'yes') {
 require_once($zf_path . 'includes/common.php');
 
 setlocale(LC_ALL, ZF_LOCALE);
-define('ZF_VER', '1.3_DEV_20111022');
+define('ZF_VER', '1.3_DEV');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
 
 define("ZF_DATADIR", $zf_path.'data');

@@ -45,7 +45,6 @@ if( !defined('ZF_URL') ) die( 'Please, do not access this page directly.' );
 	  refreshtime: time to cache channel news
 	  showeditems: number of items to display by default
 	  issubscribed: if yes, we have to display this channel
-	  articlelink: to which page the articlelink template tag will point (default: in Zebrafeeds, original: link to source, processed: link to processed view)
 */
 
 
@@ -74,7 +73,6 @@ function zf_opmlStartElement($parser, $name, $attributes)
 		$zf_opmlItems[$pos]['refreshtime'] = ($attributes['REFRESHTIME'] != '')?$attributes['REFRESHTIME']:ZF_DEFAULT_REFRESH_TIME;
 		$zf_opmlItems[$pos]['showeditems'] = ($attributes['SHOWEDITEMS'] != '')?$attributes['SHOWEDITEMS']:ZF_DEFAULT_NEWS_COUNT;
 		$zf_opmlItems[$pos]['issubscribed'] = ($attributes['ISSUBSCRIBED'] != '')?$attributes['ISSUBSCRIBED']:'yes';
-		$zf_opmlItems[$pos]['articlelink'] = ($attributes['ARTICLELINK'] != '')?$attributes['ARTICLELINK']:'default';
 	}
 
 	// backwards compatibility
@@ -246,7 +244,6 @@ class opml {
 									"\" refreshTime=\"" . $channel["refreshtime"] .
 									"\" showedItems=\"" . $channel["showeditems"] .
 									"\" isSubscribed=\"" . $channel["issubscribed"] .
-									"\" articlelink=\"" . $channel["articlelink"] .
 									"\" />\n");
 			}
 									/*"\" language=\"" . $templang .*/
