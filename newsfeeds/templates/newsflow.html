@@ -97,13 +97,17 @@
 	font-size: 8pt;
 }
 
+.controls img{
+	cursor: pointer;
+}
+
 .datelabel {
 	color: #777;
 	font-size: 8pt;
 	text-align: right;
 	position: absolute;
 	padding-top: 3px;
-	right: 40px;
+	right: 55px;
 }
 .datelabel a:link {
 	color: #621b2f; 
@@ -254,12 +258,12 @@ function highlightCurrent(newcurrentid) {
 		<span class="dateline">{chandesc}</span>
 		<div class="controls">
 			last updated: {lastupdated}
-			{refreshbutton}
-			{morebutton}
+			<img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" border="0" onclick="zf_getRefreshedNews('{feedurl}', 10, 0, 'NEWSLIST'+'{chanid}');" />
+			<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" border="0" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
 		</div>		
 	</div>
 </div>
-<div class="newslist">
+<div class="newslist" id="NEWSLIST{chanid}">
 <!-- ENDchannel -->
 <!-- news -->
 <div id="ITEM{itemid}">

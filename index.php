@@ -15,8 +15,7 @@ This page shows a demo of a possible personal aggregator.
 </div>
 <div style="	vertical-align: top;
 	margin-left: 15px;
-	margin-right: 15px;
-	width: 90%;">
+	margin-right: 15px;">
 	<?php require ('newsfeeds/zebrafeeds.php'); ?>
 </div>
 

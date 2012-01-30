@@ -124,6 +124,10 @@
 	width: auto;
 }
 
+.controls img{
+	cursor: pointer;
+}
+
 .dateline {
 	color: #999;
 	font-size: 80%;
@@ -196,8 +200,8 @@ function showItem(feedurl, itemid, outputid) {
 				{chanlogo}
 			</div>
 			<div class="controls">
-				<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" width="36" height="14" border="0" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
-			  	<a href="{feedurl}" target="_blank"><img src="{scripturl}/images/feed.png" alt="[XML]" title="View The Raw XML Source Of {chantitle}" width="36" height="14" border="0" /></a>
+				<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" border="0" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
+			  	<a href="{feedurl}" target="_blank"><img src="{scripturl}/images/feed.png" alt="[XML]" title="View The Raw XML Source Of {chantitle}" border="0" /></a>
 			</div>
 			<div class="chanlink">
 				<a href="{chanlink}">{chantitle}</a>
