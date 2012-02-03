@@ -212,7 +212,7 @@ else
 
           $arrayLength = count($encodings);
           for ($i = 0; $i < $arrayLength; $i++){
-             echo "<option value=\"$encodings[$i]\""; if(ZF_ENCODING==$encodings[$i]) echo "selected=\"selected\""; echo ">$encodings[$i]</option>";
+             echo "<option value=\"$encodings[$i]\" "; if(ZF_ENCODING==$encodings[$i]) echo "selected=\"selected\""; echo ">$encodings[$i]</option>";
           }
        ?>
 		        </select>

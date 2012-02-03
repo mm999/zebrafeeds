@@ -83,7 +83,7 @@ EOD;
 <div class="editfeed" id="editform{i}" style="display:none;">
 	<form action="#">
 		<div style="display: inline-block;">
-			<label for="margin: 15px; chantitle">Title:</label>&nbsp;<br/>
+			<label for="chantitle">Title:</label>&nbsp;<br/>
 			<input type="text" size="50" name="chantitle" id="chantitle{i}" value="{chantitle}" /><br/><br/>
 			<label for="xmlurl"> feed URL:</label><br/>
 			<input type="text" size="50" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
@@ -366,7 +366,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 	
 ?>
 	<div id="core">
-	<div id="listsform" align="center">
+	<div id="listsform">
 		<form name="zflists" action="<?php echo $_SERVER['PHP_SELF'];?>?zfaction=subscriptions" method="post">
 			<?php
 				if (!empty($currentListName)) {

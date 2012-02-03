@@ -48,7 +48,7 @@ zfLogin();
 
 
 	<div id="top">
-<div class="normaltext"><a href="http://cazalet.org/zebrafeeds"><img src="<?php echo ZF_URL;?>/images/logo_admin.png" border="0" alt="ZebraFeeds"/></a></div>
+<div class="normaltext"><a href="http://cazalet.org/zebrafeeds"><img src="<?php echo ZF_URL;?>/images/logo_admin.png" alt="ZebraFeeds"/></a></div>
        <div class="normaltext">administration panel :: <?php echo '<a href="',ZF_HOMEURL,'">View website</a> - <a href="', $_SERVER['PHP_SELF'] , '?zfaction=logout';?>">Logout</a></div>
 	</div>
 <div id="header">

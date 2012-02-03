@@ -7,6 +7,11 @@ html, body{
 	font-size: 12px;
 	font-family: Verdana, Arial, Helvetica, sans-serif
 }
+
+img {
+border: 0;
+}
+
 a:link {
 	color: #0084ff;
 }

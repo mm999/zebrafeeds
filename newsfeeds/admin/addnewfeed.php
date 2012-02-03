@@ -323,7 +323,7 @@ echo '</div>';
       (ex: http://cazalet.org/zebrafeeds)<br/>
       <br/>
 
-      <hr align="center" width="80%" size="1" noshade="noshade"/>
+      <hr/>
 
       <br/>
       <strong>or RSS/RDF/ATOM feed address</strong><br/>
@@ -336,7 +336,7 @@ echo '</div>';
       (ex: http://cazalet.org/zebrafeeds/feed)<br/>
       <br/>
 
-      <hr align="center" width="80%" size="1" noshade="noshade"/>
+      <hr/>
       <br/>
 <?php
     if (zfurl() != false) {
