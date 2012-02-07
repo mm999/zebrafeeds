@@ -37,8 +37,7 @@ class template {
 	private $newsDayFooter;
 	private $news;
 	private $newsByDate;
-	private $between;
-	private $dynamicDescription;
+	private $article;
 
 	private $isDynamic;
 	private $isInvalid;
@@ -65,8 +64,7 @@ class template {
 		$this->newsDayFooter = '';
 		$this->news = '';
 		$this->newsByDate = '';
-		$this->between = '';
-		$this->dynamicDescription = '';
+		$this->article = '';
 
 		$this->isDynamic = false;
 		$this->isInvalid = false;
@@ -105,8 +103,7 @@ class template {
 		$this->newsByDate	  = $this->_extractSection('newsByDate', 'news');
 		$this->newsDay		  = $this->_extractSection('newsDay','',true);
 		$this->newsDayFooter  = $this->_extractSection('newsDayFooter', 'channelFooter', true);
-		$this->between		  = $this->_extractSection('between','',true);
-		$this->dynamicDescription	  = $this->_extractSection('dynamicDescription');
+		$this->article	  	  = $this->_extractSection('article');
 
 		// dynamicnews tag can be either in pageHeader or in header
 		$this->isDynamic = strpos($this->header, '{dynamicnews}') || strpos($this->pageHeader, '{dynamicnews}');
@@ -199,8 +196,8 @@ class template {
 
 	/* normally called in ajax requests when containing
 	element is always the same	*/
-	public function printDynamicDescription(&$item) {
-		$this->_buffer = $this->dynamicDescription;
+	public function printArticle(&$item) {
+		$this->_buffer = $this->article;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
 		$this->_formatNews($item);
@@ -226,11 +223,6 @@ class template {
 
 	public function printDayFooter($date) {
 		$this->_print(str_replace('{date}', $date, $this->newsDayFooter));
-	}
-
-	public function printBetween() {
-		$this->_buffer = $this->between;
-		$this->_printBuffer();
 	}
 
 
@@ -295,14 +287,14 @@ class template {
 
 		if (isset($channel['logo']) && ($channel['logo'] != "")) {
 			$schannel['logo'] = htmlspecialchars($channel['logo'], ENT_QUOTES);
-			$this->_buffer = str_replace('{chanlogo}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['logo']. "\" border=\"0\" alt=\"" . $schannel['title']. "\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
+			$this->_buffer = str_replace('{chanlogo}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['logo']. "\" style=\"border:0;\" alt=\"" . $schannel['title']. "\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanlogo}', '', $this->_buffer);
 		}
 
 		if (isset($channel['favicon']) && ($channel['favicon'] != "")) {
 			$schannel['favicon'] = htmlspecialchars($channel['favicon'], ENT_QUOTES);
-			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['favicon']. "\" border=\"0\" width=\"16\" height=\"16\" halt=\"" . $schannel['title']. "\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
+			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['favicon']. "\" style=\"border:0;\" width=\"16\" height=\"16\" alt=\"" . $schannel['title']. "\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanfavicon}', '', $this->_buffer);
 		}
@@ -389,18 +381,18 @@ class template {
 				foreach($item['enclosures'] as $enclosure) {
 					//special treatment for images: inline
 					if (!(strpos($enclosure['type'], 'image') === false)) {
-						$enclosurelist .= '<img src="'.$enclosure['link'].'" style="margin: 4px" border="0" alt="embedded image"/>';
+						$enclosurelist .= '<img src="'.$enclosure['link'].'" style="margin: 4px; border:0;" alt="embedded image"/>';
 						continue;
 					}
 
 					$icon = $enclosure['type'];
 					$title= 'Undetected file';
 					if (!(strpos($enclosure['type'], 'audio') === false)) {
-						$icon = '<img src="'.ZF_URL.'/images/audio.png" border="0" alt="Audio content"/>';
+						$icon = '<img src="'.ZF_URL.'/images/audio.png" style="border:0;" alt="Audio content"/>';
 						$title = 'Audio content.';
 					}
 					if (!(strpos($enclosure['type'], 'video') === false)) {
-						$icon = '<img src="'.ZF_URL.'/images/video.png" border="0" alt="Video content"/>';
+						$icon = '<img src="'.ZF_URL.'/images/video.png" style="border:0;" alt="Video content"/>';
 						$title = 'Video content.';
 					}
 					// nice output format for the size
@@ -423,9 +415,8 @@ class template {
 
 	/* parse the template file. looks for the string in $section to extract parts 
 	delimited by $section and "END".$section
-	if section is not found, can optionally use a substitute 
-	otherwise returns an empty string and marks template as invalid, unless optional is true*/
-	protected function _extractSection($section, $substitute='', $optional=false) {
+	if section is not found, can optionally use a substitute  */
+	protected function _extractSection($section, $substitute='' ) {
 		$startdelim='<!-- ' . $section . ' -->';
 		$len = strlen($startdelim);
 		$startPos = strpos($this->_html, $startdelim);
@@ -439,8 +430,6 @@ class template {
 			$result = $this->_extractSection($substitute,'', $optional);
 		} else {
 			$result = '';
-			// if the section is not optional, make sure we mark the template as invalid
-			$this->isInvalid = $this->isInvalid || (!$optional);
 		}
 		return($result);
 	}

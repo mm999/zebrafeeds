@@ -203,7 +203,6 @@ class aggregator {
 				if (isset($channeldata['xmlurl']) && trim($channeldata['xmlurl']) != '' && $channeldata['showeditems'] > 0) {
 					if ($this->loadFeed($channeldata)) {
 							$this->viewSingleChannel();
-							$this->_template->printBetween();
 					}
 				}
 			}
@@ -328,7 +327,7 @@ class aggregator {
 
 					/* use the template if we are asked to */
 
-					$this->_template->printDynamicDescription($item);
+					$this->_template->printArticle($item);
 					return;
 				}
 			}

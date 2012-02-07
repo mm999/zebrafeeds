@@ -258,8 +258,8 @@ function highlightCurrent(newcurrentid) {
 		<span class="dateline">{chandesc}</span>
 		<div class="controls">
 			last updated: {lastupdated}
-			<img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" border="0" onclick="zf_getRefreshedNews('{feedurl}', 10, 0, 'NEWSLIST'+'{chanid}');" />
-			<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" border="0" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
+			<img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" style="border:0;" onclick="zf_getRefreshedNews('{feedurl}', 10, 0, 'NEWSLIST'+'{chanid}');" />
+			<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" style="border:0;" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
 		</div>		
 	</div>
 </div>
@@ -303,7 +303,7 @@ function highlightCurrent(newcurrentid) {
 <!-- footer -->
 </div> <!-- zfwrapper div -->
 <!-- ENDfooter -->
-<!-- dynamicDescription -->
+<!-- article -->
 <div class="storywrapper">
 	<div class="storycontent">
 	<div>
@@ -314,6 +314,4 @@ function highlightCurrent(newcurrentid) {
 	</div>
 	<a href="http://www.instapaper.com/text?u={link_encoded}">Read in instapaper</a> - <a href="https://twitter.com/share?url={link_encoded}&text={title}">Tweet this</a>
 </div>
-<!-- ENDdynamicDescription -->
-<!-- between -->
-<!-- ENDbetween -->
+<!-- ENDarticle -->

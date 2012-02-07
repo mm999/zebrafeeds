@@ -53,7 +53,6 @@ CHANNEL list            {list}
         NEWS description     <div style="display:none">{description}</div>
         NEWS summary        <div style="display:block">{summary}</div>
         NEWS enclosures      {enclosures}
-        NEWS dynamic_description  {dynamic_description}
         ------ END NEWS
 </pre>
 <!-- ENDnews -->
@@ -73,10 +72,9 @@ CHANNEL list            {list}
         NEWSBYDATE scripturl       {scripturl}
         NEWSBYDATE list            {list}
         
-        NEWSBYDATE description     <div style="display:none">{description}</div>
+       NEWSBYDATE description     <div style="display:none">{description}</div>
         NEWSBYDATE summary         <div style="display:block">{summary}</div>
         NEWSBYDATE enclosures      {enclosures}
-        NEWSBYDATE dynamic_description  {dynamic_description}
         ------ end newsbydate
 </pre>
 <!-- ENDnewsByDate -->
@@ -101,30 +99,23 @@ NEWSDAYFOOTER
 -----
 </pre>
 <!-- ENDnewsDayFooter -->
-<!-- between -->
-<pre>
----
-BETWEEN
------
-</pre>
-<!-- ENDbetween -->
-<!-- dynamicDescription -->
+<!-- article -->
 <pre>
                     ---
-                    DYNAMIC title           {title}
-                    DYNAMIC pubdate         {pubdate}
-                    DYNAMIC link            {link}
-                    DYNAMIC isnew           {isnew}
-                    DYNAMIC chantitle       {chantitle}
-                    DYNAMIC chanlink        {chanlink}
-                    DYNAMIC chandesc        {chandesc}
-                    DYNAMIC feedurl         {feedurl}
-                    DYNAMIC scripturl       {scripturl}
-                    DYNAMIC list            {list}
+                    ARTICLE title           {title}
+                    ARTICLE pubdate         {pubdate}
+                    ARTICLE link            {link}
+                    ARTICLE isnew           {isnew}
+                    ARTICLE chantitle       {chantitle}
+                    ARTICLE chanlink        {chanlink}
+                    ARTICLE chandesc        {chandesc}
+                    ARTICLE feedurl         {feedurl}
+                    ARTICLE scripturl       {scripturl}
+                    ARTICLE list            {list}
                     
-                    DYNAMIC description     <div style="display:none;">{description}"</div>
-                    DYNAMIC enclosures      {enclosures}
-                    DYNAMIC summary         <div style="display:block">{summary}</div>
-                    ------ end dynamic
+                    ARTICLE description     <div style="display:none;">{description}"</div>
+                    ARTICLE enclosures      {enclosures}
+                    ARTICLE summary         <div style="display:block">{summary}</div>
+                    ------ end article
 </pre>
-<!-- ENDdynamicDescription -->
+<!-- ENDarticle -->
