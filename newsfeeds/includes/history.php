@@ -32,14 +32,14 @@ class history {
     
 
     /* array of timestamps, one per news */
-    var $_timestamps;
+    private $_timestamps;
 
     /* name of history file */
-    var $_fileName;
+    private $_fileName;
     // just for logging
-    var $_address;
+    private $_address;
  
-    function history($address) {
+    public function __construct($address) {
 
         // array index: item id
         // data, array of "timestamp of first seen", "just seen" flag
@@ -52,7 +52,7 @@ class history {
     }
 
 
-    function save(){
+    public function save(){
         $fp = @fopen( $this->_fileName, 'w' );
 
         if ( ! $fp ) {
@@ -67,7 +67,7 @@ class history {
     }
 
 
-    function load(){
+    public function load(){
 
         if ( ! file_exists( $this->_fileName ) ) {
             zf_debug( "History file not found $this->_fileName, $this->_address");
@@ -91,7 +91,7 @@ class history {
 
     }
 
-    function delete(){
+    public function delete(){
         $res = unlink( $this->_fileName );
 
         if ( ! $res ) {
@@ -108,7 +108,7 @@ class history {
     /* returns the timestamp of the first time the item was seen in the DB
      * called during caching of RSS object
      */
-    function getDateFirstSeen($id) {
+    public function getDateFirstSeen($id) {
         if (ZF_DEBUG == 7) {
             zf_debug($this->_address .': getting time first seen for item- '. $id);
         }
@@ -128,7 +128,7 @@ class history {
     * $since: time stamp to tell when to go back in time from
     * $now: compare at timestamp X
     */
-    function handleCurrentItems(&$items, $since, $now) {
+    public function handleCurrentItems(&$items, $since, $now) {
 
         if (ZF_DEBUG == 7) {
             zf_debug($this->_address .': marking items newer than: '.date('dS F Y h:i:s A', $since));
@@ -181,7 +181,7 @@ class history {
 
     // takes the list of items, and delete those 
     // not seen during the last marking round
-    function purge() {
+    public function purge() {
         // for each ids from our table
         // if id has not been seen, delete it
         // if id has been seen, mark it as unseen for next time

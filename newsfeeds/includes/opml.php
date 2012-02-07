@@ -105,18 +105,18 @@ function zf_opmlEndElement($parser, $name)
 
 class opml {
 
-	var $_isFile;
-	var $_parseMode;
-	var $name;
-	var $channels;
+	private $_isFile;
+	private $_parseMode;
+	public $name;
+	public $channels;
 	// options array, not exactly like feed options in Aggregator class. 
 	//has the view mode field, which is a separate member in aggregator
-	var $options;
+	public $options;
 	
-	var $lastError;
-	var $lastResult;
+	public $lastError;
+	public $lastResult;
    
-	function opml($name='') {
+	public function __construct($name='') {
 		$this->options = array( 'viewmode' =>'feed', 
 								'trimtype' => 'news',
 								 'trimsize' => 5 );
@@ -136,7 +136,7 @@ class opml {
 
 	/* loads a list. returns true if success
 	puts error in lastError if failure */
-	function load($from = '') {
+	public function load($from = '') {
 		global $zf_path,$zf_opmlItems, $zf_opmlCount, $zf_opmlMode, $zf_opmlOptions;
 
 		if ($from == '') {
@@ -202,7 +202,7 @@ class opml {
 	/* write the whole opml list to a file
 	returns true if success. puts error message in lastError if failure
 	*/
-	function save() {
+	public function save() {
 
 		$opmlfilename = $this->getFileName();
 
@@ -258,7 +258,7 @@ class opml {
 		}
 	}
 
-	function getFileName($name='') {
+	public function getFileName($name='') {
 		if ($name != ''){
 			return ZF_OPMLDIR . '/'.$name.'.opml';
 		} else {
@@ -267,11 +267,11 @@ class opml {
 	}
 
 
-	function getURL() {
+	public function getURL() {
 		return ZF_URL .'/'. ZF_OPMLBASEDIR . '/'.urlencode($this->name).'.opml';
 	}
 
-	function delete() {
+	public function delete() {
 		$deletefilename = $this->getFileName();
 		if (file_exists($deletefilename)) {
 			unlink($deletefilename);
@@ -285,7 +285,7 @@ class opml {
 	}
 
 	/*----------*/
-	function rename($newName) {
+	public function rename($newName) {
 
 		$oldfilename = $this->getFileName();
 		$newfilename = $this->getFileName($newName);
@@ -307,7 +307,7 @@ class opml {
 	}
 
 	/*----------*/
-	function create() {
+	public function create() {
 		if (!file_exists($this->getFileName())) {
 			return $this->save();
 		} else {
@@ -317,7 +317,7 @@ class opml {
 	}
 
 
-	function getNextPosition() {
+	public function getNextPosition() {
 		$lastpos = 0;
 		foreach($this->channels as $i => $item) {
 			if ($item['position'] > $lastpos) {
@@ -327,7 +327,7 @@ class opml {
 		return $lastpos+1;
 	}
 
-	function isPositionTaken($pos, $exceptAt) {
+	public function isPositionTaken($pos, $exceptAt) {
 		for($i = 0; $i < count($this->channels); $i++) {
 			if ($i == $exceptAt) continue;
 			//echo $i.' -- '.$this->channels;
@@ -337,13 +337,13 @@ class opml {
 		}
 		return -1;
 	}
-	function removeChannelAtPos($index) {
+	public function removeChannelAtPos($index) {
 		unset($this->channels[$index]);
 	}
 
 	/* update the channel at position $index
 	 return true if ok, or false if duplicate position problem */
-	function setChannelAtPos($index, $channel) {
+	public function setChannelAtPos($index, $channel) {
 		$checkPos = $this->isPositionTaken($channel['position'], $index);
 		if ($checkPos > -1){
 			$this->lastError = 'Error: duplicate position with channel <em>'. $this->channels[$checkPos]['title'].'</em>';
@@ -353,14 +353,14 @@ class opml {
 		return true;
 	}
 
-	function addChannel($channel) {
+	public function addChannel($channel) {
 		$this->channels[] = $channel;
 	}
 
 	
 	/* make sure we have correct data in our array
 	should be called after read, and before save */
-	function _sanitize() {
+	public function _sanitize() {
 
 		$nextPos = $this->getNextPosition();
 

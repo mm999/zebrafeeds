@@ -26,34 +26,34 @@ require_once($zf_path . 'includes/common.php');
 
 class template {
 	/* properties {{{*/ 
-	var $name;
+	public $name;
 
-	var $pageHeader;
-	var $header;
-	var $footer;
-	var $channel;
-	var $channelFooter ;
-	var $newsDay;
-	var $newsDayFooter;
-	var $news;
-	var $newsByDate;
-	var $between;
-	var $dynamicDescription;
+	public $pageHeader;
+	private $header;
+	private $footer;
+	private $channel;
+	private $channelFooter ;
+	private $newsDay;
+	private $newsDayFooter;
+	private $news;
+	private $newsByDate;
+	private $between;
+	private $dynamicDescription;
 
-	var $isDynamic;
-	var $isInvalid;
+	private $isDynamic;
+	private $isInvalid;
 
 	// optional tags to convert
-	var $_optionsTags;
+	private $_optionsTags;
 
-	var $_wrappingType;
+	private $_wrappingType;
 
-	var $_html;
+	private $_html;
 	// string for the template part being parsed. contained semi-processed output
-	var $_buffer;
-	var $_filename;/*}}}*/
+	private $_buffer;
+	private $_filename;/*}}}*/
 
-	function template($name) {
+	public function __construct($name) {
 		$this->pageHeader = '';
 		$this->header = '';
 		$this->footer = '';
@@ -90,7 +90,7 @@ class template {
 		}
 	}
 
-	function load() {
+	public function load() {
 
 		$this->_loadFile();
 		/* here are our template parts */
@@ -116,7 +116,7 @@ class template {
 
 	/* buffer print: format optional tags, and sends to print 
 	use this function if we have to process the optional tags*/
-	function _printBuffer() {
+	protected function _printBuffer() {
 		//last pass at tags substitution
 		$this->_formatOptions();
 
@@ -130,7 +130,7 @@ class template {
 	}
 
 	// simple print of a string, without any formatting
-	function _print($output) {
+	protected function _print($output) {
 		if ($this->_wrappingType == 'js') {
 			$this->javascriptOutput($output);
 		} else {
@@ -138,19 +138,19 @@ class template {
 		}		
 	}
 
-	function javascriptOutput(&$output) {
+	protected function javascriptOutput(&$output) {
 		// remove all eol chars and escape single quotes
 		echo "document.write('".str_replace(array("\r","\n","'"), array("", "", "\\'"), $output)."');\n";
 	}
 
-	function printPageHeader() {
+	public function printPageHeader($feed) {
 		$this->_buffer = $this->pageHeader;
 		$this->_formatCommon();
 		$this->_formatDynamicCode();
 		$this->_printBuffer();
 	}
 
-	function printHeader() {
+	public function printHeader() {
 		$code = '';
 		if ($this->isDynamic) {
 			$code .= '<script type="text/javascript">var ZFURL="'.ZF_URL.'"; var ZFTEMPLATE="'.$this->name.'";</script>';
@@ -165,7 +165,7 @@ class template {
 		$this->_printBuffer();
 	}
 
-	function printListHeader(&$feed) {
+	public function printListHeader($feed) {
 		$this->_buffer = $this->listHeader;
 		$this->_formatCommon();
 		// allow options in this sections, for RSS feed generation
@@ -174,13 +174,13 @@ class template {
 	}
 
 
-	function _formatDynamicCode() {
+	protected function _formatDynamicCode() {
 		$this->_buffer = str_replace('{dynamicnews}', '<script type="text/javascript" src="'.ZF_URL.'/zfclientside.js"></script>', $this->_buffer);
 
 	}
 
 
-	function printNews(&$item) {
+	public function printNews(&$item) {
 		$this->_buffer = $this->news;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
@@ -189,7 +189,7 @@ class template {
 
 	}
 
-	function printNewsByDate(&$item) {
+	public function printNewsByDate(&$item) {
 		$this->_buffer = $this->newsByDate;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
@@ -199,7 +199,7 @@ class template {
 
 	/* normally called in ajax requests when containing
 	element is always the same	*/
-	function printDynamicDescription(&$item) {
+	public function printDynamicDescription(&$item) {
 		$this->_buffer = $this->dynamicDescription;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
@@ -207,34 +207,34 @@ class template {
 		$this->_printBuffer();
 	}
 
-	function printFooter() {
+	public function printFooter() {
 		$this->_buffer = $this->footer;
 		$this->_formatCommon();
 		$this->_printBuffer();
 
 	}
-	function printListFooter() {
+	public function printListFooter() {
 		$this->_buffer = $this->listFooter;
 		$this->_formatCommon();
 		$this->_printBuffer();
 
 	}
 
-	function printDay($date) {
+	public function printDay($date) {
 		$this->_print( str_replace('{date}', $date, $this->newsDay));
 	}
 
-	function printDayFooter($date) {
+	public function printDayFooter($date) {
 		$this->_print(str_replace('{date}', $date, $this->newsDayFooter));
 	}
 
-	function printBetween() {
+	public function printBetween() {
 		$this->_buffer = $this->between;
 		$this->_printBuffer();
 	}
 
 
-	function printChannel(&$feed) {
+	public function printChannel($feed) {
 		$channel = $feed->channel;
 		$last_fetched = $feed->last_fetched;
 
@@ -260,7 +260,7 @@ class template {
 
 	}
 
-	function printChannelFooter() {
+	public function printChannelFooter() {
 		if (!empty($this->channelFooter)) {
 			$this->_buffer = $this->channelFooter;
 			$this->_printBuffer();
@@ -271,11 +271,11 @@ class template {
 
 	/* process tags that can be in any part of the template 
 	*/
-	function _formatCommon() {
+	protected function _formatCommon() {
 		$this->_buffer = str_replace('{scripturl}', ZF_URL, $this->_buffer);
 	}
 
-	function _formatOptions(){
+	protected function _formatOptions(){
 		/* do options */
 		foreach($this->_optionsTags as $tag => $value) {
 			$this->_buffer = str_replace('{'.$tag.'}', $value, $this->_buffer);
@@ -284,7 +284,7 @@ class template {
 
 	/* process channel-related template tags 
 	*/
-	function _formatChannel(&$channel) {
+	protected function _formatChannel(&$channel) {
 		$schannel = $channel;
 		if ($this->name == 'SYSTEM.rss') {
 			$schannel['title'] = htmlspecialchars($channel['title'], ENT_QUOTES);
@@ -318,7 +318,7 @@ class template {
 
 	/* process item-related template tags 
 	*/
-	function _formatNews(&$item) {
+	protected function _formatNews(&$item) {
 		$sitem = $item;
 		if ($this->name == 'SYSTEM.rss') {
 			$sitem['title'] = htmlspecialchars($item['title'], ENT_QUOTES);
@@ -376,7 +376,7 @@ class template {
 
 
 	
-	function _formatEnclosures(&$item) {
+	protected function _formatEnclosures(&$item) {
 		// enclosures
 		$enclosurelist = "";
 		if (isset($item['enclosures'])) {
@@ -425,7 +425,7 @@ class template {
 	delimited by $section and "END".$section
 	if section is not found, can optionally use a substitute 
 	otherwise returns an empty string and marks template as invalid, unless optional is true*/
-	function _extractSection($section, $substitute='', $optional=false) {
+	protected function _extractSection($section, $substitute='', $optional=false) {
 		$startdelim='<!-- ' . $section . ' -->';
 		$len = strlen($startdelim);
 		$startPos = strpos($this->_html, $startdelim);
@@ -445,12 +445,12 @@ class template {
 		return($result);
 	}
 
-	function _getFileName(){
+	public function _getFileName(){
 		global $zf_path;
 		return $zf_path .'templates/'.$this->name.'.html';
 	}
 
-	function _loadFile() {
+	protected function _loadFile() {
 		// could use file_get_contents, but it would require php >= 4.3.0
 		$this->_html = '';
 		$htmlData = '';
@@ -463,7 +463,7 @@ class template {
 	/* add options tags that will be 
 	replaced once for all after rendering
 	$tags: associative array */
-	function addTags($tags) {
+	public function addTags($tags) {
 		$this->_optionsTags = array_merge($this->_optionsTags, $tags);
 	}
 

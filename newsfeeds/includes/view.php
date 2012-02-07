@@ -32,15 +32,15 @@ class view {
 	//var $template = null;
 
 	// optional: separate each news day
-	var $groupByDay; 
+	public $groupByDay; 
 
 	/* this property is used when currently rendering a particular feed 
 	it's a Feed object	  */
 
-	var $feed;
-	var $template;
+	protected $feed;
+	protected $template;
 
-	function view(&$template, &$feed) {
+	public function __construct($template, $feed) {
 		$this->groupByDay = false;
 		$this->feed = &$feed;
 		$this->template = &$template;
@@ -50,13 +50,8 @@ class view {
 	  made of an unique "feed" if grouped by date"
 	  or made of multiple single feeds if grouped by channel 
 	at this point, items are supposed to be filtered */
-	function render() {
+	public function render() {
 
-		global $zf_aggregator;
-/*echo "<pre>";
-print_r($this->feed);
-echo "</pre>";
-return;*/
 		if ($this->groupByDay ) {
 			$this->template->printListHeader($this->feed);
 		} else {
@@ -72,7 +67,7 @@ return;*/
 	}
 
 	/* print only news items, no header */
-	function renderNewsItems() {
+	public function renderNewsItems() {
 	
 		$doNewOnes = true;
 
@@ -86,7 +81,7 @@ return;*/
 			
 	}
 
-	function renderUnseenNewsitems() {
+	public function renderUnseenNewsitems() {
 	
 		$titleToShow = '';
 
@@ -109,7 +104,7 @@ return;*/
 
 	}
 	
-	function renderRemainingNewsitems($doNewOnes) {
+	public function renderRemainingNewsitems($doNewOnes) {
 	
 		$currentDay = '';
 		//$today = date('m.d.Y');

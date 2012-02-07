@@ -148,7 +148,6 @@ class feed {
 		$this->channel['xmlurl'] = ZF_URL.'?f=rss&zflist='.urlencode($this->listName);
 		$this->channel['link'] = ZF_HOMEURL.'?zflist='.urlencode($this->listName);
 		$this->channel['id'] = zf_makeId($this->channel['xmlurl'],'');
-		$this->channel['articlelink'] = 'default';
 
 
 		// fill the description
@@ -374,7 +373,6 @@ class feed {
 		if (isset($channeldata['description'])) {
 			$this->channel['description'] = $channeldata['description'];
 		}
-		$this->channel['articlelink'] = $channeldata['articlelink'];
 
 	}
 

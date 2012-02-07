@@ -267,8 +267,6 @@ class aggregator {
         $feed = &$this->makeFeed();
         if ($this->list != null) {
             //configure template to remove unhandled/unwanted buttons
-            $this->_template->disableDisplayButtons();
-            $this->_template->disableDynamicButtons();
             $this->_template->addTags(array( 'list' => $this->list->name));
         }  else {
             $this->_template->addTags(array( 'list' => ''));
