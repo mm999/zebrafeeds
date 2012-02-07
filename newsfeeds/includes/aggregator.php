@@ -52,18 +52,18 @@ require_once($zf_path . 'includes/fetch.php');
 class aggregator {
 
     // output template of this aggregation
-    var $_template;
+    public $_template;
 
     // array of channels we have to get the feeds for
     // might come from an OPML list, or not
-    var $channels;
+    public $channels;
 
     // if the aggregator use a list to get its channels from, 
     // here is the list. In this case $this->channels is a reference to
     // $list->channels
-    var $list;
+    public $list;
 
-    var $errorLog;
+    public $errorLog;
 
     // feed options: only when viewmode is not feed
     // array with
@@ -72,21 +72,21 @@ class aggregator {
     // - userfunction
     // - matchexpression
 
-    var $_feedOptions;
-    var $viewMode;
+    private $_feedOptions;
+    public $viewMode;
 
     // private properties
     // last Feed object got from the parser, the next to be 
     // aggregated
-    var $_feed;
+    private $_feed;
 
     /* array to help to track when the user came before */
-    var $_visits; 
+    private $_visits; 
 
     // timestamp of start of processing
-    var $_now;
+    private $_now;
 
-    function aggregator() {
+    public function __constructor() {
         $this->_feedOptions = array();
         $this->channels = array();
         $this->list = null;
@@ -104,7 +104,7 @@ class aggregator {
         $this->_now = time();
     }
 
-    function useList(&$subscriptionsList) {
+    public function useList(&$subscriptionsList) {
         // record the information saying that this channel list
         // actually comes from a subscription list, not from 
         // a zf_addFeed call
@@ -123,12 +123,12 @@ class aggregator {
     }
 
     /* behavior settings */
-    function setViewMode($mode) {
+    public function setViewMode($mode) {
         $this->_viewMode = $mode;
     }
 
 
-    function filterChannelPos($posString) {
+    public function filterChannelPos($posString) {
         /* TODO: allow multiple positions */
         // so far, only one:
 
@@ -143,17 +143,17 @@ class aggregator {
     }
 
     /* changes the trimming options. Also forces the view mode to trim */
-    function setTrimOptions($trimtype, $trimsize) {
+    public function setTrimOptions($trimtype, $trimsize) {
         $this->_viewMode = 'trim';
         $this->_feedOptions['trimsize'] = $trimsize;
         $this->_feedOptions['trimtype'] = $trimtype;
     }
 
-    function matchNews($expression) {
+    public function matchNews($expression) {
         $this->_feedOptions['match'] = $expression;
     }
 
-    function useTemplate(&$template) {
+    public function useTemplate(&$template) {
         $this->_template = &$template;
     }
 
@@ -161,7 +161,7 @@ class aggregator {
        show and aggregated channels view, or a regular per-channel view
        according to viewmode and if matching a keyword has been requested
     meant to be for an HTML page. shows errors and credit if configured*/
-    function viewPage() {
+    public function viewPage() {
         if (count($this->channels) > 0) {
             $this->_template->printHeader();
             zf_debug('Viewmode:'. $this->_viewMode);
@@ -186,7 +186,7 @@ class aggregator {
     /* renders a view showing news by channel. Traditional view (a la Yahoo) 
        channels of the channels list are rendered by position order
      */
-    function viewChannels() {
+    public function viewChannels() {
 
         /*if we have feeds to display */
         foreach($this->channels as $i => $channeldata) {
@@ -215,7 +215,7 @@ class aggregator {
     all items, natural order, only a max number of items
     optionally, we can render only the items, no header (this is for ajax calls)
      */
-    function viewSingleChannel($viewAll = false, $onlyItems = false) {
+    public function viewSingleChannel($viewAll = false, $onlyItems = false) {
 		zf_debug("viewing channel ".$this->_feed->channel['xmlurl']);
 
         $feedOptions = array();
@@ -257,7 +257,7 @@ class aggregator {
     /* AggregatedChannels: render a "virtual" channel
      create a feed aggregating all channels
     renders the feed by date */
-    function viewAggregatedChannels() {
+    public function viewAggregatedChannels() {
 
         //consistency check
         if ($this->_viewMode != 'trim') {
@@ -309,7 +309,7 @@ class aggregator {
     $single : if true, we must use the appropriate template section
     instead of returning the bare news content
    */
-    function printItemContent($itemid) {
+    public function printItemContent($itemid) {
 
         /* force use of cache */
 
@@ -341,7 +341,7 @@ class aggregator {
     will load all RSS objects from the channels list and merge 
     them in a feed object, on which a reference is returned
      */
-    function &makeFeed() {
+    public function makeFeed() {
 
         // use channel array for sources.
 
@@ -380,7 +380,7 @@ class aggregator {
      if successfull, the RSS object carries then all channel information
 
     return true if the feed was obtained, otherwise false*/
-    function loadFeed($channeldata, $refreshtime = 'default', $ignorehistory = false) {
+    public function loadFeed($channeldata, $refreshtime = 'default', $ignorehistory = false) {
         // TODO implement single global refreshtime
 
         // Refresh-time decision algorithm
@@ -446,7 +446,7 @@ class aggregator {
     }
 
     /* generate bottom line */
-    function displayCredits() {
+    public function displayCredits() {
         if ((!defined("ZF_SHOWCREDITS")) || (ZF_SHOWCREDITS!='no')) {
             echo ' <div id="generator">aggregated by <a href="http://www.cazalet.org/zebrafeeds">ZebraFeeds</a></div>';
         }
@@ -454,11 +454,11 @@ class aggregator {
         zf_debugRuntime("after credits");
     }
 
-    function displayStatus($message) {
+    public function displayStatus($message) {
         echo '<div class="zfchannelstatus">'.$message.'</div>';
     }
 
-    function displayErrors() {
+    public function displayErrors() {
         if ((ZF_DISPLAYERROR =="yes")  && (!empty($this->errorLog)) ) {
             $this->displayStatus($this->errorLog);
         }
@@ -467,20 +467,20 @@ class aggregator {
     // fronts to the recordVisit method
     // as they are not called from the same place
     // whether set as client or server
-    function recordServerVisit() {
+    public function recordServerVisit() {
         if (ZF_NEWITEMS=='server') {
             $this->_recordVisit();
         }
     }
 
-    function recordClientVisit() {
+    public function recordClientVisit() {
         if (ZF_NEWITEMS=='client') {
             $this->_recordVisit();
         }
     }
 
     // store the current time
-    function _recordVisit() {
+    private function _recordVisit() {
 
         // 1: read visit information
 
