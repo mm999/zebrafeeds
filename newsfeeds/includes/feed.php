@@ -62,30 +62,30 @@ class feed {
 
 	// aggregated, normalized items
 	// if we aggregate several feeds, index is timestamp
-	var $items;
-	var $channel;
+	public $items;
+	public $channel;
 
 	// merging/filter options
-	var $trimtype = 'none';
-	var $trimsize = 0;
-	var $matchExpression = '';
+	public $trimtype = 'none';
+	public $trimsize = 0;
+	public $matchExpression = '';
 
 	// timestamp before which we don't want news
-	var $_earliest;
+	private $_earliest;
 
 	// virtual state of this feed
 	// false if directly obtained from the parser
 	// true if merged with another feed object
-	var $isVirtual = false;
+	public $isVirtual = false;
 
 	// when the feed is virtual, this is the name of the list
-	var $listName;
+	public $listName;
 		
-	var $refreshTime;
-	var $showedItems;
-	var $last_fetched = 0;
+	public $refreshTime;
+	public $showedItems;
+	public $last_fetched = 0;
 
-	function feed() {
+	public function __construct() {
 		$this->items = array();
 		$this->channel = array();
 		$this->_earliest = 0;
@@ -93,11 +93,11 @@ class feed {
 	}	 
 
 
-	function setMatchExpression($expr) {
+	public function setMatchExpression($expr) {
 		$this->matchExpression = $expr;
 	}
 
-	function setTrim($type,$size=0) {
+	public function setTrim($type,$size=0) {
 		$this->trimsize = $size;
 		$this->trimtype = $type;
 		
@@ -125,7 +125,7 @@ class feed {
 
 	/* function to call after all RSS have been merged
 	in order to finalize processing, like sorting and trimming */
-	function postProcess($sort = true) {
+	public function postProcess($sort = true) {
 		if ($sort) {
 			$this->sortItems();
 		}
@@ -139,7 +139,7 @@ class feed {
 	/* this feed is an aggregation of feeds from a list
 	   this method initializes this
 	 */
-	function initVirtual($listname) {
+	public function initVirtual($listname) {
 
 		$this->isVirtual = true;
 		$this->listName = $listname;
@@ -183,7 +183,7 @@ class feed {
 	}
 		
 
-	function mergeWith( &$feed ) {
+	public function mergeWith( &$feed ) {
 		$this->isVirtual = true;
 
 		$this->touch($feed);
@@ -196,7 +196,7 @@ class feed {
 		- keep only the ones we want on a timeframe basis
 		- add additional data to items
 		 */
-	function mergeItems(&$feed) {
+	public function mergeItems(&$feed) {
 
 		$itemcount = 0;
 		foreach ($feed->items as $item) {
@@ -310,7 +310,7 @@ class feed {
 	}
 
 	// retain the most recent fetch date of all feeds integrated in this one
-	function touch(&$feedToMerge) {
+	public function touch(&$feedToMerge) {
 
 		// if the feed we are merging into is more recent, the date of this feed is touched
 		if ($this->last_fetched < $feedToMerge->last_fetched) {
@@ -324,7 +324,7 @@ class feed {
 		could be regexp
 		return true if match
 		*/
-	function itemMatches(&$item) {
+	public function itemMatches(&$item) {
 		$subject = strip_tags($item['title']) . ' ' .strip_tags($item['description']);
 		//echo "checking ".$item['title']." for ". $exp.":".strpos(strtolower($subject), strtolower($exp))."<br/>";
 		return !(strpos(strtolower($subject), strtolower($this->matchExpression))===false); 
@@ -332,7 +332,7 @@ class feed {
 
 
 	/* get rid of superfluous items exceeding our limit ,  only by numbers (trimtype = news)*/
-	function trimItems() {
+	public function trimItems() {
 		// trim items by number
 		if ($this->trimtype == 'news') {
 			if (ZF_DEBUG==4) {
@@ -344,7 +344,7 @@ class feed {
 
 
 	/* sort our aggregated items */
-	function sortItems() {
+	public function sortItems() {
 		if (ZF_DEBUG==4) {
 			zf_debug('sorting items');
 		}
@@ -354,7 +354,7 @@ class feed {
 
 	}
 
-	function filterNonNew() {
+	public function filterNonNew() {
 		$currentitems = $this->items;
 		$this->items=array();
 		foreach ($currentitems as $item) {
@@ -365,7 +365,7 @@ class feed {
 	}
 
 	/* adapt the channel array from data set externally, or with default values */
-	function customizeChannel(&$channeldata) {
+	public function customizeChannel(&$channeldata) {
 
 		if (isset($channeldata['title'])) {
 			$this->channel['title'] = $channeldata['title'];
@@ -379,7 +379,7 @@ class feed {
 	/* make sure our channel array has all what we need
 	 this data will get cached, so this function is called only once, 
 	 right after the feed is fetched over http */
-	function normalize(&$channeldata){
+	public function normalize(&$channeldata){
 
 		/* for this it's okay to store in cache */
 		$this->channel['id'] = zf_makeId($this->channel['xmlurl'], '');
@@ -389,7 +389,7 @@ class feed {
 
 	/* for non virtual feeds, we need to link items to their original channel
 	 * we'll need it for the template */
-	function bindItemsToChannel() {
+	public function bindItemsToChannel() {
 		for ($i=0; $i<count($this->items); $i++) {
 		   $this->items[$i]['channel'] = &$this->channel;
 		}
