@@ -20,7 +20,7 @@ class FeedCache {
 	private $MAX_AGE	= 3600;			// when are files stale, default one hour
 	public $ERROR	   = "";		   // accumulate error messages
 
-	public function __contstruct($base='', $age='') {
+	public function __construct($base='', $age='') {
 		if ( $base ) {
 			$this->BASE_CACHE = $base;
 		}
