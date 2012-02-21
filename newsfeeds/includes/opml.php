@@ -49,8 +49,7 @@ if( !defined('ZF_URL') ) die( 'Please, do not access this page directly.' );
 
 
 /* XML parsing functions */
-function zf_opmlStartElement($parser, $name, $attributes)
-{
+function zf_opmlStartElement($parser, $name, $attributes) {
 	global $zf_opmlItems, $zf_opmlCount, $zf_opmlMode, $zf_opmlOptions;
 
 
@@ -65,11 +64,11 @@ function zf_opmlStartElement($parser, $name, $attributes)
 
 		$pos = $zf_opmlCount;
 		$zf_opmlItems[$pos]['position'] = $attributes['POSITION'];
-		$zf_opmlItems[$pos]['title'] = ($attributes['TITLE'] != '')?$attributes['TITLE']:'';
-		$zf_opmlItems[$pos]['htmlurl'] = ($attributes['HTMLURL'] != '')?$attributes['HTMLURL']:'';
-		$zf_opmlItems[$pos]['text'] = ($attributes['TEXT'] != '')?$attributes['TEXT']:'';
-		$zf_opmlItems[$pos]['description'] = ($attributes['DESCRIPTION'] != '')?$attributes['DESCRIPTION']:'';
-		$zf_opmlItems[$pos]['xmlurl'] = ($attributes['XMLURL'] != '')?$attributes['XMLURL']:'';
+		$zf_opmlItems[$pos]['title'] = html2specialchars(($attributes['TITLE'] != '')?$attributes['TITLE']:'');
+		$zf_opmlItems[$pos]['htmlurl'] = html2specialchars(($attributes['HTMLURL'] != '')?$attributes['HTMLURL']:'');
+		$zf_opmlItems[$pos]['text'] = html2specialchars(($attributes['TEXT'] != '')?$attributes['TEXT']:'');
+		$zf_opmlItems[$pos]['description'] = html2specialchars(($attributes['DESCRIPTION'] != '')?$attributes['DESCRIPTION']:'');
+		$zf_opmlItems[$pos]['xmlurl'] = html2specialchars(($attributes['XMLURL'] != '')?$attributes['XMLURL']:'');
 		$zf_opmlItems[$pos]['refreshtime'] = ($attributes['REFRESHTIME'] != '')?$attributes['REFRESHTIME']:ZF_DEFAULT_REFRESH_TIME;
 		$zf_opmlItems[$pos]['showeditems'] = ($attributes['SHOWEDITEMS'] != '')?$attributes['SHOWEDITEMS']:ZF_DEFAULT_NEWS_COUNT;
 		$zf_opmlItems[$pos]['issubscribed'] = ($attributes['ISSUBSCRIBED'] != '')?$attributes['ISSUBSCRIBED']:'yes';
@@ -101,7 +100,10 @@ function zf_opmlEndElement($parser, $name)
 }
 
 
-
+function html2specialchars($str){
+	 $trans_table = array_flip(get_html_translation_table(HTML_ENTITIES));
+	 return strtr($str, $trans_table);
+}
 
 class opml {
 
