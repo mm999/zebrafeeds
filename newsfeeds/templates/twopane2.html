@@ -47,27 +47,25 @@ note: Do NOT delete or modify comments in the template files -
 #zfwrap {
 	margin-top: 10px;
 	margin-bottom: 20px;
+min-height: 680px;
 }
 
 #leftcolumn {
 	margin-top: 10px;
-	width: 35%;
-	overflow: auto;
-	overflow-y: auto;
+	width: 250px;
+	overflow-y: scroll;
 	overflow-x: hidden;
-	height: 600px;
-	display: inline-block;
-	vertical-align: top;
+position: fixed;
+top: 30px;
+left: 5px;
+height: 680px;
 }
 
 
 #zffixednews {
-	width: 64%;
-	display: inline-block;
+	margin-left: 260px;
 	vertical-align: top;
-	overflow-y: auto;
-	overflow-x: hidden;
-	height: 600px;
+
 }
 
 #zffixednews img {
@@ -219,7 +217,7 @@ function scrollToTop() {
 		{chanfavicon}
 	</div>
 	<div class="controls">
-		<img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" border="0" onclick="zf_getRefreshedNews('{feedurl}', 10, 0, 'NEWSLIST'+'{chanid}');" />
+		{refreshbutton}
 	</div>
 	<div class="chanlink">
 		<a href="{chanlink}">{chantitle}</a>
@@ -228,13 +226,13 @@ function scrollToTop() {
 		last updated: {lastupdated}
 	</div>
 </div>
-<div class="newslist" id="NEWSLIST{chanid}">
+<div class="newslist">
 <!-- ENDchannel -->
 <!-- news -->
 <div class="newsitem">
 	<div class="newstitlelist">
 		<!-- this is the tricky bit, to have ajaxed news items -->
-		<span class="itemtitle {isnew}" onclick="zf_getArticle('{feedurl}','{itemid}', 'zffixednews');this.style.color = '#BEBEBE'; scrollToTop();">{title}</span>
+		<span class="itemtitle {isnew}" onclick="fetchItem('{feedurl}','{itemid}', 'zffixednews');this.style.color = '#BEBEBE'; scrollToTop();">{title}</span>
 		<span class="dateline"><a href="{link}" title="{chantitle}" target="_parent">{pubdate}</a></span>
 	</div>
 </div>
@@ -252,7 +250,7 @@ function scrollToTop() {
 		<div style="float: left; padding:10px;vertical-align: middle;">{chanfavicon}</div>
 	<div class="newstitlelist">
 		<span class="dateline">{chantitle}  -  {relativedate}</span><br/>
-		<span class="itemtitle {isnew}" onclick="zf_getArticle('{feedurl}','{itemid}', 'zffixednews'); this.style.color = '#BEBEBE'; scrollToTop();" title="{chantitle}">{title}</span>
+		<span class="itemtitle {isnew}" onclick="fetchItem('{feedurl}','{itemid}', 'zffixednews'); this.style.color = '#BEBEBE'; scrollToTop();" title="{chantitle}">{title}</span>
 	</div>
 </div>
 <!-- ENDnewsByDate -->
@@ -266,7 +264,7 @@ function scrollToTop() {
 </div>
 </div> <!-- zfwrap -->
 <!-- ENDfooter -->
-<!-- article -->
+<!-- dynamicDescription -->
 <div class="story">
 	<div class="newstitle" style="background-color: #fff;">
 		<span class="headtitle">{title}</span>
@@ -277,5 +275,7 @@ function scrollToTop() {
 		{description}
 	</div>
 </div>
-<!-- ENDarticle -->
+<!-- ENDdynamicDescription -->
+<!-- between -->
+<!-- ENDbetween -->
 
