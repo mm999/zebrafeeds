@@ -76,6 +76,7 @@ function displayChannelList($channels) {
 	<input type="checkbox" name="actionbox{i}" value="checkbox"/>
 		<span id="title{i}" class="{class} link" onclick="showEditForm({i}); return false;">{chantitle}</span>&nbsp;
 	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" border="0" alt="website"/></a>
+</div>
 EOD;
 
 		$formhtmldata = <<<EOD
@@ -112,7 +113,6 @@ EOD;
 			</div>
 		</div>
 	</form>
-</div>
 </div>
 EOD;
 
