@@ -86,7 +86,7 @@ class aggregator {
 	// timestamp of start of processing
 	private $_now;
 
-	public function __construct() {
+	public function __constructor() {
 		$this->_feedOptions = array();
 		$this->channels = array();
 		$this->list = null;
