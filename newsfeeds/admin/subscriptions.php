@@ -565,9 +565,6 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 
 						<?php displayChannelList($sortedChannels);?>
 					</div>
-					<div id="editcolumn" >
-						<?php displayChannelEditForm($sortedChannels);?>
-					</div>  
 
 				</div>
 				<?php	if (count($sortedChannels) > 0) { ?>
@@ -595,6 +592,10 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 					</div>
 				<?php } ?>
 			</form>
+			<div id="editcolumn" >
+				<?php displayChannelEditForm($sortedChannels);?>
+			</div>  
+
 		</div>
 	</div>
 <?php
