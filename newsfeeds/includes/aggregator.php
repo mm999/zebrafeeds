@@ -325,8 +325,12 @@ class aggregator {
 					zf_debug('Item Matches');
 					// HERE, we could/should use channel title/description
 
-					/* use the template if we are asked to */
+					if (function_exists('zf_itemfilter')) {
+						zf_debug('Calling filter');
+						zf_itemfilter(&$item);
+					}
 
+					/* use the template if we are asked to */
 					$this->_template->printArticle($item);
 					return;
 				}

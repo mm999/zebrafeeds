@@ -44,6 +44,7 @@ if (ZF_USEOPML == 'yes') {
     require_once($zf_path . 'includes/opml.php');
 }
 require_once($zf_path . 'includes/common.php');
+require_once($zf_path . 'feedfilter.php');
 
 setlocale(LC_ALL, ZF_LOCALE);
 define('ZF_VER', '1.3_DEV');
