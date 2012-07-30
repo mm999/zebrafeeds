@@ -76,43 +76,6 @@ function displayChannelList($channels) {
 	<input type="checkbox" name="actionbox{i}" value="checkbox"/>
 		<span id="title{i}" class="{class} link" onclick="showEditForm({i}); return false;">{chantitle}</span>&nbsp;
 	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" border="0" alt="website"/></a>
-EOD;
-
-		$formhtmldata = <<<EOD
-<div class="editfeed" id="editform{i}" style="display:none;">
-	<form action="#">
-		<div style="display: inline-block;">
-			<label for="chantitle">Title:</label>&nbsp;<br/>
-			<input type="text" size="50" name="chantitle" id="chantitle{i}" value="{chantitle}" /><br/><br/>
-			<label for="xmlurl"> feed URL:</label><br/>
-			<input type="text" size="50" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
-			<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img src="{zfurl}/images/feed.png" border="0" alt="RSS/ATOM feed"/></a>
-			<br/><br/>
-			<label for="description">Description</label><br/>
-			<textarea rows="2" cols="30" id="description{i}" name="description">{description}</textarea><br/><br/>
-		</div>
-		<div style="margin: 15px; display: inline-block; position: absolute; top: 0px;">
-			<label for="subscribed">Subscribed</label> 
-			<input type="checkbox" name="issubscribed" {issubscribed} value="Subscribed" title="Subscribed to this feed"/>
-			<br/>
-			<label for="position">Position:</label> 
-			<input name="position" type="text" size="3" value="{position}"/>
-			<br/>
-			<label for="refreshtime">Refresh time:</label> 
-			<input name="refreshtime" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes
-			<br/>
-			<label for="showeditems">Shown items:</label>
-			<input name="showeditems" type="text" size="4" value="{showeditems}"/>
-			<br/>
-			<div class="savepanel">
-				<input type="button" name="save" value="Save" onclick="saveChannel({i}, this.form); return false;"/>&nbsp;
-				<input type="reset" name="reset" value="Reset"/>
-			</div>
-			<div id="opresult{i}" class="opresult">
-			</div>
-		</div>
-	</form>
-</div>
 </div>
 EOD;
 
@@ -132,8 +95,59 @@ EOD;
 			$tempdata = str_replace("{chantitle}", $channel['title'], $tempdata);
 			$tempdata = str_replace("{htmlurl}", htmlentities($channel['htmlurl']), $tempdata);
 			echo $tempdata;			
+		}
+	} else {
+		echo "Subscription list empty";
+	}
+}
 
+/* function to be called while displaying the channel edit form
+arg : channel, an array of feeds (got from opml functions)
+*/
+function displayChannelEditForm($channels) {
 
+	$channelcount = count($channels);
+
+	if ($channelcount > 0) {
+
+		$formhtmldata = <<<EOD
+<div class="editfeed" id="editform{i}" style="display:none;">
+	<form action="#">
+		<div>
+			<label for="chantitle">Title:</label>&nbsp;<br/>
+			<input type="text" size="50" name="chantitle" id="chantitle{i}" value="{chantitle}" /><br/><br/>
+			<label for="xmlurl"> feed URL:</label>			<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img src="{zfurl}/images/feed.png" border="0" alt="RSS/ATOM feed"/></a>
+<br/>
+			<input type="text" size="50" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
+			<br/><br/>
+			<label for="description">Description</label><br/>
+			<textarea rows="2" cols="30" id="description{i}" name="description">{description}</textarea><br/><br/>
+		</div>
+		<div>
+			<label for="subscribed">Subscribed</label> 
+			<input type="checkbox" name="issubscribed" {issubscribed} value="Subscribed" title="Subscribed to this feed"/>
+			<br/>
+			<label for="position">Position:</label> 
+			<input name="position" type="text" size="3" value="{position}"/>
+			<br/>
+			<label for="refreshtime">Refresh time:</label> 
+			<input name="refreshtime" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes
+			<br/>
+			<label for="showeditems">Displayed items:</label>
+			<input name="showeditems" type="text" size="4" value="{showeditems}"/>
+	
+			<div class="savepanel">
+				<input type="button" name="save" value="Save" onclick="saveChannel({i}, this.form); return false;"/>&nbsp;
+				<input type="reset" name="reset" value="Reset"/>
+				<div id="opresult{i}" class="opresult">
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+EOD;
+
+		foreach($channels as $key => $channel) {
 			/* then the form */
 			$tempdata = '';
 			$tempdata = str_replace("{i}", $channel['opmlindex'], $formhtmldata);
@@ -153,11 +167,9 @@ EOD;
 			}
 			echo $tempdata;			
 		}
-	} else {
-		echo "Subscription list empty";
 	}
-
 }
+
 
 // if we come from the zebrabar, zflist is in the _GET array
 /*if (isset($_GET['zflist']) && $_GET['zflist']!='') {
@@ -361,7 +373,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 
 } else {
 //----------------------------------------------------------------------------
-/* default case : display channels table, with list control form on top */
+/* default case : display channels list, with list control form on top */
 
 	
 ?>
@@ -372,7 +384,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 				if (!empty($currentListName)) {
 					
 				?>
-				&nbsp; Display list: &nbsp;
+				Display list:
 			<select name="zflist" onchange="this.form.submit();">
 				<?php echo zf_ListsFormElements($currentListName); ?>
 			</select>
@@ -418,8 +430,10 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 					} else {
 						currentid = id;
 						toggleVisibleById('editform' + currentid);
+						
 					}
-					document.getElementById('title' + currentid).scrollIntoView(true);
+					//document.getElementById('title' + currentid).scrollIntoView(true);
+					document.getElementById('editform' + currentid).top = 25;
 
 				/* hide the last operation result */
 				document.getElementById('opresult'+currentid).style.display = 'none';
@@ -501,15 +515,15 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 					if (http.status == 200) { // OK response
 						var statusbox = document.getElementById('opresult'+channeldata[0]);
 						statusbox.innerHTML = http.responseText;
-						statusbox.style.display = 'block';
+						statusbox.style.display = 'inline-block';
 						savebutton.disabled = false;
 						/* update channel list */
 						var titletext = document.getElementById('title'+channeldata[0]);
 						titletext.innerHTML = channeldata[1];
 						if (channeldata[2] == 'yes') {
-							titletext.className = 'subscribed';
+							titletext.className = 'link subscribed';
 						} else {
-							titletext.className = 'unsubscribed';
+							titletext.className = 'link unsubscribed';
 						}
 					}
 				}
@@ -521,12 +535,12 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 		<div id="subscriptions">
 			<form name="subscriptionsform" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=subscriptions';?>" method="post">
 				<input name="zflist" type="hidden" id="zflist" value="<?php echo $currentListName;?>"/>
-				<div class="editfeed">
+				<div id="listsettings">
 					Default view
 					<select name="zfviewmode" onchange="index=this.selectedIndex; onUpdateViewMode(index);">
 						<option value="feed" <?php echo ($list->options['viewmode'] == 'feed') ? 'selected="selected"' : '';?> >By channel</option>
 						<option value="trim" <?php echo ($list->options['viewmode'] == 'trim') ? 'selected="selected"' : '';?> >View only last...</option>
-						<option value="date" <?php echo ($list->options['viewmode'] == 'date') ? 'selected="selected"' : '';?> >By date - view all news)</option>
+						<option value="date" <?php echo ($list->options['viewmode'] == 'date') ? 'selected="selected"' : '';?> >By date - view all news</option>
 					</select>
 					<div id="trimoptions" style="display: <?php echo ($list->options['viewmode'] == 'trim')? 'inline' : 'none'; ?>">
 						<input name="zftrimsize" type="text" size="3" value="<?php echo $list->options['trimsize']; ?>"/>
@@ -542,42 +556,44 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 					</div>
 				</div>
 				<div id="chancolumn">
+					<div id="chancolumnheader">
+					<?php echo ($list->options['viewmode'] == 'feed')?'<span class="chanlistcheck">
+						<small><em>Sorted by position</em></small> </span><br/><br/>':'';?>
+						<input type="checkbox" name="checkboxall" value="checkbox" title="check/uncheck all" onclick="Javascript:toggleChecks()"/> <em>toggle all</em>
+					</div>
 				<div id="chanlist">
+
+						<?php displayChannelList($sortedChannels);?>
+					</div>
+					<div id="editcolumn" >
+						<?php displayChannelEditForm($sortedChannels);?>
+					</div>  
+
+				</div>
 				<?php	if (count($sortedChannels) > 0) { ?>
 
 					<div>
 						<strong>Selection:</strong>
-						
-				<?php  $liststr = listExceptCateg($currentListName);
-				  if (strlen($liststr) > 0) { ?>
-						
-						
-						<input name="copy" type="submit" id="copy" value="copy" onclick="if (!confirm('Are you sure you want to copy the selected feeds?')) {return false;}"/> 
-						<input name="move" type="submit" id="move" value="move" onclick="if (!confirm('Are you sure you want to move the selected feeds?')) {return false;}"/> 
-						to list:&nbsp;
-						<select name="zfdestlist">
-						<?php
-							echo listExceptCateg($currentListName);
-						?>
-						</select>
+						<div>
+					<?php  $liststr = listExceptCateg($currentListName);
+					  if (strlen($liststr) > 0) { ?>
+							
+							=&gt; To list&nbsp;
+							<select name="zfdestlist">
+							<?php
+								echo listExceptCateg($currentListName);
+							?>
+							</select>
+							<input name="copy" type="submit" id="copy" value="copy" onclick="if (!confirm('Are you sure you want to copy the selected feeds?')) {return false;}"/> 
+							<input name="move" type="submit" id="move" value="move" onclick="if (!confirm('Are you sure you want to move the selected feeds?')) {return false;}"/> 
 
-	
-				 <?php } ?>
-						
-						<input name="delete" type="submit" id="delete" value="delete" onclick="if (!confirm('Are you sure you want to delete the selected feeds?')) {return false;}"/>
-						
+							<div style="display: inline-block; margin-left: 40px;">
+							<input name="delete" type="submit" id="delete" value="delete" onclick="if (!confirm('Are you sure you want to delete the selected feeds?')) {return false;}"/>
+							</div>
+						</div>
+					 <?php } ?>
 					</div>
 				<?php } ?>
-					<div id="chancolumnheader">
-						<input type="checkbox" name="checkboxall" value="checkbox" title="check/uncheck all" onclick="Javascript:toggleChecks()"/> toggle all
-					<?php echo ($list->options['viewmode'] == 'feed')?'<span class="chanlistcheck">
-						<small><em>Sorted by position</em></small> </span>':'';?>
-					</div>
-
-						<?php displayChannelList($sortedChannels);?>
-					</div>
-
-				</div>
 			</form>
 		</div>
 	</div>
