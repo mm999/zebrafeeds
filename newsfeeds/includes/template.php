@@ -294,7 +294,7 @@ class template {
 
 		if (isset($channel['favicon']) && ($channel['favicon'] != "")) {
 			$schannel['favicon'] = htmlspecialchars($channel['favicon'], ENT_QUOTES);
-			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['favicon']. "\" style=\"border:0;\" width=\"16\" height=\"16\" alt=\"" . $schannel['title']. "\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
+			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['favicon']. "\" style=\"border:0;\" width=\"16\" height=\"16\" alt=\"-\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanfavicon}', '', $this->_buffer);
 		}
