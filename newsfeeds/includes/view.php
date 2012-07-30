@@ -118,6 +118,11 @@ class view {
 			- group by day, we use a special template part, and separate each day
 			- normal, use the regular news template
 			 */
+			$renderIt = true;
+			if (function_exists('zf_itemfilter')) {
+				$renderIt = zf_itemfilter(&$item);
+			}
+			
 			if ($this->groupByDay ) {
 				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item['date_timestamp'])));
 				/*
@@ -140,10 +145,10 @@ class view {
 					//echo zf_formatTemplate(array(), $day, array(), $template->newsDay, false);
 					$this->template->printDay($currentDay);
 				}
-				$this->template->printNewsByDate($item);
+				if ($renderIt) $this->template->printNewsByDate($item);
 
 			} else {
-				$this->template->printNews($item);
+				if ($renderIt) $this->template->printNews($item);
 			}
 
 		} // end foreach
