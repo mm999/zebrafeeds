@@ -59,8 +59,8 @@ a:active {
 	border-width: 0;
 }
 #core h2 {
-	border-top: 1px solid #ddd;
-	border-bottom: 1px solid #ddd;
+	/*border-top: 1px solid #ddd;*/
+	/*border-bottom: 1px solid #ddd;*/
 	text-align: center;
 }
 #core2 {
@@ -99,7 +99,7 @@ a:active {
 
 
 
-zftable {
+.zftable {
 	border: 1px solid #666;
 }
 
@@ -122,7 +122,7 @@ zftable {
 	text-align: left;
 	padding: 15px;
 	margin: 5px;
-	background: #dbca95;
+	border: 2px solid #dbca95;
 	border-radius: 3px;
 }
 
@@ -134,10 +134,11 @@ zftable {
 	float: right;
 }
 
-#subscriptions {
+.frame {
 	border-radius: 3px;
 	border: 2px solid #dbca95;
 	margin: 5px;
+	margin-bottom: 10px;
 	padding: 10px;
 }
 
@@ -186,12 +187,10 @@ zftable {
 
 }
 .editfeed {
-	padding-left: 10px;
-	padding-right: 10px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	border: 1px solid gray;
-	background: #D4CBB2;
+	padding-left: 15px;
+	padding-bottom: 15px;
+	padding-top: 15px;
+	background: #dbca95;
 }
 
 .savepanel {

@@ -60,6 +60,7 @@ else
 ?>
 
 <div id="core">  <form name="configform" action="<?php echo $_SERVER['PHP_SELF'].'?zfaction=config';?>" method="post">
+<div class="frame">
 <h2>General configuration</h2>
 
 	<div class="twocols">
@@ -108,7 +109,8 @@ else
 			</select>
 		</div>
 	</div>
-
+</div>
+<div class="frame">
 <h2>News feeds options</h2>
 	<div class="twocols">
 		<div class="col1">
@@ -150,6 +152,8 @@ else
 		</div>
 	</div>
 	
+</div>
+<div class="frame">
 <h2>General display options</h2>
 	
 	<div class="twocols">
@@ -184,6 +188,8 @@ else
 		</div>
 	</div>
 
+</div>
+<div class="frame">
 <h2>Language/localization options</h2>
 
 	<div class="twocols">	
@@ -247,6 +253,8 @@ else
 		</div>
 	</div>
 
+</div>
+<div class="frame">
 <h2>Advanced options</h2>
 
 	<div class="twocols">	
@@ -305,7 +313,7 @@ else
            		<input name="owneremail" type="text" id="owneremail" value="<?php echo ZF_OWNEREMAIL;?>"/>
 		</div>
 	</div>
-
+</div>
 <div id="saveconfig">
     <input type="submit" name="dosave" id="dosave" value="Save settings"/>
 </div>

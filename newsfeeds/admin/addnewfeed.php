@@ -313,38 +313,35 @@ echo '</div>';
 ?>
 
 <div id="core">
-      <strong>RSS/RDF/ATOM Autodiscovery</strong><br/>
-      <br/>
-<form name="form1" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=addnew'?>" method="post">
-      Site URL :
-      <input name="siteurl" type="text" size="40"/>
-      <input type="submit" name="submitsiteurl" value="go"/>
-      </form>
-      (ex: http://cazalet.org/zebrafeeds)<br/>
-      <br/>
+	<div class="frame">
+		<strong>RSS/RDF/ATOM Autodiscovery</strong><br/>
+		<br/>
+		<form name="form1" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=addnew'?>" method="post">
+		  Site URL :
+		  <input name="siteurl" type="text" size="40"/>
+		  <input type="submit" name="submitsiteurl" value="go"/>
+		  </form>
+		  (ex: http://cazalet.org/zebrafeeds)
+	</div>
+	<div class="frame">
+	<strong>or RSS/RDF/ATOM feed address</strong><br/>
+		  <br/>
+		  <form name="form2" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=addnew'?>" method="post">
+			Feed URL :
+			<input name="feedurl" type="text" size="40"/>
+			<input type="submit" name="submitfeedurl" value="go"/>
+		  </form>
+		  (ex: http://cazalet.org/zebrafeeds/feed)
+	</div>
+	<div class="frame">
+	<?php
+		if (zfurl() != false) {
+			echo "<strong>or drag this bookmarklet : </strong><a href=\"javascript:(function(){els=document.getElementsByTagName('link');feeds='';cnt=0;for(i=0;i<els.length;i++){ty=(els[i].getAttribute('type')||'').toLowerCase();url=els[i].getAttribute('href');if(url&&(ty=='application/rss+xml'||ty=='application/atom+xml'||ty=='text/xml')){cnt++;if(url=prompt('Add this feed (#'+cnt+') to your ZebraFeeds enabled site ?',url)){feeds+=url+'|';}}};if(cnt==0){url=prompt('No feed detected. Enter feed address here:',url);if(url){feeds+=url+'|';}}if(feeds){feeds=feeds.substr(0,feeds.length-1);window.location='" . ZF_URL . "/admin/index.php?zfaction=addnew&amp;feedurl='+encodeURIComponent(feeds);}})()\" title=\"Subscribe with ZebraFeeds\">Subscribe with ZebraFeeds</a><br/> to your browser links toolbar.<br/>";
+			echo "<br/>Whenever you visit a site and you want to add it's syndicated content to your site,click &quot;Subscribe with ZebraFeeds&quot; button on your links toolbar, and it will try to find the site's RSS feed and auto-subscribe your site to it.";
+			echo "<br/><br/>(note: if you change the location of ZebraFeeds on your webhost you must delete &quot;Subscribe with ZebraFeeds&quot; bookmark from your toolbar and come here and drag and drop again)";
+		}
 
-      <hr/>
-
-      <br/>
-      <strong>or RSS/RDF/ATOM feed address</strong><br/>
-      <br/>
-      <form name="form2" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=addnew'?>" method="post">
-        Feed URL :
-        <input name="feedurl" type="text" size="40"/>
-        <input type="submit" name="submitfeedurl" value="go"/>
-      </form>
-      (ex: http://cazalet.org/zebrafeeds/feed)<br/>
-      <br/>
-
-      <hr/>
-      <br/>
-<?php
-    if (zfurl() != false) {
-        echo "<strong>or drag this bookmarklet : </strong><a href=\"javascript:(function(){els=document.getElementsByTagName('link');feeds='';cnt=0;for(i=0;i<els.length;i++){ty=(els[i].getAttribute('type')||'').toLowerCase();url=els[i].getAttribute('href');if(url&&(ty=='application/rss+xml'||ty=='application/atom+xml'||ty=='text/xml')){cnt++;if(url=prompt('Add this feed (#'+cnt+') to your ZebraFeeds enabled site ?',url)){feeds+=url+'|';}}};if(cnt==0){url=prompt('No feed detected. Enter feed address here:',url);if(url){feeds+=url+'|';}}if(feeds){feeds=feeds.substr(0,feeds.length-1);window.location='" . ZF_URL . "/admin/index.php?zfaction=addnew&amp;feedurl='+encodeURIComponent(feeds);}})()\" title=\"Subscribe with ZebraFeeds\">Subscribe with ZebraFeeds</a><br/> to your browser links toolbar.<br/>";
-        echo "<br/>Whenever you visit a site and you want to add it's syndicated content to your site,click &quot;Subscribe with ZebraFeeds&quot; button on your links toolbar, and it will try to find the site's RSS feed and auto-subscribe your site to it.";
-        echo "<br/><br/>(note: whenever changing the location of ZebraFeeds on your webhost you must delete &quot;Subscribe with ZebraFeeds&quot; bookmark from your toolbar and come here and drag and drop again)";
-    }
-
-?>
+	?>
+	</div>
 </div>
 <?php } ?>

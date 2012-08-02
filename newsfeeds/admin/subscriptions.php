@@ -123,18 +123,15 @@ function displayChannelEditForm($channels) {
 			<label for="description">Description</label><br/>
 			<textarea rows="2" cols="30" id="description{i}" name="description">{description}</textarea><br/><br/>
 		</div>
-		<div>
-			<label for="subscribed">Subscribed</label> 
-			<input type="checkbox" name="issubscribed" {issubscribed} value="Subscribed" title="Subscribed to this feed"/>
-			<br/>
-			<label for="position">Position:</label> 
-			<input name="position" type="text" size="3" value="{position}"/>
-			<br/>
-			<label for="refreshtime">Refresh time:</label> 
-			<input name="refreshtime" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes
-			<br/>
-			<label for="showeditems">Displayed items:</label>
-			<input name="showeditems" type="text" size="4" value="{showeditems}"/>
+		<div class="twocols">
+			<div class="col1"><label for="subscribed">Subscribed</label> </div>
+			<div class="col2"><input type="checkbox" name="issubscribed" {issubscribed} value="Subscribed" title="Subscribed to this feed"/></div>
+			<div class="col1"><label for="position">Position:</label> </div>
+			<div class="col2"><input name="position" type="text" size="3" value="{position}"/></div>
+			<div class="col1"><label for="refreshtime">Refresh time:</label> </div>
+			<div class="col2"><input name="refreshtime" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes</div>
+			<div class="col1"><label for="showeditems">Displayed items:</label></div>
+			<div class="col2"><input name="showeditems" type="text" size="4" value="{showeditems}"/></div>
 	
 			<div class="savepanel">
 				<input type="button" name="save" value="Save" onclick="saveChannel({i}, this.form); return false;"/>&nbsp;
@@ -528,11 +525,11 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 					}
 				}
 			}
-				
+
 		</script>
 		<script language="Javascript" type="text/javascript" src="../zfcontrol.js"></script>
 		<script language="Javascript" type="text/javascript" src="../zfclientside.js"></script>
-		<div id="subscriptions">
+		<div class="frame">
 			<form name="subscriptionsform" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=subscriptions';?>" method="post">
 				<input name="zflist" type="hidden" id="zflist" value="<?php echo $currentListName;?>"/>
 				<div id="listsettings">

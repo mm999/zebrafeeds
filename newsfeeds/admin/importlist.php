@@ -195,6 +195,7 @@ if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
 ?>
 
 <div id="core">
+<div class="frame">
 <form method="post" name="subopml" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=importlist';?>">
 		<strong>Import OPML subscriptions</strong><br/><br/><br/>
       Local path or remote URL of an OPML subscription list<br/>
@@ -205,5 +206,6 @@ if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
       (you can export your subscriptions from your desktop aggregator to opml
       - if it supports, or you can give an url address of such subscription list)<br/>
 </form>
+</div>
 </div>
 <?php } ?>

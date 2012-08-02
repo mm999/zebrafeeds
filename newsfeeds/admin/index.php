@@ -86,7 +86,7 @@ zfLogin();
 	} elseif ($zfaction == 'maintenance') {
    
         echo '<div id="core">
-				<div class="menuitem"> Manage cached data
+				<div class="frame"><strong>Manage cached data</strong>
 					<ul>
 					<li>
 						<a href="';
@@ -101,7 +101,7 @@ zfLogin();
 					</ul>
 				</div>';
         
-        echo '<div class="menuitem">Updates<br/><br/>';
+        echo '<div class="frame"><strong>Updates</strong><br/><br/>';
         echo "Your ZebraFeeds version: " . ZF_VER . "<br/><br/>";
         @$update = readfile('http://www.cazalet.org/zebrafeeds/latest.php');
         if (!$update)
