@@ -75,7 +75,7 @@ function displayChannelList($channels) {
 <div title="Edit feed properties" class="sub-line">
 	<input type="checkbox" name="actionbox{i}" value="checkbox"/>
 		<span id="title{i}" class="{class} link" onclick="showEditForm({i}); return false;">{chantitle}</span>&nbsp;
-	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" border="0" alt="website"/></a>
+	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" alt="website"/></a>
 </div>
 EOD;
 
@@ -114,24 +114,24 @@ function displayChannelEditForm($channels) {
 <div class="editfeed" id="editform{i}" style="display:none;">
 	<form action="#">
 		<div>
-			<label for="chantitle">Title:</label>&nbsp;<br/>
+			<label for="chantitle{i}">Title:</label>&nbsp;<br/>
 			<input type="text" size="50" name="chantitle" id="chantitle{i}" value="{chantitle}" /><br/><br/>
-			<label for="xmlurl"> feed URL:</label>			<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img src="{zfurl}/images/feed.png" border="0" alt="RSS/ATOM feed"/></a>
+			<label for="xmlurl{i}"> feed URL:</label>			<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img src="{zfurl}/images/feed.png" alt="RSS/ATOM feed"/></a>
 <br/>
 			<input type="text" size="50" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
 			<br/><br/>
-			<label for="description">Description</label><br/>
+			<label for="description{i}">Description</label><br/>
 			<textarea rows="2" cols="30" id="description{i}" name="description">{description}</textarea><br/><br/>
 		</div>
 		<div class="twocols">
-			<div class="col1"><label for="subscribed">Subscribed</label> </div>
-			<div class="col2"><input type="checkbox" name="issubscribed" {issubscribed} value="Subscribed" title="Subscribed to this feed"/></div>
-			<div class="col1"><label for="position">Position:</label> </div>
-			<div class="col2"><input name="position" type="text" size="3" value="{position}"/></div>
-			<div class="col1"><label for="refreshtime">Refresh time:</label> </div>
-			<div class="col2"><input name="refreshtime" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes</div>
-			<div class="col1"><label for="showeditems">Displayed items:</label></div>
-			<div class="col2"><input name="showeditems" type="text" size="4" value="{showeditems}"/></div>
+			<div class="col1"><label for="issubscribed{i}">Subscribed</label> </div>
+			<div class="col2"><input type="checkbox" id="issubscribed{i}" name="issubscribed" {issubscribed} value="Subscribed" title="Subscribed to this feed"/></div>
+			<div class="col1"><label for="position{i}">Position:</label> </div>
+			<div class="col2"><input name="position" id="position{i}" type="text" size="3" value="{position}"/></div>
+			<div class="col1"><label for="refreshtime{i}">Refresh time:</label> </div>
+			<div class="col2"><input name="refreshtime" id="refreshtime{i}" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes</div>
+			<div class="col1"><label for="showeditems{i}">Displayed items:</label></div>
+			<div class="col2"><input name="showeditems" id="showeditems{i}" type="text" size="4" value="{showeditems}"/></div>
 	
 			<div class="savepanel">
 				<input type="button" name="save" value="Save" onclick="saveChannel({i}, this.form); return false;"/>&nbsp;
@@ -150,10 +150,9 @@ EOD;
 			$tempdata = str_replace("{i}", $channel['opmlindex'], $formhtmldata);
 			
 			$tempdata = str_replace("{zfurl}", ZF_URL, $tempdata);
-			$tempdata = str_replace("{xmlurl}", $channel['xmlurl'], $tempdata);
+			$tempdata = str_replace("{xmlurl}", htmlspecialchars($channel['xmlurl']), $tempdata);
 			$tempdata = str_replace("{description}", $channel['description'], $tempdata);
 			$tempdata = str_replace("{chantitle}", $channel['title'], $tempdata);
-			$tempdata = str_replace("{xmlurl}", $channel['xmlurl'], $tempdata);
 			$tempdata = str_replace("{position}", $channel['position'], $tempdata);
 			$tempdata = str_replace("{refreshtime}", $channel['refreshtime'], $tempdata);
 			$tempdata = str_replace("{showeditems}", $channel['showeditems'], $tempdata);
@@ -411,7 +410,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 			$sortedChannels = sortChannelsByName($list->channels);
 		}
 ?>
-		<script language="JavaScript" type="text/javascript">
+		<script type="text/javascript">
 			var currentid = -1;
 			/* 0: id; 1:title; 2; subscribed */
 			var channeldata = new Array(3);
@@ -527,8 +526,8 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 			}
 
 		</script>
-		<script language="Javascript" type="text/javascript" src="../zfcontrol.js"></script>
-		<script language="Javascript" type="text/javascript" src="../zfclientside.js"></script>
+		<script type="text/javascript" src="../zfcontrol.js"></script>
+		<script type="text/javascript" src="../zfclientside.js"></script>
 		<div class="frame">
 			<form name="subscriptionsform" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=subscriptions';?>" method="post">
 				<input name="zflist" type="hidden" id="zflist" value="<?php echo $currentListName;?>"/>

@@ -255,7 +255,9 @@ echo '<div id="core">';
             $list->channels[] = $feed;
             if ($list->save()) {
                 displayStatus('Channel added to list '.$currentListName);
+                echo '<div style="margin-top: 15px">';
                 displayGotoButton($currentListName);
+                echo '</div>';
             } else {
                 displayStatus($list->lastError);
             }

@@ -52,7 +52,7 @@ a:active {
 #core {
 	background-color: #fff;
 	margin: 0 auto 0 auto; 
-	padding: 30px 20px 20px 20px;
+	padding: 15px 20px 20px 20px;
 	width: 85%;
 	text-align: justify;
 	border: 1px solid #666;
@@ -76,13 +76,7 @@ a:active {
 #saveconfig {
 	text-align: center;
 }
-#status {
-	padding: 5px;
-	margin: 15px;
-	text-align: left;
-	background-color: #FFF;
-	border: 1px dashed #F66;
-}
+
 
 #startmenu li {
 	list-style-image: url(../images/arrow.png);
@@ -118,7 +112,7 @@ a:active {
 
 /* Subscription list 
 ------------------------ */
-#listsform {
+#listsform, #status {
 	text-align: left;
 	padding: 15px;
 	margin: 5px;
@@ -166,8 +160,8 @@ a:active {
 #chanlist {
 	overflow-y: auto;
 	overflow-x: hidden;
-	max-height: 450px;
-	min-height: 350px;
+	max-height: 380px;
+	min-height: 320px;
 	padding: 5px;
 	margin-top: 5px;
 	margin-bottom: 20px;
