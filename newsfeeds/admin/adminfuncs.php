@@ -29,13 +29,13 @@ function zfAuth() {
 			}
 		} elseif (ZF_LOGINTYPE == 'session') {
 			if (($_SESSION['admin_user'] != ZF_ADMINNAME || md5($_SESSION['admin_pass']) != ZF_ADMINPASS) && (ZF_ADMINPASS!='')) {
-				return false;	 
+				return false;
 			} else {
-				return true;	
+				return true;
 			}
 		}
 	} else {
-		return false;	 
+		return false;
 	}
 }
 
@@ -172,7 +172,7 @@ function saveConfig(&$config) {
 	global $zf_path;
 	@$fp = fopen($zf_path.'config.php','w');
 	if($fp) {
-		fwrite($fp,"<?php\n// ZebraFeeds ".ZF_VER." - copyright (c) 2006 Laurent Cazalet\n");
+		fwrite($fp,"<?php\n// ZebraFeeds ".ZF_VER." - copyright (c) Laurent Cazalet\n");
 		fwrite($fp,"// configuration file\n\n\n");
 		fwrite($fp,"define(\"ZF_CONFIGVERSION\",\"".ZF_VER."\");\n");
 		fwrite($fp,"// general configuration options //\n\n");
@@ -214,7 +214,7 @@ function zfurl() {
 	$refer=$_SERVER['HTTP_REFERER'];
 	if( isset($refer) && $refer!='') {
 		 //return substr($refer,0,strrpos($refer,"/")+1);
-		 return substr($refer,0,strrpos($refer,"/"));
+		 return substr($refer,0,strrpos($refer,"/")).'/newsfeeds';
 	} else {
 		return false;
 	}
@@ -227,30 +227,30 @@ function clearOldData($dir, $age, $ext='') {
 	global $zf_path;
 	$now = time();
 	$size = 0;
-	
-	if ($handle = opendir($dir)) { 
-		while( false !== ($file = readdir($handle))) { 
+
+	if ($handle = opendir($dir)) {
+		while( false !== ($file = readdir($handle))) {
 			// skip ., .. and dirs
 			if ($file == '.' && $file == '..') {
-				continue; 
+				continue;
 			}
 
 			if (!is_file($dir.'/'.$file)) {
-				continue; 
+				continue;
 			}
 			if ($ext != '' && !strpos($file, '.'.$ext) ) {
-				continue; 
+				continue;
 			}
 			if ($now - filemtime($dir.'/'.$file) > $age) {
 				$size += filesize($dir.'/'.$file);
 				unlink($dir.'/'.$file);
 			}
 		}
-		closedir($handle);	
-	} 
+		closedir($handle);
+	}
 
 	return $size;
-} 
+}
 
-	
+
 ?>

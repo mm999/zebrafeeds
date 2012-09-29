@@ -32,7 +32,7 @@ $zfaction = isset($_GET['zfaction']) ? $_GET['zfaction'] : 'subscriptions';
 if ($zfaction == 'logout')
     zfLogout();
 
-    
+
 zfLogin();
 
 
@@ -56,21 +56,21 @@ zfLogin();
 		<?php if (ZF_USEOPML == 'yes')
             echo "<li"; if ($zfaction == "subscriptions") echo " class=\"active\""; echo ">";
 			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=subscriptions\">Subscriptions</a></li>";?>
-		<?php if (ZF_USEOPML == 'yes') 
-            echo "<li"; if ($zfaction == "addnew") echo " class=\"active\""; echo ">"; 
+		<?php if (ZF_USEOPML == 'yes')
+            echo "<li"; if ($zfaction == "addnew") echo " class=\"active\""; echo ">";
 			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=addnew\">Add new</a></li>";?>
         <?php echo "<li"; if ($zfaction == "config") echo " class=\"active\""; echo ">" ?>
 			<a href="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=config';?>">Config</a>
 		</li>
-		<?php if (ZF_USEOPML == 'yes') 
+		<?php if (ZF_USEOPML == 'yes')
             echo "<li"; if ($zfaction == "importlist") echo " class=\"active\""; echo ">";
 			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=importlist\">Import feed list</a></li>";?>
 		<li <?php if ($zfaction == "maintenance") echo " class=\"active\""; ?>>
 			<a href="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=maintenance';?>">Maintenance</a>
 		</li>
 		</ul>
-		
-	
+
+
 </div>
 <?php
 // after the normal header for all admin pages, select now what we gonna show
@@ -84,23 +84,23 @@ zfLogin();
 	} elseif ($zfaction == 'config') {
         include($zf_path.'admin/changeconfig.php');
 	} elseif ($zfaction == 'maintenance') {
-   
+
         echo '<div id="core">
 				<div class="frame"><strong>Manage cached data</strong>
 					<ul>
 					<li>
 						<a href="';
 				echo $_SERVER['PHP_SELF'] . '?zfaction=cleanold" onclick="return confirm(\'Are you sure you want to delete old cache and history data?\');">Clean up</a>
-						- clean up caches and history older than 2 weeks. 
+						- clean up caches and history older than 2 weeks.
 					</li>
 					<li>
 						<a href="';
 						echo $_SERVER['PHP_SELF'] . '?zfaction=flush" onclick="return confirm(\'Are you sure you want to delete ALL cache and history data?\');">Flush!</a>
-						- flush ALL caches and history. 
+						- flush ALL caches and history.
 					</li>
 					</ul>
 				</div>';
-        
+
         echo '<div class="frame"><strong>Updates</strong><br/><br/>';
         echo "Your ZebraFeeds version: " . ZF_VER . "<br/><br/>";
         @$update = readfile('http://www.cazalet.org/zebrafeeds/latest.php');
@@ -123,19 +123,19 @@ zfLogin();
         $size = sprintf("%01.2f KiloBytes",$size / 1024);
         echo "$size recovered on server.";
         echo '<br/><br/></div>';
-    } else { 
+    } else {
 
-        // repeat of top bar 
+        // repeat of top bar
 ?>
 
 
-<?php 
+<?php
     }
 // Standard footer for all admin pages
 ?>
     <div id="bottom">
           powered by <a href="http://cazalet.org/zebrafeeds">ZebraFeeds <?php echo ZF_VER;?></a>
-          - &copy;2006-2010 by Laurent Cazalet
+          - &copy;2006-2012 by Laurent Cazalet
     </div>
 </body>
 </html>
