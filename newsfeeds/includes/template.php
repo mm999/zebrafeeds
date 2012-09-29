@@ -25,7 +25,7 @@ if (!defined('ZF_VER')) exit;
 require_once($zf_path . 'includes/common.php');
 
 class template {
-	/* properties {{{*/ 
+	/* properties {{{*/
 	public $name;
 
 	public $pageHeader;
@@ -45,7 +45,7 @@ class template {
 	// optional tags to convert
 	private $_optionsTags;
 
-	private $_wrappingType;
+	protected $_wrappingType;
 
 	private $_html;
 	// string for the template part being parsed. contained semi-processed output
@@ -76,7 +76,7 @@ class template {
 		$this->_optionsTags = array();
 
 		/* wrapping types: ways to format the output
-		supported values: 
+		supported values:
 		"none", just echo
 		"js", wraps the output into javascript code
 		*/
@@ -97,8 +97,8 @@ class template {
 		$this->footer		  = $this->_extractSection('footer','',true);
 		$this->listHeader     = $this->_extractSection('listHeader','',true);
 		$this->listFooter     = $this->_extractSection('listFooter','',true);
-		$this->channel		  = $this->_extractSection('channel'); 
-		$this->channelFooter  = $this->_extractSection('channelFooter', '', true); 
+		$this->channel		  = $this->_extractSection('channel');
+		$this->channelFooter  = $this->_extractSection('channelFooter', '', true);
 		$this->news			  = $this->_extractSection('news');
 		$this->newsByDate	  = $this->_extractSection('newsByDate', 'news');
 		$this->newsDay		  = $this->_extractSection('newsDay','',true);
@@ -111,7 +111,7 @@ class template {
 		unset($this->_html);
 	}
 
-	/* buffer print: format optional tags, and sends to print 
+	/* buffer print: format optional tags, and sends to print
 	use this function if we have to process the optional tags*/
 	protected function _printBuffer() {
 		//last pass at tags substitution
@@ -132,7 +132,7 @@ class template {
 			$this->javascriptOutput($output);
 		} else {
 			echo $output;
-		}		
+		}
 	}
 
 	protected function javascriptOutput(&$output) {
@@ -235,16 +235,16 @@ class template {
 		$this->_formatChannel($channel);
 
 		/* now, replace the channel header specific tags */
-		
+
 		if ($last_fetched >0) {
 			if ($this->name == 'SYSTEM.rss') {
 				$chantime = date('r', $last_fetched);
 			} else {
 				$chantime = zf_transcode(strftime(ZF_PUBDATEFORMAT, $last_fetched));
-			} 
+			}
 		} else {
 			$chantime = "?";
-		}	 
+		}
 
 		$this->_buffer = str_replace('{lastupdated}', $chantime, $this->_buffer);
 
@@ -261,7 +261,7 @@ class template {
 	}
 
 
-	/* process tags that can be in any part of the template 
+	/* process tags that can be in any part of the template
 	*/
 	protected function _formatCommon() {
 		$this->_buffer = str_replace('{scripturl}', ZF_URL, $this->_buffer);
@@ -274,14 +274,14 @@ class template {
 		}
 	}
 
-	/* process channel-related template tags 
+	/* process channel-related template tags
 	*/
 	protected function _formatChannel(&$channel) {
 		$schannel = $channel;
 		if ($this->name == 'SYSTEM.rss') {
 			$schannel['title'] = htmlspecialchars($channel['title'], ENT_QUOTES);
 			$schannel['description'] = htmlspecialchars($channel['description'], ENT_QUOTES);
-		} 
+		}
 		$schannel['link'] = htmlspecialchars($channel['link'], ENT_QUOTES);
 		$schannel['xmlurl'] = htmlspecialchars($channel['xmlurl'], ENT_QUOTES);
 
@@ -298,7 +298,7 @@ class template {
 		} else {
 			$this->_buffer = str_replace('{chanfavicon}', '', $this->_buffer);
 		}
-		
+
 		$this->_buffer = str_replace('{chanlink}', $schannel['link'], $this->_buffer);
 		$this->_buffer = str_replace('{chanid}', $schannel['id'], $this->_buffer);
 		$this->_buffer = str_replace('{chandesc}', $schannel['description'], $this->_buffer);
@@ -308,7 +308,7 @@ class template {
 
 	}
 
-	/* process item-related template tags 
+	/* process item-related template tags
 	*/
 	protected function _formatNews(&$item) {
 		$sitem = $item;
@@ -316,7 +316,7 @@ class template {
 			$sitem['title'] = htmlspecialchars($item['title'], ENT_QUOTES);
 			$sitem['description'] = htmlspecialchars($item['description'], ENT_QUOTES);
 			$sitem['summary'] = htmlspecialchars($item['summary'], ENT_QUOTES);
-		} 
+		}
 		$sitem['link'] = htmlspecialchars($item['link'], ENT_QUOTES);
 
 		$this->_buffer = str_replace('{itemid}', $item['id'], $this->_buffer);
@@ -351,7 +351,7 @@ class template {
 		$this->_buffer = str_replace('{summary}', $sitem['summary'], $this->_buffer);
 
 		$zfarticleurl = ZF_HOMEURL.'?type=article&zftemplate='.urlencode($this->name).'&itemid='.$item['id'].'&xmlurl='.urlencode($item['channel']['xmlurl']);
-		
+
 		if ($hasSummary && $item['istruncated'])
 			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';
 		else
@@ -367,7 +367,7 @@ class template {
 
 
 
-	
+
 	protected function _formatEnclosures(&$item) {
 		// enclosures
 		$enclosurelist = "";
@@ -376,7 +376,7 @@ class template {
 				foreach($item['enclosures'] as $enclosure) {
 					$enclosurelist .= ' <enclosure url="'.$enclosure['link'].'" length="'.$enclosure['length'].'" type="'.$enclosure['type'].'" />';
 				}
-			
+
 			} else {
 				foreach($item['enclosures'] as $enclosure) {
 					//special treatment for images: inline
@@ -399,7 +399,7 @@ class template {
 					$size = sprintf("%01.2f MB",$enclosure['length'] / 1048576);
 					$enclosurelist .= ' <a href="'.htmlentities($enclosure['link']).
 					'" title="'.$title.' Size: '.$size.'">'.
-					$icon.'</a> ';					   
+					$icon.'</a> ';
 				}
 			}
 		} else {
@@ -413,7 +413,7 @@ class template {
 	}
 
 
-	/* parse the template file. looks for the string in $section to extract parts 
+	/* parse the template file. looks for the string in $section to extract parts
 	delimited by $section and "END".$section
 	if section is not found, can optionally use a substitute  */
 	protected function _extractSection($section, $substitute='' ) {
@@ -427,7 +427,7 @@ class template {
 
 		} else if (!empty($substitute)) {
 			// we have a replacement
-			$result = $this->_extractSection($substitute,'', $optional);
+			$result = $this->_extractSection($substitute,'');
 		} else {
 			$result = '';
 		}
@@ -449,13 +449,16 @@ class template {
 		}
 	}
 
-	/* add options tags that will be 
+	/* add options tags that will be
 	replaced once for all after rendering
 	$tags: associative array */
 	public function addTags($tags) {
 		$this->_optionsTags = array_merge($this->_optionsTags, $tags);
 	}
 
+	public function setWrappingType($type) {
+		$this->_wrappingType = $type;
+	}
 }
 
 ?>

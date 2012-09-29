@@ -7,7 +7,7 @@ it should redirect to the publisher's home page in case of problem */
 if (isset($_GET['encoding']) && !empty($_GET['encoding'])) {
 	define('ZF_ENCODING',$_GET['encoding']);
 }
-// define it before init 
+// define it before init
 define('ZF_SHOWCREDITS', 'no');
 require_once('init.php');
 require_once($zf_path . 'includes/aggregator.php');
@@ -17,7 +17,7 @@ if (ZF_USEOPML != 'yes') {
 	die();
 }
 
-/* parse parameters only if $type and $listname not already set 
+/* parse parameters only if $type and $listname not already set
 f: type of output. supported: js and rss
 zflist: opml list to render
 */
@@ -45,7 +45,7 @@ if (!isset($matchExpression)) {
 if ($type == 'rss') {
 	$contentType = 'application/xml';
 	$tname = 'SYSTEM.rss';
-	
+
 } elseif ($type == 'js') {
 	$contentType = 'text/javascript';
 	if (!isset($template)) {
@@ -57,7 +57,7 @@ if ($type == 'rss') {
 	//invalid
 	if (ZF_DEBUG) echo "type error: want rss or js";
 	die();
-	
+
 }
 
 if ($listname == '') {
@@ -99,10 +99,10 @@ if ($list->load()) {
 		$zf_aggregator->exportAggregatedChannels();
 	} else {
 
-		$templ->_wrappingType = 'js';
+		$templ->setWrappingType('js');
 		$zf_aggregator->viewPage();
 	}
-	
+
 }
 
 ?>
