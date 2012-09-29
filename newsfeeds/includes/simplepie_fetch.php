@@ -30,10 +30,10 @@ module interface entry point
 returns a feed object
  */
 function &zf_xpie_fetch_feed(&$channeldata, &$resultString) {
-    
+
 	$myfeed = null;
 
- 
+
     $SP_feed = new SimplePie();
 
     $SP_feed->set_feed_url($channeldata['xmlurl']);
@@ -50,23 +50,24 @@ function &zf_xpie_fetch_feed(&$channeldata, &$resultString) {
     $SP_feed->handle_content_type();
 
     if ($SP_feed->data) {
-    
+
         $myfeed = new feed();
-        
+
         $myfeed->channel['title'] = $SP_feed->get_title();
         $myfeed->channel['xmlurl'] = $channeldata['xmlurl'];
         $myfeed->channel['link'] = $SP_feed->get_link();
         $myfeed->channel['description'] = $SP_feed->get_description();
-        $myfeed->channel['favicon'] = $SP_feed->get_favicon();
+        // removed in SP 1.3 $myfeed->channel['favicon'] = $SP_feed->get_favicon();
         $myfeed->channel['logo'] = $SP_feed->get_image_url();
         $index=0;
 
-        foreach($SP_feed->get_items() as $item) {
+		$items = $SP_feed->get_items();
+        foreach( $items as $item) {
             $myfeed->items[$index]['link'] = $item->get_permalink();
-            $myfeed->items[$index]['title'] = $item->get_title(); 
+            $myfeed->items[$index]['title'] = $item->get_title();
             $myfeed->items[$index]['date_timestamp']  = $item->get_date('U');
-		    $myfeed->items[$index]['description'] = $item->get_content();		    
-		    //$myfeed->items[$index]['summary'] = $item->get_description(); 
+		    $myfeed->items[$index]['description'] = $item->get_content();
+
             $encidx = 0;
             $enc = $item->get_enclosures();
             if (is_array($enc)) {
@@ -75,7 +76,7 @@ function &zf_xpie_fetch_feed(&$channeldata, &$resultString) {
 					$myfeed->items[$index]['enclosures'][$encidx]['length'] = $enclosure->get_length();
 					$myfeed->items[$index]['enclosures'][$encidx]['type'] = $enclosure->get_type();
 					$encidx++;
-            	} 
+            	}
             }
             $index++;
         }
@@ -88,8 +89,9 @@ function &zf_xpie_fetch_feed(&$channeldata, &$resultString) {
 		} else $resultString = 'Error fetching or parsing '.$channeldata['xmlurl'];
 
     }
-
-
+    // php memory bug, as described in SP documentation
+	$SP_feed->__destruct();
+	unset($SP_feed);
     return $myfeed;
 
 
