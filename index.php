@@ -1,3 +1,12 @@
+<?php
+
+require_once('newsfeeds/init.php');
+// config.php exists and is writable
+	if(!is_writable('newsfeeds/config.php')) {
+		header('Location:install.php');
+	}
+?>
+
 <!DOCTYPE html>
 <html>
 <head>

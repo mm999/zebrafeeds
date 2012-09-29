@@ -70,7 +70,6 @@ function displayProceedGotoButton($nextStep) {
 		<input type="hidden" name="step" value="'.$nextStep.'"/>
 		<input type="submit" name="go" value="Proceed to step '.$nextStep.'">
 		</form></div>';
-	//<a href="javascript:document.goto'.md5($list).'.submit();">Go to '.$list.' subscription list</a>
 }
 
 
@@ -210,13 +209,13 @@ if (!isset($_POST['step'])) {
 	}
 
 
-	if ($_POST[zfurl] == "") {
+	if ($_POST["zfurl"] == "") {
 		echo "ZebraFeeds URL not defined. ";
 		$ok = false;
 	}
 
 	// default values for the other parameters saved in config.php
-	$config["zfhomeurl"] = ZF_HOMEURL;
+	$config["zfhomeurl"] = substr($_POST["zfurl"],0,strrpos($_POST["zfurl"],"/"));
 	$config["usesubs"] = ZF_USEOPML;
 	$config["subfilename"] = ZF_HOMELIST;
 	$config["refreshmode"] =  ZF_REFRESHMODE;
@@ -238,7 +237,7 @@ if (!isset($_POST['step'])) {
 		displayStatus('Basic configuration saved.');
 		echo 'You must now go to the administration panel to complete the installation<br/><br/>';
 		echo 'For security reasons, make sure to delete the file <code>install.php</code><br/><br/>';
-		echo 'Go to the <a href="newsfeeds/admin/index.php?zfaction=config">Administration Panel</a>';
+		echo 'Check out the <a href="index.php">Demo page</a> or to to the <a href="newsfeeds/admin/index.php?zfaction=config">Administration Panel</a>.';
 
 	} else {
 		echo "Cannot continue the installation";
