@@ -47,7 +47,7 @@ require_once($zf_path . 'includes/common.php');
 require_once($zf_path . 'feedfilter.php');
 
 setlocale(LC_ALL, ZF_LOCALE);
-define('ZF_VER', '1.3_DEV');
+define('ZF_VER', '1.3');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
 
 define("ZF_DATADIR", $zf_path.'data');
@@ -97,9 +97,9 @@ if (ZF_DEBUG) {
 	if (function_exists('getrusage')) {
 		$dat = getrusage();
 		$zf_debugData['utime_before'] = $dat["ru_utime.tv_sec"].$dat["ru_utime.tv_usec"];
-		$zf_debugData['stime_before'] = $dat["ru_stime.tv_sec"].$dat["ru_stime.tv_usec"];	
+		$zf_debugData['stime_before'] = $dat["ru_stime.tv_sec"].$dat["ru_stime.tv_usec"];
 	}
 
-	
+
 }
 ?>
