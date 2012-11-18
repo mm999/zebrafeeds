@@ -30,7 +30,7 @@ function getHTTPObject() {
 }
 
 function requestContent(requestparams) {
-	scripturl = ZFURL + "/zebrafeeds.php";
+	scripturl = ZFURL + "/async.php";
 
 	//http.onload = null;
 	http.open("GET", scripturl + '?zftemplate='+ ZFTEMPLATE + '&' + requestparams, true);
@@ -75,14 +75,14 @@ function handleResponse() {
 
 /* lookup in <feedurl>, item with id <itemid>, and put it in <outputelementid>*/
 function zf_getArticle(feedurl, itemid, outputelementid) {
-	/* if the output element id exists in the document, then 
+	/* if the output element id exists in the document, then
 	 we have to send the result of the ajax query to a fixed
 	 CSS element whose id is outputelementid */
 	if (outputelementid != null && document.getElementById(outputelementid) )  {
 		// we have to output in another div
 		requestparams = "type=item&xmlurl=" + escape(feedurl) + "&outputelementid=" + outputelementid + "&itemid=" + itemid;
 		requestContent(requestparams);
-		
+
 	}
 }
 
