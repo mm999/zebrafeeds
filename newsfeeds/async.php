@@ -38,23 +38,21 @@ if (!isset($zf_aggregator)) {
 
 
 
-/* AJAX+API requests section
+/* Asynchronous requests section
 use the global zf_page array only to tell if the template used is dynamic
 parameters
 type : request type
- - item: AJAX we want a news item
- - channelallitems: AJAX we want all the news items available for a channel
- - channelforcerefresh : AJAX we want a refreshed list of items of a channel
- - channel: AJAX we want channel head + showed items
+ - item: a single new item, with article view
+ - channelallitems: we want all the news items available for a channel
+ - channelforcerefresh : we want a refreshed list of items of a channel
+ - channel: we want channel header + showed items
 
-xmlurl :
-   URL of the newsfeed (XML - RSS/RDF/ATOM file)
+zflist:
+   name of the OPML list to lookup channel in.
 
-itemid :
-   html page element id. to be returned to the javascript side for update
-   due to the asynchronous nature of AJAX (or my poor knowledge)
-   if the item is a channel, this is also the MD5 of the feed XML URL
-   if the item is a news, this is the MD5 of 'channel url + item link)
+pos: position of the channel in the list
+
+itemid : the news item unique id for lookup
 
 
  */
@@ -64,46 +62,26 @@ if (isset($_GET['type']) && isset($_GET['xmlurl'])) {
 	$type = $_GET['type'];
 	// don't know why the + is turned back into a space, but this breaks
 	// everything on complex URLs
-	$xmlurl = str_replace(' ', '+', $_GET['xmlurl']);
 
 
 	$itemid = isset($_GET['itemid']) ? $_GET['itemid'] : '';
-	$outputid = isset($_GET['outputelementid']) ? $_GET['outputelementid'] : '';
-	//set only if force refresh
-	$maxitems = isset($_GET['maxitems']) ? $_GET['maxitems'] : '';
-	$refreshtime = isset($_GET['refreshtime']) ? $_GET['refreshtime'] : '';
-
 	// a data structure just as if extracted from an opml file
-	$channeldata['xmlurl'] = $xmlurl;
-	$channeldata['showeditems'] = $maxitems;
-	$channeldata['refreshtime'] = $refreshtime;
 
 
 	$zf_aggregator->useTemplate(new template(zf_getDisplayTemplateName()));
 
-	/* if one of our AJAX requests: process and exit */
+	$zf_list = zf_getCurrentListName();
+	$zf_aggregator->useList($zf_list);
+
+	// force output encoding for AJAX request
+	Header('Content-Type: text/html; charset='.ZF_ENCODING);
+
 	if ($type == "item") {
-		// force output encoding for AJAX request
-		Header('Content-Type: text/html; charset='.ZF_ENCODING);
-
-		// if outputid is empty, display nothing, it comes probably from a "Read full story" call
-		echo $outputid."|,|,|";
-
-		$zf_aggregator->viewArticle($xmlurl, $itemid);
+		$zf_aggregator->printArticleFromCache($pos, $itemid);
 		exit;
 	}
 
-	if ($type == "channel") {
-
-		// force output encoding for AJAX request
-		Header('Content-Type: text/html; charset='.ZF_ENCODING);
-		if ($zf_aggregator->loadFeed($channeldata, -1)) {
-			// false, false: only showed items, title and items
-			$zf_aggregator->viewSingleChannel(true, false);
-		}
-		$zf_aggregator->printErrors();
-		exit;
-	}
+// to do one day: list of channels for a list, list of subscription lists...
 
 
 	/* record a visit for operations that resend a list of news
@@ -113,36 +91,24 @@ if (isset($_GET['type']) && isset($_GET['xmlurl'])) {
 	$zf_aggregator->recordServerVisit();
 	$zf_aggregator->recordClientVisit();
 
+	if ($type == "channel") {
 
-	if ($type == "channelallitems") {
-		// force output encoding for AJAX request
-		Header('Content-Type: text/html; charset='.ZF_ENCODING);
-		echo $outputid."|,|,|";
+		// channel with header and items, auto cache/refresh
+		$zf_aggregator->printSingleChannel($pos);
+
+	} else if ($type == "channelallitems") {
+
 		$zf_aggregator->displayStatus('Showing all news');
-		if ($zf_aggregator->loadFeed($channeldata, -1)) {
-			// true, true: all items, only items (no title)
-			$zf_aggregator->viewSingleChannel(true, true);
+		$zf_aggregator->printAllItemsFromCache($pos);
 		}
-		$zf_aggregator->displayErrors();
 
-		exit;
-	}
+	} else if ($type == "channelforcerefresh") {
 
-
-	if ($type == "channelforcerefresh") {
-		// force output encoding for AJAX request
-		Header('Content-Type: text/html; charset='.ZF_ENCODING);
-		echo $outputid."|,|,|";
 		$zf_aggregator->displayStatus('Showing refreshed news');
-		// false: dont show all
-		// true: we only want the items
-		if ($zf_aggregator->loadFeed($channeldata, 0)) {
-			$zf_aggregator->viewSingleChannel(false, true);
-		}
-		$zf_aggregator->displayErrors();
-		exit;
+		$zf_aggregator->printDefaultItemsRefreshed($pos);
 	}
 
+	$zf_aggregator->printErrors();
 
 }
 

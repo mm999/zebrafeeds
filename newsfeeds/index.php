@@ -96,7 +96,7 @@ if ($list->load()) {
 
 
 	if ($type == 'rss') {
-		$zf_aggregator->exportAggregatedChannels();
+		$zf_aggregator->printRSS();
 	} else {
 
 		$templ->setWrappingType('js');
