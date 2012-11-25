@@ -39,7 +39,7 @@ if( !defined('ZF_URL') ) die( 'Please, do not access this page directly.' );
 	  text: =title
 	  description: channel description
 	  xmlurl: address of the subscription file
-	  
+
    (presentation items)
 	  position: a number used to order channels in the page
 	  refreshtime: time to cache channel news
@@ -50,7 +50,7 @@ if( !defined('ZF_URL') ) die( 'Please, do not access this page directly.' );
 
 /* XML parsing functions */
 function zf_opmlStartElement($parser, $name, $attributes) {
-	global $zf_opmlItems, $zf_opmlCount, $zf_opmlMode, $zf_opmlOptions;
+	global $zf_opmlItems, $zf_opmlMode, $zf_opmlOptions;
 
 
 	// if position is found, then it's a ZebraFeeds OPML file
@@ -58,27 +58,14 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 		$includeIt = true;
 	} else {
 		// in strict mode, we MUST have a position
-		$includeIt =(isset($attributes['POSITION']) && $attributes['POSITION'] != ''); 
+		$includeIt =(isset($attributes['POSITION']) && $attributes['POSITION'] != '');
 	}
 	if ($includeIt) {
-
-		$pos = $zf_opmlCount;
-		$zf_opmlItems[$pos]['position'] = $attributes['POSITION'];
-		$zf_opmlItems[$pos]['title'] = html2specialchars(($attributes['TITLE'] != '')?$attributes['TITLE']:'');
-		$zf_opmlItems[$pos]['htmlurl'] = html2specialchars(($attributes['HTMLURL'] != '')?$attributes['HTMLURL']:'');
-		$zf_opmlItems[$pos]['text'] = html2specialchars(($attributes['TEXT'] != '')?$attributes['TEXT']:'');
-		$zf_opmlItems[$pos]['description'] = html2specialchars(($attributes['DESCRIPTION'] != '')?$attributes['DESCRIPTION']:'');
-		$zf_opmlItems[$pos]['xmlurl'] = html2specialchars(($attributes['XMLURL'] != '')?$attributes['XMLURL']:'');
-		$zf_opmlItems[$pos]['refreshtime'] = ($attributes['REFRESHTIME'] != '')?$attributes['REFRESHTIME']:ZF_DEFAULT_REFRESH_TIME;
-		$zf_opmlItems[$pos]['showeditems'] = ($attributes['SHOWEDITEMS'] != '')?$attributes['SHOWEDITEMS']:ZF_DEFAULT_NEWS_COUNT;
-		$zf_opmlItems[$pos]['issubscribed'] = ($attributes['ISSUBSCRIBED'] != '')?$attributes['ISSUBSCRIBED']:'yes';
+		$subscription = new Subscription();
+		$subscription->initFromXMLAttributes($attributes);
+		$zf_opmlItems[$subscription->position] = $subscription;
 	}
 
-	// backwards compatibility
-	if (isset($attributes['GROUPBY']) ) {
-		$zf_opmlOptions['viewmode'] = ($attributes['GROUPBY'] != '')?$attributes['GROUPBY']:'feed';
-	}
-	
 	if (isset($attributes['VIEWMODE']) ) {
 		$zf_opmlOptions['viewmode'] = ($attributes['VIEWMODE'] != '')?$attributes['VIEWMODE']:'feed';
 	}
@@ -95,8 +82,6 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 
 function zf_opmlEndElement($parser, $name)
 {
-	global $zf_opmlCount;
-	if ($name == 'OUTLINE') $zf_opmlCount++;
 }
 
 
@@ -109,23 +94,26 @@ class opml {
 
 	private $_isFile;
 	private $_parseMode;
+
 	public $name;
-	public $channels;
-	// options array, not exactly like feed options in Aggregator class. 
-	//has the view mode field, which is a separate member in aggregator
-	public $options;
-	
+	public $subscriptions;
+
+	public $viewMode;
+	public $trimType;
+	public $trimSize;
+
 	public $lastError;
 	public $lastResult;
-   
+
 	public function __construct($name='') {
-		$this->options = array( 'viewmode' =>'feed', 
-								'trimtype' => 'news',
-								 'trimsize' => 5 );
-		$this->channels = array();
+		$this->viewMode = 'feed';
+		$this->trimType = news;
+		$this->trimSize = 5;
+		$this->subscriptions = array();
+
 		$this->lastError = '';
 		$this->lastResult = '';
-		
+
 		if (!empty($name)) {
 			$this->name = $name;
 			$this->_isFile = true;
@@ -133,19 +121,19 @@ class opml {
 			$this->_isFile = false;
 			$name = 'undefined';
 		}
-			
+
 	}
 
 	/* loads a list. returns true if success
 	puts error in lastError if failure */
 	public function load($from = '') {
-		global $zf_path,$zf_opmlItems, $zf_opmlCount, $zf_opmlMode, $zf_opmlOptions;
+		global $zf_path,$zf_opmlItems, $zf_opmlMode, $zf_opmlOptions;
 
 		if ($from == '') {
 			$opmlfilename = $this->getFileName();
 			$this->_isFile = true;
 			$zf_opmlMode = 'strict';
-			
+
 		} else {
 			$opmlfilename = $from;
 			// may be a file, probably not...
@@ -155,9 +143,8 @@ class opml {
 
 
 		/* default values for parsing this opml file */
-		$zf_opmlCount = 0;
 		$zf_opmlItems = array();
-		$zf_opmlOptions = $this->options;
+		$zf_opmlOptions = array();
 
 		$xml_parser = xml_parser_create();
 		xml_set_element_handler($xml_parser, "zf_opmlStartElement", "zf_opmlEndElement");
@@ -175,19 +162,21 @@ class opml {
 					$data .= $datas;
 				}
 			}
-			
+
 			fclose($fp);
 			$xmlResult = xml_parse($xml_parser, $data);
 			$xmlError = xml_error_string(xml_get_error_code($xml_parser));
 			$xmlCrtline = xml_get_current_line_number($xml_parser);
 			xml_parser_free($xml_parser);
 			unset($data);
+
 			if ($xmlResult) {
-				$this->channels = $zf_opmlItems; //usort($zf_opmlItems, "zf_compareChannelPos");
+				$this->subscriptions = $zf_opmlItems;
 				unset($zf_opmlItems);
-				$this->options = $zf_opmlOptions;
-				
-				
+				$this->viewMode = $zf_opmlOptions['viewmode'];
+				$this->trimType = $zf_opmlOptions['trimtype'];
+				$this->trimSize = $zf_opmlOptions['trimize'];
+
 			} else {
 				$this->lastError = "Error parsing subscriptions file <br />error: $xmlError at line: $xmlCrtline";
 				return false;
@@ -226,26 +215,26 @@ class opml {
 			fwrite($fp, "<?xml version=\"1.0\"?>\n<!-- subscription list generated by " . ZF_VER . " on " . gmdate("D, d M Y H:i:s \G\M\T") . " -->\n");
 			fwrite($fp, "<opml version=\"1.0\">\n\t<head>\n\t\t<title>" . htmlspecialchars($this->name,ENT_QUOTES) . "</title>" . $dateModified . $ownername . $owneremail . "\t</head>\n");
 			fwrite($fp, "\t<body ".
-							"viewmode=\"".$this->options['viewmode']."\" ".
-							"trimtype=\"".$this->options['trimtype']."\" ".
-							"trimsize=\"".$this->options['trimsize']."\" ".
+							"viewmode=\"".$this->viewMode."\" ".
+							"trimtype=\"".$this->trimType."\" ".
+							"trimsize=\"".$this->trimSize."\" ".
 						   ">\n");
 
-			foreach ($this->channels as $channel) {
-				$temptitle = stripslashes($channel["title"]);
-				$tempdesc = stripslashes($channel["description"]);
-				$temphtmlurl = stripslashes($channel["htmlurl"]);
-				$tempxmlurl = stripslashes($channel["xmlurl"]);
+			foreach ($this->subscriptions as $sub) {
+				$temptitle = stripslashes($sub->channel->title);
+				$tempdesc = stripslashes($sub->channel->description);
+				$temphtmlurl = stripslashes($sub->channel->link);
+				$tempxmlurl = stripslashes($sub->channel->xmlurl);
 				fwrite($fp, "\t\t<outline type=\"rss\"" .
-									" position=\"" . $channel["position"] .
+									" position=\"" . $sub->channel->position .
 									"\" text=\"" . htmlspecialchars($temptitle, ENT_QUOTES) .
 									"\" title=\"" . htmlspecialchars($temptitle, ENT_QUOTES) .
 									"\" description=\"" . htmlspecialchars($tempdesc, ENT_QUOTES) .
 									"\" xmlUrl=\"" . htmlspecialchars($tempxmlurl, ENT_QUOTES) .
 									"\" htmlUrl=\"" . htmlspecialchars($temphtmlurl, ENT_QUOTES) .
-									"\" refreshTime=\"" . $channel["refreshtime"] .
-									"\" showedItems=\"" . $channel["showeditems"] .
-									"\" isSubscribed=\"" . $channel["issubscribed"] .
+									"\" refreshTime=\"" . $sub->channel->refreshTime .
+									"\" showedItems=\"" . $sub->channel->shownItems .
+									"\" isSubscribed=\"" . $sub->channel->isSubscribed .
 									"\" />\n");
 			}
 
@@ -291,7 +280,7 @@ class opml {
 
 		$oldfilename = $this->getFileName();
 		$newfilename = $this->getFileName($newName);
-		
+
 		if (file_exists($oldfilename) && !(file_exists($newfilename))) {
 			if (rename($oldfilename,$newfilename)){
 				$this->lastResult = "List renamed to <strong>".$newName."</strong>";
@@ -305,7 +294,7 @@ class opml {
 			$this->lastError = "Error: list ".$newName." already exists.";
 			return false;
 		}
-		
+
 	}
 
 	/*----------*/
@@ -321,67 +310,57 @@ class opml {
 
 	public function getNextPosition() {
 		$lastpos = 0;
-		foreach($this->channels as $i => $item) {
-			if ($item['position'] > $lastpos) {
-				$lastpos = $item['position'];
+		foreach($this->subscriptions as $i => $sub) {
+			if ($sub->position > $lastpos) {
+				$lastpos = $sub->position;
 			}
 		}
 		return $lastpos+1;
 	}
 
 	public function isPositionTaken($pos, $exceptAt) {
-		for($i = 0; $i < count($this->channels); $i++) {
+		for($i = 0; $i < count($this->subscriptions); $i++) {
 			if ($i == $exceptAt) continue;
 			//echo $i.' -- '.$this->channels;
-			if ($this->channels[$i]['position'] == $pos) {
+			if ($this->subscriptions[$i]->position == $pos) {
 				return $i;
 			}
 		}
 		return -1;
 	}
 	public function removeChannelAtPos($index) {
-		unset($this->channels[$index]);
+		unset($this->subscription[$index]);
 	}
 
 	/* update the channel at position $index
 	 return true if ok, or false if duplicate position problem */
-	public function setChannelAtPos($index, $channel) {
-		$checkPos = $this->isPositionTaken($channel['position'], $index);
+	public function setChannelAtPos($index, $subscription) {
+		$checkPos = $this->isPositionTaken($subscription->position, $index);
 		if ($checkPos > -1){
-			$this->lastError = 'Error: duplicate position with channel <em>'. $this->channels[$checkPos]['title'].'</em>';
+			$this->lastError = 'Error: duplicate position with channel <em>'. $this->subscriptions[$checkPos]->title.'</em>';
 			return false;
 		}
-		$this->channels[$index] = array_merge($this->channels[$index], $channel);
+		$this->subscriptions[$index] = $subscription;
 		return true;
 	}
 
-	public function addChannel($channel) {
-		$this->channels[] = $channel;
+	public function addSubscription($sub) {
+		$newpos = $this->getNextPosition();
+		$sub->position = $newpos;
+		$this->subscriptions[$newpos] = $sub;
 	}
 
-	
-	/* make sure we have correct data in our array
+
+	/* make sure we have correct data, particularly position
 	should be called after read, and before save */
 	public function _sanitize() {
 
 		$nextPos = $this->getNextPosition();
 
-		foreach ($this->channels as $i => $channel) {
-			if (!($channel["position"] > 0 && is_numeric($channel["position"]))) {
-				$channel["position"] = $nextPos++;
+		foreach ($this->subscriptions as $i => &$subscription) {
+			if (!($subscription->position > 0 && is_numeric($subscription->position))) {
+				$subscription->position = $nextPos++;
 			}
-			if (!($channel["issubscribed"] == 'yes' || $channel["issubscribed"] == 'no'))
-				$channel["issubscribed"] = 'no';
-
-			if (!(is_numeric($channel["refreshtime"]))) {
-				$channel["refreshtime"] = 60;
-			}
-			if (!(is_numeric($channel["showeditems"]) && $channel["showeditems"] > -1)) {
-				$channel["showeditems"] = 0;
-			}
-
-			$this->channels[$i] = $channel;
-
 		}
 	}
 
