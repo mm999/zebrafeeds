@@ -18,9 +18,9 @@
 // ZebraFeeds RSS fetch layer
 // embeds the cache access policy and relies on a parser and a cache storage
 //
-/* 
+/*
 - check cache. if cache oK, read Feed object from cache
-- otherwise, fetch basic Feed object from either SimplePie or Magpie. 
+- otherwise, fetch basic Feed object from either SimplePie or Magpie.
    Feed object is then a simple data structure translation
 - process feed object, clean up dates and polish data
 - save to cache
@@ -34,7 +34,7 @@ if (ZF_RSSPARSER == "magpie") {
 	require_once($zf_path . 'includes/magpie_fetch.php');
 } else {
 	require_once($zf_path . 'includes/simplepie_fetch.php');
-}	 
+}
 
 
 
@@ -56,18 +56,18 @@ if (ZF_RSSPARSER == "magpie") {
 
 	returns an object of the Feed class
  */
-function zf_fetch_rss(&$channeldata, $refreshtime, &$resultString) {
-	
+function zf_fetch_rss($channelDesc, $refreshtime, &$resultString) {
+
 	if (ZF_RSSPARSER == "magpie") {
 		// initialize constants
 		init();
 	}
 
-	if ( !isset($channeldata['xmlurl']) ) {
+	if ( empty($channelDesc->xmlurl) ) {
 		error("zf_fetch_rss called without a url");
 		return false;
 	} else {
-		$url = $channeldata['xmlurl'];
+		$url = $channelDesc->xmlurl;
 		if ( ZF_DEBUG > 1) {
 			zf_debug('requested feed '.$url.'<br/>', E_USER_NOTICE) ;
 		}
@@ -121,8 +121,9 @@ function zf_fetch_rss(&$channeldata, $refreshtime, &$resultString) {
 				if ( ZF_DEBUG > 1) {
 					zf_debug("Cache ($cache_status, refreshtime: $refreshtime)<br/>", E_USER_NOTICE);
 				}
-			   /* set channel data, like title and description from what's 
+			   /* set channel data, like title and description from what's
 				configured in the subscription list */
+				//TODO: set publisher
 				$feed->customizeChannel($channeldata);
 				/* for each item: $item['channel'] = &$rss->channel */
 				$feed->bindItemsToChannel();
@@ -140,17 +141,17 @@ function zf_fetch_rss(&$channeldata, $refreshtime, &$resultString) {
 		// if we got there, it means we have to fetch from network
 	zf_debug('fetching remote file '.$url.'<br/>', E_USER_NOTICE);
 
-	$feed = zf_xpie_fetch_feed($channeldata, $resultString);
+	$feed = zf_xpie_fetch_feed($channelDesc, $resultString);
 	if ( $feed ) {
 		zf_debug("Fetch successful<br/>");
 		/* one shot: add our extra data and do our post processing
 		BEFORE storing to cache */
-		$feed->normalize($channeldata);
+		$feed->normalize($channelDesc);
 
-		/* set channel data, like title and description from what's 
+		/* set channel data, like title and description from what's
 		configured in the subscription list */
-		$feed->customizeChannel($channeldata);
-		
+		$feed->customizeChannel($channelDesc);
+
 		// add object to cache
 		$cache->set( $cache_key, $feed );
 		/* for each item, link it to its channel array
@@ -175,12 +176,12 @@ function zf_fetch_rss(&$channeldata, $refreshtime, &$resultString) {
         if ( ZF_DEBUG ) {
             zf_debug("Returning STALE object for $url");
         }
-        /* set channel data, like title and description from what's 
+        /* set channel data, like title and description from what's
         configured in the subscription list */
         $feed->customizeChannel($channeldata);
         /* for each item: $item['channel'] = &$rss->channel */
 		$feed->bindItemsToChannel();
-				
+
 		return $feed;
 	}
 
