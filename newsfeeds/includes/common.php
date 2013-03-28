@@ -29,7 +29,7 @@ function zf_getCurrentListName() {
 
 	$list = new opml();
 	$currentListName = '';
-	
+
 	if ( isset($_POST['zflist']) && $_POST['zflist']!='' && file_exists($list->getFileName($_POST['zflist']))) {
 			$currentListName = $_POST['zflist'];
 	} elseif ( isset($_GET['zflist']) && $_GET['zflist']!='' && file_exists($list->getFileName($_GET['zflist']))) {
@@ -41,7 +41,7 @@ function zf_getCurrentListName() {
 		$lists = zf_getListNames();
 		$currentListName = $lists[0];
 	}
-	
+
 	return $currentListName;
 }
 
@@ -87,7 +87,7 @@ function zf_getTemplateNames() {
 		if( is_file(ZF_TEMPLATESDIR.'/'.$dirfile) && substr($dirfile, strlen($dirfile)-4, strlen($dirfile))=='html' && substr($dirfile,0,7)!='SYSTEM.' ) {
 			$templatef = substr($dirfile, 0, strlen($dirfile)-5);
 			$result[] = $templatef;
-		} 
+		}
 	}
 	closedir($handle);
 	return $result;
@@ -100,15 +100,15 @@ function zf_ListsFormElements($list) {
 	$data = '';
 	$clist = zf_getListNames();
 	foreach($clist as $categf) {
-		if($list==$categf) 
+		if($list==$categf)
 			$data .= "<option value=\"$categf\" selected=\"selected\">$categf</option>";
 		else
-			$data .= "<option value=\"$categf\">$categf</option>";		
+			$data .= "<option value=\"$categf\">$categf</option>";
 	}
 	return $data;
 }
 
-/* if encoding functions are available, transcode a string to our target output encoding 
+/* if encoding functions are available, transcode a string to our target output encoding
 configured in the admin page */
 function zf_transcode($string, $enc='auto') {
 	$transcoded = $string;
@@ -118,7 +118,7 @@ function zf_transcode($string, $enc='auto') {
 		if ($enc != ZF_ENCODING)
 			$transcoded = mb_convert_encoding($string, ZF_ENCODING);
 	}
-	
+
 	return $transcoded;
 }
 
@@ -139,7 +139,7 @@ function zf_debug($msg, $lvl=E_USER_NOTICE ) {
 		$btr=debug_backtrace();
 		$line=$btr[0]['line'];
 		$file=basename($btr[0]['file']);
-		print "<pre>DBG ($file:$line) $msg</pre>\n"; 
+		print "<pre>DBG ($file:$line) $msg</pre>\n";
 	}
 }
 
@@ -148,7 +148,7 @@ function zf_error($msg, $lvl=E_USER_WARNING) {
 	$btr=debug_backtrace();
 	$line=$btr[0]['line'];
 	$file=basename($btr[0]['file']);
-	//print "<pre>ERR ($file:$line) $msg</pre>\n"; 
+	//print "<pre>ERR ($file:$line) $msg</pre>\n";
 	print "<pre>ERR ($file:$line) $msg</pre>\n";
 }
 
@@ -160,21 +160,21 @@ function zf_debugRuntime($location) {
 		global $zf_debugData;
 		$zf_debugData['clock'][] = microtime();
 		$count = count($zf_debugData['clock']);
-		
+
 		// take previous element
 		$entry = explode(' ', $zf_debugData['clock'][$count-2]);
 		$startVal = (float)$entry[0] + (float)$entry[1];
 		$entry = explode(' ', $zf_debugData['clock'][$count-1]);
 		$runVal = (float)$entry[0] + (float)$entry[1] - (float)$startVal;
 		$part1="[$location] Run time since last check: ".$runVal." sec.";
-		
+
 		// take first element of the debug array
 		$entry = explode(' ', $zf_debugData['clock'][0]);
 		$startVal = (float)$entry[0] + (float)$entry[1];
 		$entry = explode(' ', $zf_debugData['clock'][$count-1]);
 		$runVal2 = (float)$entry[0] + (float)$entry[1] - (float)$startVal;
 		zf_debug($part1." (total: ".$runVal2." sec.)");
-		
+
 		// try to use PHP build in function
 		if( function_exists('memory_get_usage') ) {
 			zf_debug("Memory: using ".memory_get_usage()." bytes");
@@ -190,7 +190,7 @@ function zf_debugRuntime($location) {
 
 			zf_debug("Elapsed user time: $utime_elapsed microseconds");
 			zf_debug("Elapsed system time: $stime_elapsed microseconds");
-		}	
+		}
 	}
 }
 
@@ -205,12 +205,12 @@ function plural($num) {
 function getRelativeTime($date_ts) {
 	$diff = time() - $date_ts;
 	$ago = 'ago';
-	
-	if ($diff < 0 ) 
+
+	if ($diff < 0 )
 		$ago = 'later';
-	
+
 	$diff = abs($diff);
-	
+
 	if ($diff<60)
 		return $diff . "sec $ago";
 	$diff = round($diff/60);
