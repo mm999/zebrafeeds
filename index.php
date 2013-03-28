@@ -27,11 +27,6 @@ Check out the <a href="documentation/doc.html">documentation</a> to start custom
 Other demos: <a href="demo_rssfeed.php">RSS feed</a> - <a href="demo_js.html">Javascript integration</a> - <a href="demo_manual.php">manual control of feeds rendering</a>
 </p>
 <hr/>
-<div style="
-	font-size: 80%;
-">
-	<?php require ('newsfeeds/zebrabar.php'); ?>
-</div>
 <div style="	vertical-align: top;
 	margin-left: 15px;
 	margin-right: 15px;">
