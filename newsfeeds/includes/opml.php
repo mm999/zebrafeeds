@@ -107,7 +107,7 @@ class opml {
 
 	public function __construct($name='') {
 		$this->viewMode = 'feed';
-		$this->trimType = news;
+		$this->trimType = 'news';
 		$this->trimSize = 5;
 		$this->subscriptions = array();
 
@@ -175,7 +175,7 @@ class opml {
 				unset($zf_opmlItems);
 				$this->viewMode = $zf_opmlOptions['viewmode'];
 				$this->trimType = $zf_opmlOptions['trimtype'];
-				$this->trimSize = $zf_opmlOptions['trimize'];
+				$this->trimSize = $zf_opmlOptions['trimsize'];
 
 			} else {
 				$this->lastError = "Error parsing subscriptions file <br />error: $xmlError at line: $xmlCrtline";
