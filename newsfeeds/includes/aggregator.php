@@ -94,14 +94,13 @@ class aggregator {
 	public function useList($listName) {
 
 		if (ZF_USEOPML) {
-			$subscriptionsList = new opml($listName);
 
+			$subscriptionsList = new opml($listName);
 			if ($subscriptionsList->load()) {
 				// record the information saying that this channel list
 				// actually comes from a subscription list, not from
 				// a zf_addFeed call
 				$this->list = $subscriptionsList;
-				$this->channels = &$subscriptionsList->channels;
 
 				/* sets the default options from the list*/
 				$this->_viewMode = $this->list->viewMode;
@@ -117,7 +116,7 @@ class aggregator {
 		}
 	}
 
-	public function useTemplate($templatename) {
+	public function useTemplate($templateName) {
 		$this->_template = new template($templateName);
 	}
 
@@ -157,7 +156,7 @@ class aggregator {
 		//TODO: create feed handler from list
 		// get merged feed from feed handler
 
-		if (count($this->channels) > 0) {
+		if (count($this->list->subscriptions) > 0) {
 			$this->_template->printHeader();
 			zf_debug('Viewmode:'. $this->_viewMode);
 
@@ -184,7 +183,7 @@ class aggregator {
 	private function printListByChannel() {
 
 		/*if we have feeds to display */
-		$subs = $this->list->getSubscriptions();
+		$subs = $this->list->subscriptions;
 		foreach($subs as $i => &$subscription) {
 			if ($subscription->channel->xmlurl != '') {
 				// change the array key to be the position
@@ -382,7 +381,7 @@ class aggregator {
 		echo '<div class="zfchannelstatus">'.$message.'</div>';
 	}
 
-	print function printErrors() {
+	public function printErrors() {
 		if ((ZF_DISPLAYERROR =="yes")  && (!empty($this->errorLog)) ) {
 			$this->printStatus($this->errorLog);
 		}
@@ -419,7 +418,7 @@ class aggregator {
 					//TODO: create feed handler, get feed(Auto)
 					// if ($this->loadFeed($channel) ) {
 						$feed->mergeWith($this->_feed);
-					}
+
 				}
 			}
 		}
