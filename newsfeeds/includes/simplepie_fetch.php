@@ -29,14 +29,14 @@ require_once($zf_path . 'includes/feed.php');
 module interface entry point
 returns a feed object
  */
-function &zf_xpie_fetch_feed(&$channeldata, &$resultString) {
+function &zf_xpie_fetch_feed($channel, &$resultString) {
 
 	$myfeed = null;
 
 
     $SP_feed = new SimplePie();
 
-    $SP_feed->set_feed_url($channeldata['xmlurl']);
+    $SP_feed->set_feed_url($channel->xmlurl);
     // check here according to refresh time
     $SP_feed->enable_cache(false);
     $SP_feed->enable_order_by_date(false);
@@ -51,42 +51,44 @@ function &zf_xpie_fetch_feed(&$channeldata, &$resultString) {
 
     if ($SP_feed->data) {
 
-        $myfeed = new feed();
+        $myfeed = new PublisherFeed();
 
-        $myfeed->channel['title'] = $SP_feed->get_title();
-        $myfeed->channel['xmlurl'] = $channeldata['xmlurl'];
-        $myfeed->channel['link'] = $SP_feed->get_link();
-        $myfeed->channel['description'] = $SP_feed->get_description();
+        $myfeed->publisher->title = $SP_feed->get_title();
+        $myfeed->publisher->xmlurl = $channel->xmlurl;
+        $myfeed->publisher->link = $SP_feed->get_link();
+        $myfeed->publisher->description = $SP_feed->get_description();
         // removed in SP 1.3 $myfeed->channel['favicon'] = $SP_feed->get_favicon();
-        $myfeed->channel['logo'] = $SP_feed->get_image_url();
+        $myfeed->publisher->logo = $SP_feed->get_image_url();
         $index=0;
 
 		$items = $SP_feed->get_items();
         foreach( $items as $item) {
-            $myfeed->items[$index]['link'] = $item->get_permalink();
-            $myfeed->items[$index]['title'] = $item->get_title();
-            $myfeed->items[$index]['date_timestamp']  = $item->get_date('U');
-		    $myfeed->items[$index]['description'] = $item->get_content();
+        	$pubitem = new NewsItem();
+            $pubitem->link = $item->get_permalink();
+            $pubitem->title = $item->get_title();
+            $pubitem->date_timestamp  = $item->get_date('U');
+		    $pubitem->description = $item->get_content();
 
             $encidx = 0;
             $enc = $item->get_enclosures();
             if (is_array($enc)) {
 				foreach ($enc as $enclosure) {
-					$myfeed->items[$index]['enclosures'][$encidx]['link'] = $enclosure->get_link();
-					$myfeed->items[$index]['enclosures'][$encidx]['length'] = $enclosure->get_length();
-					$myfeed->items[$index]['enclosures'][$encidx]['type'] = $enclosure->get_type();
-					$encidx++;
+					$newenc = new Enclosure();
+					$newenc->link = $enclosure->get_link();
+					$newenc->length = $enclosure->get_length();
+					$newenc->type = $enclosure->get_type();
+					$pubitem->addEnclosure($newenc);
             	}
             }
-            $index++;
+            $myfeed->addItem($pubitem);
         }
 
         /* metadata */
         $myfeed->last_fetched = time();
     } else {
 		if ($SP_feed->error()) {
-			$resultString = $SP_feed->error() . " on ".$channeldata['xmlurl'];
-		} else $resultString = 'Error fetching or parsing '.$channeldata['xmlurl'];
+			$resultString = $SP_feed->error() . " on ".$channel->xmlurl;
+		} else $resultString = 'Error fetching or parsing '.$channel->xmlurl;
 
     }
     // php memory bug, as described in SP documentation

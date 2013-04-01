@@ -30,7 +30,7 @@ class FeedHandler {
 	protected $_feed;
 	protected $_subscription;
 
-	public function __construct($subcription) {
+	public function __construct($subscription) {
 		$this->_subscription = $subscription;
 	}
 
@@ -72,9 +72,9 @@ class FeedHandler {
 
 
 		// TODO: check this
-		if (!$ignorehistory) {
+		/*if (!$ignorehistory) {
 			$channeldata['history'] = new history($channelDesc->xmlurl);
-		}
+		}*/
 
 		// QUICK DEBUG $refreshtime = -1;
 
@@ -88,14 +88,14 @@ class FeedHandler {
 			// compare each item id with our fetch history, for this feed
 			// mark new items as such
 			//TODO handle history
-			if ( !$ignorehistory) {
+			/*if ( !$ignorehistory) {
 
 				$channeldata['history']->handleCurrentItems($this->_feed->items,
 					$this->_visits['lastsessionend'],
 					$this->_now);
 				// delete unseen items from db
 				$channeldata['history']->purge();
-			}
+			}*/
 
 			//print_r($this->_feed->items);
 

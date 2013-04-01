@@ -177,16 +177,16 @@ class template {
 	}
 
 
-	public function printNews(&$item) {
+	public function printNews($item) {
 		$this->_buffer = $this->news;
 		$this->_formatCommon();
-		$this->_formatChannel($item['channel']);
+		$this->_formatChannel($item->publisher);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 
 	}
 
-	public function printNewsByDate(&$item) {
+	public function printNewsByDate($item) {
 		$this->_buffer = $this->newsByDate;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
@@ -196,7 +196,7 @@ class template {
 
 	/* normally called in ajax requests when containing
 	element is always the same	*/
-	public function printArticle(&$item) {
+	public function printArticle($item) {
 		$this->_buffer = $this->article;
 		$this->_formatCommon();
 		$this->_formatChannel($item['channel']);
@@ -227,7 +227,7 @@ class template {
 
 
 	public function printChannel($feed) {
-		$channel = $feed->channel;
+		$channel = $feed->publisher;
 		$last_fetched = $feed->last_fetched;
 
 		$this->_buffer = $this->channel;
@@ -276,66 +276,73 @@ class template {
 
 	/* process channel-related template tags
 	*/
-	protected function _formatChannel(&$channel) {
-		$schannel = $channel;
+	protected function _formatChannel($publisher) {
+		$schannel = $publisher;
 		if ($this->name == 'SYSTEM.rss') {
-			$schannel['title'] = htmlspecialchars($channel['title'], ENT_QUOTES);
-			$schannel['description'] = htmlspecialchars($channel['description'], ENT_QUOTES);
+			$stitle = htmlspecialchars($publisher->title, ENT_QUOTES);
+			$sdesc = htmlspecialchars($publisher->description, ENT_QUOTES);
+		} else {
+			$stitle = $publisher->title;
+			$sdesc = $publisher->description;
 		}
-		$schannel['link'] = htmlspecialchars($channel['link'], ENT_QUOTES);
-		$schannel['xmlurl'] = htmlspecialchars($channel['xmlurl'], ENT_QUOTES);
 
-		if (isset($channel['logo']) && ($channel['logo'] != "")) {
-			$schannel['logo'] = htmlspecialchars($channel['logo'], ENT_QUOTES);
-			$this->_buffer = str_replace('{chanlogo}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['logo']. "\" style=\"border:0;\" alt=\"" . $schannel['title']. "\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
+		$slink = htmlspecialchars($publisher->link, ENT_QUOTES);
+		$sxmlurl = htmlspecialchars($publisher->xmlurl, ENT_QUOTES);
+
+		if ($publisher->logo != "") {
+			$slogo = htmlspecialchars($publisher->logo, ENT_QUOTES);
+			$this->_buffer = str_replace('{chanlogo}', "<a href=\"" . $slink. "\"><img src=\"" . $slogo. "\" style=\"border:0;\" alt=\"" . $stitle. "\" title=\"" . $stitle. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanlogo}', '', $this->_buffer);
 		}
 
-		if (isset($channel['favicon']) && ($channel['favicon'] != "")) {
-			$schannel['favicon'] = htmlspecialchars($channel['favicon'], ENT_QUOTES);
-			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $schannel['link']. "\"><img src=\"" . $schannel['favicon']. "\" style=\"border:0;\" width=\"16\" height=\"16\" alt=\"-\" title=\"" . $schannel['title']. "\" /></a>", $this->_buffer);
+		if ($publisher->favicon != "") {
+			$spublisher->favicon = htmlspecialchars($publisher->favicon, ENT_QUOTES);
+			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $slink. "\"><img src=\"" . $sfavicon. "\" style=\"border:0;\" width=\"16\" height=\"16\" alt=\"-\" title=\"" . $stitle. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanfavicon}', '', $this->_buffer);
 		}
 
-		$this->_buffer = str_replace('{chanlink}', $schannel['link'], $this->_buffer);
-		$this->_buffer = str_replace('{chanid}', $schannel['id'], $this->_buffer);
-		$this->_buffer = str_replace('{chandesc}', $schannel['description'], $this->_buffer);
+		$this->_buffer = str_replace('{chanlink}', $publisher->link, $this->_buffer);
+		$this->_buffer = str_replace('{chanid}', $publisher->id, $this->_buffer);
+		$this->_buffer = str_replace('{chandesc}', $sdesc, $this->_buffer);
 
-		$this->_buffer = str_replace('{chantitle}', $schannel['title'], $this->_buffer);
-		$this->_buffer = str_replace('{feedurl}', $schannel['xmlurl'], $this->_buffer);
+		$this->_buffer = str_replace('{chantitle}', $stitle, $this->_buffer);
+		$this->_buffer = str_replace('{feedurl}', $sxmlurl, $this->_buffer);
 
 	}
 
 	/* process item-related template tags
 	*/
-	protected function _formatNews(&$item) {
-		$sitem = $item;
+	protected function _formatNews($item) {
 		if ($this->name == 'SYSTEM.rss') {
-			$sitem['title'] = htmlspecialchars($item['title'], ENT_QUOTES);
-			$sitem['description'] = htmlspecialchars($item['description'], ENT_QUOTES);
-			$sitem['summary'] = htmlspecialchars($item['summary'], ENT_QUOTES);
+			$stitle = htmlspecialchars($item->title, ENT_QUOTES);
+			$sdescription = htmlspecialchars($item->description, ENT_QUOTES);
+			$ssummary = htmlspecialchars($item->summary, ENT_QUOTES);
+		} else {
+			$stitle = $item->title;
+			$sdescription = $item->description;
+			$ssummary = $item->summary;
 		}
-		$sitem['link'] = htmlspecialchars($item['link'], ENT_QUOTES);
+		$slink = htmlspecialchars($item->link, ENT_QUOTES);
 
-		$this->_buffer = str_replace('{itemid}', $item['id'], $this->_buffer);
-		$this->_buffer = str_replace('{link}', $sitem['link'], $this->_buffer);
-		$this->_buffer = str_replace('{link_encoded}', urlencode($sitem['link']), $this->_buffer);
-		if (isset($item['date_timestamp']) && ($item['date_timestamp'] != -1)) {
+		$this->_buffer = str_replace('{itemid}', $item->id, $this->_buffer);
+		$this->_buffer = str_replace('{link}', $slink, $this->_buffer);
+		$this->_buffer = str_replace('{link_encoded}', urlencode($slink), $this->_buffer);
+		if ($item->date_timestamp != -1) {
 			if ($this->name == 'SYSTEM.rss') {
-				$pubdate = date('r', $item['date_timestamp']);
+				$pubdate = date('r', $item->date_timestamp);
 			} else {
-				$pubdate = zf_transcode(strftime(ZF_PUBDATEFORMAT, date($item['date_timestamp'])));
+				$pubdate = zf_transcode(strftime(ZF_PUBDATEFORMAT, date($item->date_timestamp)));
 			}
 		} else {
-			$pubdate = $item['pubdate'];
+			$pubdate = $item->pubdate;
 		}
 
 		$this->_buffer = str_replace('{pubdate}', $pubdate, $this->_buffer);
-		$this->_buffer = str_replace('{relativedate}', getRelativeTime($item['date_timestamp']), $this->_buffer);
-		$this->_buffer = str_replace('{title}', $sitem['title'], $this->_buffer);
-		if (ZF_NEWITEMS!='no' && isset($item['isnew']) && $item['isnew']) {
+		$this->_buffer = str_replace('{relativedate}', getRelativeTime($item->date_timestamp), $this->_buffer);
+		$this->_buffer = str_replace('{title}', $stitle, $this->_buffer);
+		if (ZF_NEWITEMS!='no' && $item->isNew) {
 			$this->_buffer = str_replace('{isnew}', ZF_ISNEW_STRING, $this->_buffer);
 
 		} else {
@@ -343,16 +350,16 @@ class template {
 		}
 
 		/* description */
-		$this->_buffer = str_replace('{description}', $sitem['description'], $this->_buffer);
+		$this->_buffer = str_replace('{description}', $sdescription, $this->_buffer);
 
 		$this->_formatEnclosures($item);
 
-		$hasSummary = strpos( $this->_buffer, '{summary}');
-		$this->_buffer = str_replace('{summary}', $sitem['summary'], $this->_buffer);
+		$hasSummary = strpos($this->_buffer, '{summary}');
+		$this->_buffer = str_replace('{summary}', $ssummary, $this->_buffer);
 
-		$zfarticleurl = ZF_HOMEURL.'?type=article&zftemplate='.urlencode($this->name).'&itemid='.$item['id'].'&xmlurl='.urlencode($item['channel']['xmlurl']);
+		$zfarticleurl = ZF_HOMEURL.'?type=article&zftemplate='.urlencode($this->name).'&itemid='.$item->id.'&xmlurl='.urlencode($item->publisher->xmlurl);
 
-		if ($hasSummary && $item['istruncated'])
+		if ($hasSummary && $item->istruncated)
 			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';
 		else
 			$readmorelink = '';
@@ -361,16 +368,17 @@ class template {
 
 
 		// for RSS feeds only
-		$this->_buffer = str_replace('{guid}', md5($sitem['link']), $this->_buffer);
+		$this->_buffer = str_replace('{guid}', md5($slink), $this->_buffer);
 
 	}
 
 
 
 
-	protected function _formatEnclosures(&$item) {
+	protected function _formatEnclosures($item) {
 		// enclosures
 		$enclosurelist = "";
+		return;
 		if (isset($item['enclosures'])) {
 			if ($this->name == 'SYSTEM.rss') {
 				foreach($item['enclosures'] as $enclosure) {

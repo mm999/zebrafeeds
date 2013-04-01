@@ -29,6 +29,7 @@ if (!defined('ZF_VER')) exit;
 
 require_once($zf_path . 'includes/classes.php');
 require_once($zf_path . 'includes/feed.php');
+require_once($zf_path . 'includes/feedhandler.php');
 require_once($zf_path . 'includes/view.php');
 require_once($zf_path . 'includes/template.php');
 require_once($zf_path . 'includes/history.php');
@@ -79,6 +80,7 @@ class aggregator {
 
 		$this->_feed = null;
 		$this->_template = null;
+
 		$this->errorLog = '';
 		$this->_viewMode = 'feed';
 		$this->_feedOptions->trimType = 'none';
@@ -90,6 +92,21 @@ class aggregator {
 	}
 
 	/* AGGREGATOR CONFIGURATION ---------------------  */
+
+
+	public function useDefaultTemplate(){
+		/* set config template */
+		$this->useTemplate(ZF_TEMPLATE);
+	}
+
+	public function useTemplate($templateName) {
+		$this->_template = new template($templateName);
+	}
+
+	public function useDefaultList(){
+		/* set config template */
+		$this->useList(ZF_HOMELIST);
+	}
 
 	public function useList($listName) {
 
@@ -116,10 +133,6 @@ class aggregator {
 		}
 	}
 
-	public function useTemplate($templateName) {
-		$this->_template = new template($templateName);
-	}
-
 
 	/* behavior settings */
 	public function setViewMode($mode) {
@@ -128,7 +141,7 @@ class aggregator {
 
 
 	/* changes the trimming options. Also forces the view mode to trim */
-	public function setTrimOptions($trimtype, $trimsize) {
+	public function setTrim($trimtype, $trimsize) {
 		$this->_viewMode = 'trim';
 		$this->_feedOptions->trimSize = $trimsize;
 		$this->_feedOptions->trimType = $trimtype;
@@ -144,6 +157,7 @@ class aggregator {
 	public function matchNews($expression) {
 		$this->_feedOptions->matchExpression = $expression;
 	}
+
 
 	/* AGGREGATOR OPERATION & RENDERING ---------------------  */
 
@@ -196,11 +210,12 @@ class aggregator {
 		foreach($sortedChannels as &$subscription) {
 			if ($subscription->isSubscribed) {
 				if (isset($subscription->channel->xmlurl) && trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
-					//TODO: get feed here
-					// create feedhandler from subscription
-					// feedhandler->getAuto
-					// set $this->_feed
-					$this->printGenericChannel(false, false);
+
+					/* create feedhandler and get feed, auto mode */
+					$handler = new FeedHandler($subscription);
+					/* assign feed to $this->_feed;*/
+					$this->_feed = $handler->getAutoFeed();
+					$this->printGenericChannel($subscription, false, false);
 				}
 			}
 		}
@@ -234,11 +249,13 @@ class aggregator {
 	/* configured number of channel's items, with header, auto cache/refresh*/
 	public function printSingleChannel($pos) {
 
-		//TODO: get Feed
-		/* get sub by pos from list
-		create feedhandler and get feed, auto mode
-		assign feed to $this->_feed;*/
-		$this->printGenericChannel(false, false);
+		/* get sub by pos from list */
+		$sub = $this->subscriptions[$pos];
+		/* create feedhandler and get feed, auto mode */
+		$handler = new FeedHandler($sub);
+		/* assign feed to $this->_feed;*/
+		$this->_feed = $handler->getAutoFeed();
+		$this->printGenericChannel($sub, false, false);
 	}
 
 	/* all channel's items, no header, from cache */
@@ -255,9 +272,10 @@ class aggregator {
 	public function printDefaultItemsRefreshed($pos) {
 
 		//TODO: get Feed
-		/* get sub by pos from list
-		create feedhandler and get feed force refresh
-		assign feed to $this->_feed;*/
+		/* get sub by pos from list */
+
+		/* create feedhandler and get feed force refresh */
+		/* assign feed to $this->_feed; */
 		$this->printGenericChannel(false, true);
 	}
 
@@ -265,19 +283,17 @@ class aggregator {
 	all items, natural order, only a max number of items
 	optionally, we can render only the items, no header
 	 */
-	private function printGenericChannel($viewAll = false, $onlyItems = false) {
-		zf_debug("viewing channel ".$this->_feed->channel->xmlurl);
-
-		$feedOptions = array();
-		if ($viewAll) {
-			$this->_feed->setTrim('none');
-		} else {
-			$this->_feed->setTrim('news', $this->_feed->shownItems);
-		}
+	private function printGenericChannel($subscription, $viewAll = false, $onlyItems = false) {
+		zf_debug("viewing channel ".$subscription->__toString());
 
 		if ($this->_feed != null) {
+
+			if (!$viewAll) {
+				zf_debug('Triming to items: '.$subscription->shownItems);
+				$this->_feed->trimItems($subscription->shownItems);
+			}
 			// true: we want sorting
-			$this->_feed->postProcess(true);
+			//$this->_feed->postProcess(true);
 			if ($this->list != null) {
 				$this->_template->addTags(array( 'list' => $this->list->name));
 			}  else {

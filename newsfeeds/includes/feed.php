@@ -54,15 +54,6 @@ class AbstractFeed {
 		array_push($this->items, $item);
 	}
 
-
-
-}
-
-/* publisher feed is obtained from the RSS/ATOM parser
-can be trimmed to "showeditems" */
-class PublisherFeed extends AbstractFeed {
-
-
 	/* get rid of superfluous items exceeding our limit ,  only by numbers (trimtype)*/
 	public function trimItems($trimsize) {
 		$this->items = array_slice($this->items, 0, $trimsize);
@@ -80,16 +71,20 @@ class PublisherFeed extends AbstractFeed {
 
 
 
+
+}
+
+/* publisher feed is obtained from the RSS/ATOM parser
+can be trimmed to "shownitems" */
+class PublisherFeed extends AbstractFeed {
+
+	public $from_cache;
+
 	/* adapt the publisher data from data set externally, or with default values */
 	public function customizePublisher($channeldata) {
 
-		if (isset($channeldata['title'])) {
-			$this->publisher->title = $channeldata['title'];
-		}
-		if (isset($channeldata['description'])) {
-			$this->publisher->description = $channeldata['description'];
-		}
-
+		$this->publisher->title = $channeldata->title;
+		$this->publisher->description = $channeldata->description;
 	}
 
 	/* make sure our channel array has all what we need
@@ -135,7 +130,7 @@ class AggregatedFeed extends AbstractFeed {
 	private $listName;
 	private $list;
 
-	public $showedItems;
+	public $shownItems;
 
 	/* this feed is an aggregation of feeds from a list
 	   this method initializes this

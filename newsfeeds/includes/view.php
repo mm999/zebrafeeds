@@ -20,7 +20,7 @@
 
 /*
  this is the central class of rendering a newsfeed using a template
- it expresses the fact that channel feeds and virtual 
+ it expresses the fact that channel feeds and virtual
  feeds render the same way. The only option here, is to group by day or not
  */
 
@@ -32,9 +32,9 @@ class view {
 	//var $template = null;
 
 	// optional: separate each news day
-	public $groupByDay; 
+	public $groupByDay;
 
-	/* this property is used when currently rendering a particular feed 
+	/* this property is used when currently rendering a particular feed
 	it's a Feed object	  */
 
 	protected $feed;
@@ -46,9 +46,9 @@ class view {
 		$this->template = &$template;
 	}
 
-	/* render the view, 
+	/* render the view,
 	  made of an unique "feed" if grouped by date"
-	  or made of multiple single feeds if grouped by channel 
+	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
 	public function render() {
 
@@ -60,15 +60,15 @@ class view {
 		$this->renderNewsItems();
 
 		if ($this->groupByDay ) {
-			$this->template->printListFooter($this->feed->channel);
+			$this->template->printListFooter($this->feed->publisher);
 		} else {
-			$this->template->printChannelFooter($this->feed->channel);
+			$this->template->printChannelFooter($this->feed->publisher);
 		}
 	}
 
 	/* print only news items, no header */
 	public function renderNewsItems() {
-	
+
 		$doNewOnes = true;
 
 		if ((defined('ZF_NEWONTOP') && ZF_NEWONTOP == 'yes') ) {
@@ -78,16 +78,16 @@ class view {
 			}
 		}
 		$this->renderRemainingNewsitems($doNewOnes);
-			
+
 	}
 
 	public function renderUnseenNewsitems() {
-	
+
 		$titleToShow = '';
 
 		//foreach item
 		foreach ($this->feed->items as $item) {
-		
+
 			if (!$item['isnew'] ) continue;
 
 			if ($titleToShow == '') {
@@ -96,23 +96,23 @@ class view {
 			}
 			$this->template->printNewsByDate($item);
 		} // end foreach
-		
+
 		// print day footer
 		if ($titleToShow != '') {
 			$this->template->printDayFooter($currentDay);
 		}
 
 	}
-	
+
 	public function renderRemainingNewsitems($doNewOnes) {
-	
+
 		$currentDay = '';
 		//$today = date('m.d.Y');
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
 
 		//foreach item
 		foreach ($this->feed->items as $item) {
-		
+
 			if (!$doNewOnes && $item['isnew'] ) continue;
 			/* two ways of rendering:
 			- group by day, we use a special template part, and separate each day
@@ -122,7 +122,7 @@ class view {
 			if (function_exists('zf_itemfilter')) {
 				$renderIt = zf_itemfilter(&$item);
 			}
-			
+
 			if ($this->groupByDay ) {
 				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item['date_timestamp'])));
 				/*
@@ -152,7 +152,7 @@ class view {
 			}
 
 		} // end foreach
-		
+
 		if ($this->groupByDay && ZF_GROUP_BY_DAY == 'yes') {
 			// terminate the last day we used
 			$this->template->printDayFooter($currentDay);

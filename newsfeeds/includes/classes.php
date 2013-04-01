@@ -21,6 +21,9 @@ class ChannelDescriptor {
 		 $this->id = zf_makeId($this->xmlurl, '');
 	}
 
+	public function __toString(){
+		return $this->xmlurl;
+	}
 }
 
 /* channel with data obtained from publisher */
@@ -87,6 +90,10 @@ class Subscription {
 
 		$this->isSubscribed = ($attributes['ISSUBSCRIBED'] == 'yes');
 
+	}
+
+	public function __toString(){
+		return $this->channel->__toString();
 	}
 
 }
@@ -168,7 +175,7 @@ class NewsItem {
 
 
 	public function addEnclosure($enclosure) {
-		array_push($this->items, $enclosure);
+		array_push($this->enclosures, $enclosure);
 	}
 
 }

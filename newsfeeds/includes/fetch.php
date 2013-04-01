@@ -124,7 +124,7 @@ function zf_fetch_rss($channelDesc, $refreshtime, &$resultString) {
 			   /* set channel data, like title and description from what's
 				configured in the subscription list */
 				//TODO: set publisher
-				$feed->customizeChannel($channeldata);
+				$feed->customizePublisher($channelDesc);
 				/* for each item: $item['channel'] = &$rss->channel */
 				$feed->bindItemsToChannel();
 
@@ -150,7 +150,7 @@ function zf_fetch_rss($channelDesc, $refreshtime, &$resultString) {
 
 		/* set channel data, like title and description from what's
 		configured in the subscription list */
-		$feed->customizeChannel($channelDesc);
+		$feed->customizePublisher($channelDesc);
 
 		// add object to cache
 		$cache->set( $cache_key, $feed );
@@ -178,7 +178,7 @@ function zf_fetch_rss($channelDesc, $refreshtime, &$resultString) {
         }
         /* set channel data, like title and description from what's
         configured in the subscription list */
-        $feed->customizeChannel($channeldata);
+        $feed->customizePublisher($channelDesc);
         /* for each item: $item['channel'] = &$rss->channel */
 		$feed->bindItemsToChannel();
 
@@ -186,7 +186,7 @@ function zf_fetch_rss($channelDesc, $refreshtime, &$resultString) {
 	}
 
 	// else we totally failed
-	$resultString = "Fetch error and no valid cache for ".$channeldata['xmlurl'];
+	$resultString = "Fetch error and no valid cache for ".$channelDesc->xmlurl;
 
 	return false;
 
