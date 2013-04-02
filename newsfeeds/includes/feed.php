@@ -217,7 +217,8 @@ class AggregatedFeed extends AbstractFeed {
 		if ($sort) {
 			$this->sortItems();
 		}
-		$this->trimItems($this->trimsize);
+		if ($this->trimtype == 'trim')
+			$this->trimItems($this->trimsize);
 
 		if ((defined('ZF_ONLYNEW') && ZF_ONLYNEW == 'yes') ) {
 			$this->filterNonNew();

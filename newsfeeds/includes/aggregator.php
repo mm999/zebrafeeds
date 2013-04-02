@@ -140,7 +140,8 @@ class aggregator {
 	}
 
 
-	/* changes the trimming options. Also forces the view mode to trim */
+	/* changes the trimming options. Also forces the view mode to trim,
+	overruling the setting saved in the OPML list */
 	public function setTrim($trimtype, $trimsize) {
 		$this->_viewMode = 'trim';
 		$this->_feedOptions->trimSize = $trimsize;
