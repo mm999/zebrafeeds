@@ -46,6 +46,11 @@ class FeedHandler {
 	  return $this->_getFeed($this->_subscription->refreshTime);
 	}
 
+	/* refreshtime:
+	 -1: force from cache
+	 0: force refresh
+	 >0: use this refreshtime
+	 */
 	protected function _getFeed($requestedRefreshtime) {
 		// TODO implement single global refreshtime
 

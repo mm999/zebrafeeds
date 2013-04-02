@@ -189,7 +189,7 @@ class template {
 	public function printNewsByDate($item) {
 		$this->_buffer = $this->newsByDate;
 		$this->_formatCommon();
-		$this->_formatChannel($item['channel']);
+		$this->_formatChannel($item->publisher);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 	}
@@ -359,7 +359,7 @@ class template {
 
 		$zfarticleurl = ZF_HOMEURL.'?type=article&zftemplate='.urlencode($this->name).'&itemid='.$item->id.'&xmlurl='.urlencode($item->publisher->xmlurl);
 
-		if ($hasSummary && $item->istruncated)
+		if ($hasSummary && $item->isTruncated)
 			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';
 		else
 			$readmorelink = '';
@@ -378,34 +378,33 @@ class template {
 	protected function _formatEnclosures($item) {
 		// enclosures
 		$enclosurelist = "";
-		return;
-		if (isset($item['enclosures'])) {
+		if ($item->hasEnclosures()) {
 			if ($this->name == 'SYSTEM.rss') {
-				foreach($item['enclosures'] as $enclosure) {
-					$enclosurelist .= ' <enclosure url="'.$enclosure['link'].'" length="'.$enclosure['length'].'" type="'.$enclosure['type'].'" />';
+				foreach($item->enclosures as &$enclosure) {
+					$enclosurelist .= ' <enclosure url="'.$enclosure->link.'" length="'.$enclosure->length.'" type="'.$enclosure->type.'" />';
 				}
 
 			} else {
-				foreach($item['enclosures'] as $enclosure) {
+				foreach($item->enclosures as &$enclosure) {
 					//special treatment for images: inline
-					if (!(strpos($enclosure['type'], 'image') === false)) {
-						$enclosurelist .= '<img src="'.$enclosure['link'].'" style="margin: 4px; border:0;" alt="embedded image"/>';
+					if ($enclosure->isImage()) {
+						$enclosurelist .= '<img src="'.$enclosure->link.'" style="margin: 4px; border:0;" alt="embedded image"/>';
 						continue;
 					}
 
-					$icon = $enclosure['type'];
+					$icon = $enclosure->type;
 					$title= 'Undetected file';
-					if (!(strpos($enclosure['type'], 'audio') === false)) {
+					if ($enclosure->isAudio()) {
 						$icon = '<img src="'.ZF_URL.'/images/audio.png" style="border:0;" alt="Audio content"/>';
 						$title = 'Audio content.';
 					}
-					if (!(strpos($enclosure['type'], 'video') === false)) {
+					if ($enclosure->isVideo()) {
 						$icon = '<img src="'.ZF_URL.'/images/video.png" style="border:0;" alt="Video content"/>';
 						$title = 'Video content.';
 					}
 					// nice output format for the size
-					$size = sprintf("%01.2f MB",$enclosure['length'] / 1048576);
-					$enclosurelist .= ' <a href="'.htmlentities($enclosure['link']).
+					$size = sprintf("%01.2f MB",$enclosure->length / 1048576);
+					$enclosurelist .= ' <a href="'.htmlentities($enclosure->link).
 					'" title="'.$title.' Size: '.$size.'">'.
 					$icon.'</a> ';
 				}

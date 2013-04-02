@@ -36,8 +36,6 @@ class AbstractFeed {
 	public function __construct() {
 		$this->items = array();
 		$this->publisher = new Publisher();
-		$this->_earliest = 0;
-
 	}
 
 	public function addItem($item) {
@@ -140,6 +138,8 @@ class AggregatedFeed extends AbstractFeed {
 		parent::__construct();
 		$this->listName = $subscriptionList->name;
 
+		$this->_earliest = 0;
+
 		$this->publisher->title = (ZF_OWNERNAME ==""?"":ZF_OWNERNAME." - ").$this->listName;
 		//TODO: make RSS address prettier
 		$this->publisher->xmlurl = ZF_URL.'?f=rss&zflist='.urlencode($this->listName);
@@ -188,7 +188,7 @@ class AggregatedFeed extends AbstractFeed {
 	public function setTrim($type,$size=0) {
 		$this->trimsize = $size;
 		$this->trimtype = $type;
-
+		zf_debug("AggregatedFeed trim set to $this->trimtype, $this->trimsize");
 		// get timestamp we don't want to go further
 		if ($this->trimtype == 'hours') {
 			// earliest is the timestamp before which we should ignore news
@@ -217,7 +217,7 @@ class AggregatedFeed extends AbstractFeed {
 		if ($sort) {
 			$this->sortItems();
 		}
-		$this->trimItems();
+		$this->trimItems($this->trimsize);
 
 		if ((defined('ZF_ONLYNEW') && ZF_ONLYNEW == 'yes') ) {
 			$this->filterNonNew();
@@ -239,7 +239,7 @@ class AggregatedFeed extends AbstractFeed {
 	protected function mergeItems($feed) {
 
 		$itemcount = 0;
-		foreach ($feed->items as $item) {
+		foreach ($feed->items as &$item) {
 
 			$itemts = (isset($item->date_timestamp)) ? $item->date_timestamp: 0;
 			$basetime = time();

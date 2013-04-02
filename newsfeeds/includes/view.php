@@ -86,9 +86,9 @@ class view {
 		$titleToShow = '';
 
 		//foreach item
-		foreach ($this->feed->items as $item) {
+		foreach ($this->feed->items as &$item) {
 
-			if (!$item['isnew'] ) continue;
+			if (!$item->isNew ) continue;
 
 			if ($titleToShow == '') {
 				$titleToShow = "Recent news";
@@ -111,20 +111,20 @@ class view {
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
 
 		//foreach item
-		foreach ($this->feed->items as $item) {
+		foreach ($this->feed->items as &$item) {
 
-			if (!$doNewOnes && $item['isnew'] ) continue;
+			if (!$doNewOnes && $item->isNew ) continue;
 			/* two ways of rendering:
 			- group by day, we use a special template part, and separate each day
 			- normal, use the regular news template
 			 */
 			$renderIt = true;
 			if (function_exists('zf_itemfilter')) {
-				$renderIt = zf_itemfilter(&$item);
+				$renderIt = zf_itemfilter($item);
 			}
 
 			if ($this->groupByDay ) {
-				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item['date_timestamp'])));
+				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item->date_timestamp)));
 				/*
 				 * non locale-friendly way...
 				 $day_std = date('m.d.Y', $item['date_timestamp']);

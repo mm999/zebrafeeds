@@ -167,9 +167,6 @@ class aggregator {
 	meant to be for an HTML page. shows errors and credit if configured*/
 	public function printMainView() {
 
-		//TODO: create feed handler from list
-		// get merged feed from feed handler
-
 		if (count($this->list->subscriptions) > 0) {
 			$this->_template->printHeader();
 			zf_debug('Viewmode:'. $this->_viewMode);
@@ -231,7 +228,7 @@ class aggregator {
 			$this->_feedOptions->trimType = 'none';
 		}
 
-		$feed = &$this->makeFeed();
+		$this->buildAggregatedFeed();
 		if ($this->list != null) {
 			//configure template to remove unhandled/unwanted buttons
 			$this->_template->addTags(array( 'list' => $this->list->name));
@@ -240,7 +237,7 @@ class aggregator {
 		}
 
 		$this->_template->addTags(array( 'publisherurl' => ZF_HOMEURL));
-		$view = new view($this->_template, $feed);
+		$view = new view($this->_template, $this->_feed);
 		$view->groupByDay = true;
 		zf_debugRuntime("after aggregated view created");
 		$view->render();
@@ -261,21 +258,24 @@ class aggregator {
 	/* all channel's items, no header, from cache */
 	public function printAllItemsFromCache($pos) {
 
-		//TODO: get Feed
-		/* get sub by pos from list
-		create feedhandler and get feed from cache
-		assign feed to $this->_feed;*/
+		/* get sub by pos from list */
+		$sub = $this->subscriptions[$pos];
+		/* create feedhandler and get feed, auto mode */
+		$handler = new FeedHandler($sub);
+		/* assign feed to $this->_feed;*/
+		$this->_feed = $handler->getFeedFromCache();
 		$this->printGenericChannel(true, true);
 	}
 
 	/* configured number of channel's items, no header, force refresh */
 	public function printDefaultItemsRefreshed($pos) {
 
-		//TODO: get Feed
 		/* get sub by pos from list */
-
-		/* create feedhandler and get feed force refresh */
-		/* assign feed to $this->_feed; */
+		$sub = $this->subscriptions[$pos];
+		/* create feedhandler and get feed, auto mode */
+		$handler = new FeedHandler($sub);
+		/* assign feed to $this->_feed;*/
+		$this->_feed = $handler->getRefreshedFeed();
 		$this->printGenericChannel(false, true);
 	}
 
@@ -328,8 +328,8 @@ class aggregator {
 		$this->_feedOptions->trimType = "news";
 		$this->_feedOptions->trimSize = ZF_RSSEXPORTSIZE;
 
-		$feed = $this->makeFeed();
-		$view = new view($this->_template, $feed);
+		$this->buildAggregatedFeed();
+		$view = new view($this->_template, $this->_feed);
 		zf_debugRuntime("after aggregated view created");
 
 		$this->_template->addTags(array('encoding' => ZF_ENCODING,
@@ -410,36 +410,31 @@ class aggregator {
 	will load all RSS objects from the channels list and merge
 	them in a feed object, on which a pointer is returned
 	 */
-	private function makeFeed() {
+	private function buildAggregatedFeed() {
 
 		// use subscription array from list as source.
 		//
 
 		// create an empty, meant to be virtual, feed object
 		// we'll merge all feeds containing actual data into it
-		$feed = new feed();
-		$feed->setTrim($this->_feedOptions->trimType, $this->_feedOptions->trimSize);
+		$this->_feed = new AggregatedFeed($this->list);
+		$this->_feed->setTrim($this->_feedOptions->trimType, $this->_feedOptions->trimSize);
 
-		// if we are making a feed for a list, we have to initialize it's channel
-		// data structure, since it's not obtained from a real RSS feed.
-		if ($this->list != null) {
-			$feed->initVirtual($this->list->name);
-		}
-
-		$subs = $this->_list->getSubscriptions();
+		$subs = $this->list->subscriptions;
 
 		foreach($subs as &$sub) {
 			if ($sub->isSubscribed) {
-				if (isset($sub->channel->xmlurl) && trim($sub->channel->xmlurl) != '' ) {
-					//TODO: create feed handler, get feed(Auto)
-					// if ($this->loadFeed($channel) ) {
-						$feed->mergeWith($this->_feed);
-
-				}
+				/* create feedhandler and get feed, auto mode */
+				$handler = new FeedHandler($sub);
+				/* assign feed to $this->_feed;*/
+				$feed = $handler->getAutoFeed();
+				if($feed !=null ) {
+					$this->_feed->mergeWith($feed);
+				} else
+					zf_debug("feed is null");
 			}
 		}
-		$feed->postProcess();
-		return $feed;
+		$this->_feed->postProcess();
 	}
 
 

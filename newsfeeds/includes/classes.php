@@ -127,7 +127,6 @@ class NewsItem {
 		$this->isTruncated = false;
 		$this->isNew = false;
 		$this->date_timestamp = -1;
-
 	}
 
 /*all sorts of processing to the item object
@@ -171,6 +170,10 @@ class NewsItem {
 			$this->isTruncated = true;
 		}
 
+	}
+
+	public function hasEnclosures(){
+		return sizeof($this->enclosures)>0;
 	}
 
 

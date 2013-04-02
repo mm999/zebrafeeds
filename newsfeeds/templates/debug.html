@@ -22,13 +22,9 @@ CHANNEL chantitle       {chantitle}
 CHANNEL chanlink        {chanlink}
 CHANNEL chandesc        {chandesc}
 CHANNEL chanlogo        {chanlogo}
+CHANNEL chanfavicon     {chanfavicon}
 CHANNEL feedurl         {feedurl}
 CHANNEL lastupdated     {lastupdated}
-
-CHANNEL morebutton      {morebutton}
-CHANNEL refreshbutton   {refreshbutton}
-CHANNEL hidebutton      {hidebutton}
-CHANNEL foldbutton      {foldbutton}
 
 CHANNEL list            {list}
 --- end channel
@@ -42,16 +38,17 @@ CHANNEL list            {list}
         NEWS link            {link}
         NEWS itemid          {itemid}
         NEWS isnew           {isnew}
-        
+
         NEWS chantitle       {chantitle}
         NEWS chanlink        {chanlink}
         NEWS chandesc        {chandesc}
         NEWS feedurl         {feedurl}
         NEWS scripturl       {scripturl}
         NEWS list            {list}
-        
-        NEWS description     <div style="display:none">{description}</div>
-        NEWS summary        <div style="display:block">{summary}</div>
+
+
+        NEWS description     <div style="height: 50px; overflow: scroll">{description}</div>
+        NEWS summary        <div style="height: 50px; overflow: scroll">{summary}</div>
         NEWS enclosures      {enclosures}
         ------ END NEWS
 </pre>
@@ -64,16 +61,16 @@ CHANNEL list            {list}
         NEWSBYDATE link            {link}
         NEWSBYDATE itemid          {itemid}
         NEWSBYDATE isnew           {isnew}
-        
+
         NEWSBYDATE chantitle       {chantitle}
         NEWSBYDATE chanlink        {chanlink}
         NEWSBYDATE chandesc        {chandesc}
         NEWSBYDATE feedurl         {feedurl}
         NEWSBYDATE scripturl       {scripturl}
         NEWSBYDATE list            {list}
-        
-       NEWSBYDATE description     <div style="display:none">{description}</div>
-        NEWSBYDATE summary         <div style="display:block">{summary}</div>
+
+        NEWSBYDATE description     <div style="height: 50px; overflow: scroll">{description}</div>
+        NEWSBYDATE summary        <div style="height: 50px; overflow: scroll">{summary}</div>
         NEWSBYDATE enclosures      {enclosures}
         ------ end newsbydate
 </pre>
@@ -112,7 +109,7 @@ NEWSDAYFOOTER
                     ARTICLE feedurl         {feedurl}
                     ARTICLE scripturl       {scripturl}
                     ARTICLE list            {list}
-                    
+
                     ARTICLE description     <div style="display:none;">{description}"</div>
                     ARTICLE enclosures      {enclosures}
                     ARTICLE summary         <div style="display:block">{summary}</div>
