@@ -563,6 +563,10 @@ class aggregator {
 
 		}// ZF_NEWITEMS==server
 	}
+	
+	public function getFeedItems() {
+		return $this->_feed->items;
+	}
 
 }
 
