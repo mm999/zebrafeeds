@@ -163,7 +163,62 @@ if (isset($_GET['type']) && isset($_GET['xmlurl'])) {
 		exit;
 	}
 	
-
+	
+	/*
+	 * returns a JSON object containing 
+	 * all the items of the chosen channel
+	 */
+	if ($type == "jsonchannelallitems") {
+		header('Content-Type: application/json; charset='.ZF_ENCODING);
+		$id = zf_makeId($xmlurl, "");
+		if ($zf_aggregator->loadFeed($channeldata, -1)) {
+			echo json_encode($zf_aggregator->getFeedItems());
+		}
+		exit;
+	}
+	
+	
+	/*
+	 * simply shows the content of an article
+	 */
+	if ($type == "jsonitem") {
+		header('Content-Type: text/html; charset='.ZF_ENCODING);
+		if ($zf_aggregator->loadFeed($channeldata, -1, true) ) {
+			$zf_aggregator->printItemContent($itemid);
+		}
+		$zf_aggregator->displayErrors();
+		exit;
+	}
+	
+} elseif ( isset( $_GET['type'] ) ) {
+    $type = $_GET['type'];
+    
+    
+    /**
+     * returns all categories and their channels
+     * as a JSON object indexed by categories names
+     */
+    if ($type == 'listswithchannels') {
+        header('Content-Type: application/json; charset='.ZF_ENCODING);
+        $catlist = zf_getListNames();
+        $cats = Array();
+    	foreach ($catlist as $categf) {
+            $list = new opml($categf);
+            if ($list->load()) {
+                $sortedchannels = array();
+            	foreach($list->channels as $i => $channel) {
+            		if ($channel['xmlurl'] != '' && $channel['issubscribed'] == 'yes') {
+            			$sortedchannels[$channel['position']] = $channel;
+            			$sortedchannels[$channel['position']]['opmlindex'] = $i;
+            		}
+            	}
+                ksort($sortedchannels);
+                $cats[$categf] = $sortedchannels;
+            }
+    	}
+    	echo json_encode($cats);
+    	exit;
+    }
 } else {
 
 	
