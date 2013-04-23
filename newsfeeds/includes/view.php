@@ -24,12 +24,60 @@
  feeds render the same way. The only option here, is to group by day or not
  */
 
+class AbstractView {
+	protected $feed;
+
+	public function __construct() {
+	}
+
+	public function useFeed($feed) {
+		$this->feed = $feed;
+	}
+
+	public function renderFeed() {
+	}
+
+	public function renderNewsItems() {
+		$this->renderFeed();
+	}
+
+	public function renderArticle($itemid) {
+		$item = $this->feed->lookupItem($itemid);
+		if ($item) {
+			if (function_exists('zf_itemfilter')) {
+				zf_debug('Calling filter');
+				zf_itemfilter($item);
+			}
+			$this->_doPrintArticle($item);
+		} else {
+			echo  "Content not available";
+		}
+	}
+
+	protected function _doPrintArticle($item) {
+	}
+
+	public function addTags($tags) {
+	}
+}
 
 
-class view {
+class JSONView extends AbstractView {
+
+	public function renderFeed() {
+		echo json_encode($this->feed);
+	}
+
+	protected function _doPrintArticle($item) {
+		echo json_encode($item);
+	}
+
+}
 
 
-	//var $template = null;
+
+class TemplateView extends AbstractView{
+
 
 	// optional: separate each news day
 	public $groupByDay;
@@ -37,20 +85,18 @@ class view {
 	/* this property is used when currently rendering a particular feed
 	it's a Feed object	  */
 
-	protected $feed;
 	protected $template;
 
-	public function __construct($template, $feed) {
+	public function __construct($template) {
 		$this->groupByDay = false;
-		$this->feed = &$feed;
-		$this->template = &$template;
+		$this->template = $template;
 	}
 
 	/* render the view,
 	  made of an unique "feed" if grouped by date"
 	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
-	public function render() {
+	public function renderFeed() {
 
 		if ($this->groupByDay ) {
 			$this->template->printListHeader($this->feed);
@@ -81,12 +127,12 @@ class view {
 
 	}
 
-	public function renderUnseenNewsitems() {
+	private function renderUnseenNewsitems() {
 
 		$titleToShow = '';
 
 		//foreach item
-		foreach ($this->feed->items as &$item) {
+		foreach ($this->feed->items as $item) {
 
 			if (!$item->isNew ) continue;
 
@@ -104,14 +150,14 @@ class view {
 
 	}
 
-	public function renderRemainingNewsitems($doNewOnes) {
+	private function renderRemainingNewsitems($doNewOnes) {
 
 		$currentDay = '';
 		//$today = date('m.d.Y');
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
 
 		//foreach item
-		foreach ($this->feed->items as &$item) {
+		foreach ($this->feed->items as $item) {
 
 			if (!$doNewOnes && $item->isNew ) continue;
 			/* two ways of rendering:
@@ -160,6 +206,13 @@ class view {
 
 	}
 
+	protected function _doPrintArticle($item) {
+		$this->template->printArticle($item);
+	}
+
+	public function addTags($tags) {
+		$this->template->addTags($tags);
+	}
 }
 
 ?>

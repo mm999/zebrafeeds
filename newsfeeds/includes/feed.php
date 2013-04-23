@@ -67,8 +67,24 @@ class AbstractFeed {
 		}
 	}
 
+	public function getJSONItems() {
+		return json_encode($this->items);
+	}
 
+	public function lookupItem($itemid) {
 
+		foreach ($this->items as $item) {
+			zf_debug('checking item with id '.$item->id);
+			if ( $item->id == $itemid ) {
+
+				zf_debug('Item Matches');
+				// HERE, we could/should use channel title/description
+
+				return $item;
+			}
+		}
+		return null;
+	}
 
 }
 

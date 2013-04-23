@@ -181,6 +181,10 @@ class NewsItem {
 		array_push($this->enclosures, $enclosure);
 	}
 
+	public function toJSON() {
+		//TODO: to improve
+		return json_encode($this);
+	}
 }
 
 

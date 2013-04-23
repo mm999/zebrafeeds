@@ -57,56 +57,96 @@ itemid : the news item unique id for lookup
 
  */
 
-if (isset($_GET['type']) && isset($_GET['xmlurl'])) {
+/* record a visit for operations that resend a list of news
+	do both server and client, one of them will possibly do something
+ */
 
+$zf_aggregator->recordServerVisit();
+$zf_aggregator->recordClientVisit();
+
+
+if (isset($_GET['type']) && isset($_GET['pos'])) {
+
+	/* type of content: channel, item, channelforcerefresh, channelallitems,
+	listwithchannels */
 	$type = $_GET['type'];
-	// don't know why the + is turned back into a space, but this breaks
-	// everything on complex URLs
+
+	/* position-id of the channel in the OPML list */
+	$pos = $_GET['pos'];
+
+	/* output type: JSON or HTML or (TODO) RSS */
+	$f = isset($_GET['f'])?$_GET['f']:'html';
 
 
 	$itemid = isset($_GET['itemid']) ? $_GET['itemid'] : '';
 	// a data structure just as if extracted from an opml file
 
 
-	$zf_aggregator->useTemplate(new template(zf_getDisplayTemplateName()));
+	if ($f =='json') {
+		$zf_aggregator->useJSON();
+		header('Content-Type: application/json; charset='.ZF_ENCODING);
+	} else {
+		$zf_aggregator->useTemplate(zf_getDisplayTemplateName());
+		header('Content-Type: text/html; charset='.ZF_ENCODING);
+	}
 
 	$zf_list = zf_getCurrentListName();
 	$zf_aggregator->useList($zf_list);
 
 	// force output encoding for AJAX request
-	Header('Content-Type: text/html; charset='.ZF_ENCODING);
 
 	if ($type == "item") {
-		$zf_aggregator->printArticleFromCache($pos, $itemid);
+		$zf_aggregator->printArticle($pos, $itemid);
 		exit;
 	}
 
-// to do one day: list of channels for a list, list of subscription lists...
-
-
-	/* record a visit for operations that resend a list of news
-		do both server and client, one of them will possibly do something
-	 */
-
-	$zf_aggregator->recordServerVisit();
-	$zf_aggregator->recordClientVisit();
 
 	if ($type == "channel") {
 
 		// channel with header and items, auto cache/refresh
 		$zf_aggregator->printSingleChannel($pos);
 
-	} else if ($type == "channelallitems") {
-
-		$zf_aggregator->displayStatus('Showing all news');
-		$zf_aggregator->printAllItemsFromCache($pos);
-		}
-
-	} else if ($type == "channelforcerefresh") {
-
-		$zf_aggregator->displayStatus('Showing refreshed news');
-		$zf_aggregator->printDefaultItemsRefreshed($pos);
 	}
+
+	if ($type == "channelallitems") {
+		$zf_aggregator->printStatus('Showing all news');
+		$zf_aggregator->printAllCachedItems($pos);
+
+	}
+
+	if ($type == "channelforcerefresh") {
+		$zf_aggregator->printStatus('Showing refreshed news');
+		$zf_aggregator->printRefreshedItems($pos);
+	}
+
+
+	if ($type == 'listswithchannels') {
+
+		/**
+		 * TODO
+		 * returns all categories and their channels
+		 * as a JSON object indexed by categories names
+		 */
+		$catlist = zf_getListNames();
+		$cats = Array();
+		foreach ($catlist as $categf) {
+			$list = new opml($categf);
+			if ($list->load()) {
+				$sortedchannels = array();
+				foreach($list->subscriptions as $i => $subscription) {
+					if ($subscription->isSubscribed) {
+						$sortedchannels[$subscription->position] = $subscription;
+						$sortedchannels[$subscription->position]['opmlindex'] = $i;
+					}
+				}
+				ksort($sortedchannels);
+				$cats[$categf] = $sortedchannels;
+			}
+		}
+		echo json_encode($cats);
+		exit;
+	}
+
 
 	$zf_aggregator->printErrors();
 
