@@ -350,10 +350,17 @@ class opml {
 		$this->subscriptions[$newpos] = $sub;
 	}
 
+	public function getSubscription($pos) {
+		if (isset($this->subscriptions[$pos])) {
+			return $this->subscriptions[$pos];
+		} else {
+			return null;
+		}
+	}
 
 	/* make sure we have correct data, particularly position
 	should be called after read, and before save */
-	public function _sanitize() {
+	private function _sanitize() {
 
 		$nextPos = $this->getNextPosition();
 
@@ -362,6 +369,11 @@ class opml {
 				$subscription->position = $nextPos++;
 			}
 		}
+	}
+
+	public function toJSON(){
+		//TODO: to improve
+		return json_encode($this);
 	}
 
 

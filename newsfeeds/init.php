@@ -51,9 +51,9 @@ define('ZF_VER', '1.3');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
 
 define("ZF_DATADIR", $zf_path.'data');
-define("ZF_OPMLBASEDIR", 'categories');
-define("ZF_OPMLDIR", $zf_path.ZF_OPMLBASEDIR);
+define("ZF_OPMLDIR", $zf_path.'categories');
 define("ZF_TEMPLATESDIR", $zf_path.'templates');
+define("ZF_HISTORYDIR", ZF_DATADIR.'/history');
 
 // full path
 define("ZF_CACHEDIR", ZF_DATADIR.'/cache');
