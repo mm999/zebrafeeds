@@ -61,34 +61,43 @@ itemid : the news item unique id for lookup
 	do both server and client, one of them will possibly do something
  */
 
+
+/* output type: JSON or HTML or (TODO) RSS */
+$f = isset($_GET['f'])?$_GET['f']:'html';
+
+if ($f =='json') {
+	$zf_aggregator->useJSON();
+	header('Content-Type: application/json; charset='.ZF_ENCODING);
+} else {
+	$zf_aggregator->useTemplate(zf_getDisplayTemplateName());
+	header('Content-Type: text/html; charset='.ZF_ENCODING);
+}
+
 $zf_aggregator->recordServerVisit();
 $zf_aggregator->recordClientVisit();
 
 
-if (isset($_GET['type']) && isset($_GET['pos'])) {
-
-	/* type of content: channel, item, channelforcerefresh, channelallitems,
-	listwithchannels */
+/* type of content:
+	channel, item, channelforcerefresh, channelallitems,
+	listwithchannels
+*/
+if (isset($_GET['type'])) {
 	$type = $_GET['type'];
+} else {
+	die('no query defined');
+}
+
+
+if (isset($_GET['pos'])) {
+
 
 	/* position-id of the channel in the OPML list */
 	$pos = $_GET['pos'];
-
-	/* output type: JSON or HTML or (TODO) RSS */
-	$f = isset($_GET['f'])?$_GET['f']:'html';
 
 
 	$itemid = isset($_GET['itemid']) ? $_GET['itemid'] : '';
 	// a data structure just as if extracted from an opml file
 
-
-	if ($f =='json') {
-		$zf_aggregator->useJSON();
-		header('Content-Type: application/json; charset='.ZF_ENCODING);
-	} else {
-		$zf_aggregator->useTemplate(zf_getDisplayTemplateName());
-		header('Content-Type: text/html; charset='.ZF_ENCODING);
-	}
 
 	$zf_list = zf_getCurrentListName();
 	$zf_aggregator->useList($zf_list);
@@ -97,7 +106,6 @@ if (isset($_GET['type']) && isset($_GET['pos'])) {
 
 	if ($type == "item") {
 		$zf_aggregator->printArticle($pos, $itemid);
-		exit;
 	}
 
 
@@ -119,37 +127,36 @@ if (isset($_GET['type']) && isset($_GET['pos'])) {
 		$zf_aggregator->printRefreshedItems($pos);
 	}
 
-
-	if ($type == 'listswithchannels') {
-
-		/**
-		 * TODO
-		 * returns all categories and their channels
-		 * as a JSON object indexed by categories names
-		 */
-		$catlist = zf_getListNames();
-		$cats = Array();
-		foreach ($catlist as $categf) {
-			$list = new opml($categf);
-			if ($list->load()) {
-				$sortedchannels = array();
-				foreach($list->subscriptions as $i => $subscription) {
-					if ($subscription->isSubscribed) {
-						$sortedchannels[$subscription->position] = $subscription;
-						$sortedchannels[$subscription->position]['opmlindex'] = $i;
-					}
-				}
-				ksort($sortedchannels);
-				$cats[$categf] = $sortedchannels;
-			}
-		}
-		echo json_encode($cats);
-		exit;
-	}
-
-
 	$zf_aggregator->printErrors();
-
+	exit;
 }
+
+if ($type == 'listswithchannels') {
+
+	/**
+	 * TODO
+	 * returns all categories and their channels
+	 * as a JSON object indexed by categories names
+	 */
+	$catlist = zf_aggregagor->getListNames();
+	$cats = Array();
+	foreach ($catlist as $categf) {
+		$list = new opml($categf);
+		if ($list->load()) {
+			$sortedchannels = array();
+			foreach($list->subscriptions as $i => $subscription) {
+				if ($subscription->isSubscribed) {
+					$sortedchannels[$subscription->position] = $subscription;
+					$sortedchannels[$subscription->position]['opmlindex'] = $i;
+				}
+			}
+			ksort($sortedchannels);
+			$cats[$categf] = $sortedchannels;
+		}
+	}
+	echo json_encode($cats);
+	exit;
+}
+
 
 ?>
