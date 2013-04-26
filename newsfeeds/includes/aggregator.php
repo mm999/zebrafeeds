@@ -80,7 +80,6 @@ class aggregator {
 		$this->list = null;
 
 		$this->_feed = null;
-		$this->_template = null;
 		$this->view = null;
 
 		$this->errorLog = '';
@@ -102,10 +101,9 @@ class aggregator {
 	}
 
 	public function useTemplate($templateName) {
-		$this->_template = new template($templateName);
 
 		if ($this->view) unset($this->view);
-		$this->view = new TemplateView($this->_template);
+		$this->view = new TemplateView($templateName);
 	}
 
 	public function useJSON() {
@@ -181,7 +179,7 @@ class aggregator {
 	public function printMainView() {
 
 		if (count($this->list->subscriptions) > 0) {
-			$this->_template->printHeader();
+			//$this->_template->printHeader();
 			zf_debug('Viewmode:'. $this->_viewMode);
 
 
@@ -191,7 +189,7 @@ class aggregator {
 			} else {
 				$this->printListByChannel();
 			}
-			$this->_template->printFooter();
+			//$this->_template->printFooter();
 		} else {
 			$this->printStatus('No feeds');
 		}
@@ -349,14 +347,12 @@ class aggregator {
 		$this->_feedOptions->trimSize = ZF_RSSEXPORTSIZE;
 
 		$this->buildAggregatedFeed();
-		$view = new TemplateView($this->_template);
+		$view = new TemplateView("System.RSS");
 		zf_debugRuntime("after aggregated view created");
 
 		$view->addTags(array('encoding' => ZF_ENCODING,
 			'publisherurl' => ZF_HOMEURL ));
-		$this->_template->printHeader();
-		$view->render();
-		$this->_template->printFooter();
+		$view->renderFeeds();
 	}
 
 
@@ -542,6 +538,19 @@ class aggregator {
 	
 	public function getFeedItems() {
 		return $this->_feed->items;
+	}
+
+	public function getListNames() {
+		$data=array();
+		$handle = opendir(ZF_OPMLDIR);
+		while($dirfile = readdir($handle)) {
+			if (is_file(ZF_OPMLDIR.'/'.$dirfile) && substr($dirfile,strlen($dirfile)-4,strlen($dirfile))=='opml' ) {
+				$data[] = substr($dirfile,0,strlen($dirfile)-5);
+			}
+		}
+		sort($data);
+		closedir($handle);
+		return $data;
 	}
 
 	public function getFeedItems() {

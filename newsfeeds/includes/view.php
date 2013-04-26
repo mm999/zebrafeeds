@@ -87,9 +87,9 @@ class TemplateView extends AbstractView{
 
 	protected $template;
 
-	public function __construct($template) {
+	public function __construct($templateName) {
 		$this->groupByDay = false;
-		$this->template = $template;
+		$this->template = new template($templateName);
 	}
 
 	/* render the view,
@@ -98,6 +98,7 @@ class TemplateView extends AbstractView{
 	at this point, items are supposed to be filtered */
 	public function renderFeed() {
 
+		$this->template->printHeader();
 		if ($this->groupByDay ) {
 			$this->template->printListHeader($this->feed);
 		} else {
@@ -110,6 +111,7 @@ class TemplateView extends AbstractView{
 		} else {
 			$this->template->printChannelFooter($this->feed->publisher);
 		}
+		$this->template->printFooter();
 	}
 
 	/* print only news items, no header */
