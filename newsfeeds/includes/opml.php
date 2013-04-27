@@ -61,7 +61,7 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 		$includeIt =(isset($attributes['POSITION']) && $attributes['POSITION'] != '');
 	}
 	if ($includeIt) {
-		$subscription = new Subscription();
+		$subscription = new Subscription(html2specialchars($attributes['XMLURL']));
 		$subscription->initFromXMLAttributes($attributes);
 		$zf_opmlItems[$subscription->position] = $subscription;
 	}

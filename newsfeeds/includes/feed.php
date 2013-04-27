@@ -33,9 +33,9 @@ class AbstractFeed {
 	public $publisher;
 	public $last_fetched = 0;
 
-	public function __construct() {
+	public function __construct($address) {
 		$this->items = array();
-		$this->publisher = new Publisher();
+		$this->publisher = new Publisher($address);
 	}
 
 	public function addItem($item) {
@@ -94,6 +94,10 @@ class PublisherFeed extends AbstractFeed {
 
 	public $from_cache;
 
+	public function __construct($address) {
+		parent::__construct($address);
+
+	}
 	/* adapt the publisher data from data set externally, or with default values */
 	public function customizePublisher($channeldata) {
 
@@ -104,26 +108,27 @@ class PublisherFeed extends AbstractFeed {
 	/* make sure our channel array has all what we need
 	 this data will get cached, so this function is called only once,
 	 right after the feed is fetched over http */
-	public function normalize($channeldata){
+	public function normalize($history){
 
-		/* for this it's okay to store in cache */
+		/* for this it's okay to store in cache
+		does nothing for the moment*/
 		$this->publisher->normalize();
 
-		$c = count($this->items);
-		for ($i=0; $i < $c; $i++) {
-			$this->items[$i]->normalize($this->publisher);
+		foreach ($this->items as $item) {
+			$item->normalize($history);
 		}
 
 	}
 
 
-	/* for non virtual feeds, we need to link items to their original channel
+	/* for non virtual feeds, we need to link items to their original publisher
 	 * we'll need it for the template */
 	public function bindItemsToChannel() {
-		for ($i=0; $i<count($this->items); $i++) {
-		   $this->items[$i]->publisher = $this->publisher;
+		foreach($this->items as $item) {
+		   $item->publisher = $this->publisher;
 		}
 	}
+
 
 }
 
@@ -151,14 +156,13 @@ class AggregatedFeed extends AbstractFeed {
 	 */
 	public function __construct($subscriptionList) {
 
-		parent::__construct();
+		parent::__construct(ZF_URL.'?f=rss&zflist='.urlencode($this->listName));
 		$this->listName = $subscriptionList->name;
 
 		$this->_earliest = 0;
 
 		$this->publisher->title = (ZF_OWNERNAME ==""?"":ZF_OWNERNAME." - ").$this->listName;
 		//TODO: make RSS address prettier
-		$this->publisher->xmlurl = ZF_URL.'?f=rss&zflist='.urlencode($this->listName);
 		$this->publisher->link = ZF_HOMEURL.'?zflist='.urlencode($this->listName);
 		$this->publisher->id = zf_makeId($this->publisher->xmlurl,'');
 

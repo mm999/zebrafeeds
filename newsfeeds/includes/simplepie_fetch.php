@@ -51,10 +51,9 @@ function &zf_xpie_fetch_feed($channel, &$resultString) {
 
     if ($SP_feed->data) {
 
-        $myfeed = new PublisherFeed();
+        $myfeed = new PublisherFeed($channel->xmlurl);
 
         $myfeed->publisher->title = $SP_feed->get_title();
-        $myfeed->publisher->xmlurl = $channel->xmlurl;
         $myfeed->publisher->link = $SP_feed->get_link();
         $myfeed->publisher->description = $SP_feed->get_description();
         // removed in SP 1.3 $myfeed->channel['favicon'] = $SP_feed->get_favicon();
@@ -63,10 +62,7 @@ function &zf_xpie_fetch_feed($channel, &$resultString) {
 
 		$items = $SP_feed->get_items();
         foreach( $items as $item) {
-        	$pubitem = new NewsItem();
-            $pubitem->link = $item->get_permalink();
-            $pubitem->title = $item->get_title();
-            $pubitem->date_timestamp  = $item->get_date('U');
+        	$pubitem = new NewsItem($channel->xmlurl, $item->get_permalink(), $item->get_title(), $item->get_date('U'));
 		    $pubitem->description = $item->get_content();
 
             $encidx = 0;

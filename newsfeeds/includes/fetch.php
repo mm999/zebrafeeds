@@ -29,6 +29,7 @@ if (!defined('ZF_VER')) exit;
 
 require_once($zf_path . 'includes/feed.php');
 require_once($zf_path . 'includes/feed_cache.php');
+require_once($zf_path . 'includes/history.php');
 
 if (ZF_RSSPARSER == "magpie") {
 	require_once($zf_path . 'includes/magpie_fetch.php');
@@ -41,12 +42,10 @@ if (ZF_RSSPARSER == "magpie") {
 /* steal of the magpieRSS fetch_rss function
 	We just want to be able to have a cache age time on a per-feed basis
 	while in the original function it's common to all feeds
- channeldata : array with indexes
-		xmlurl
-		refreshtime
-		showeditems
+ 	channelDesc: channel descriptor object
+ 	feedHistory: history object, to adjust for missing dates
 
-	$refreshtime argumentis expected to be in minutes
+	$refreshtime argument is expected to be in minutes
 
 	should be the only call to magpie or simplepie
 
@@ -56,7 +55,7 @@ if (ZF_RSSPARSER == "magpie") {
 
 	returns an object of the Feed class
  */
-function zf_fetch_rss($channelDesc, $refreshtime, &$resultString) {
+function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) {
 
 	if (ZF_RSSPARSER == "magpie") {
 		// initialize constants
@@ -104,14 +103,18 @@ function zf_fetch_rss($channelDesc, $refreshtime, &$resultString) {
 
 	if (!$cache->ERROR) {
 		// return cache HIT, MISS, or STALE
-		$cache_status = $cache->check_cache( $cache_key);
+		$cache_status = $cache->check_cache($cache_key);
 		if ( ZF_DEBUG > 1) {
-			zf_debug("Cache ok. Cache age ".($cache->cache_age($cache_key)/60).', '.md5($cache_key). ' modif:'.date ("F d Y H:i:s.", filemtime(ZF_CACHEDIR.'/'.md5($cache_key))), E_USER_NOTICE);
+			if ($cache_status != 'MISS') {
+				zf_debug("Cache ok. Cache age ".($cache->cache_age($cache_key)/60).', '.md5($cache_key). ' modif:'.date ("F d Y H:i:s.", filemtime($cache->file_name($cache_key))), E_USER_NOTICE);
+			} else {
+				zf_debug("Not in cache: $cache_key", E_USER_NOTICE);
+			}
 		}
 	}
 
 	// if object cached, and cache is fresh, return cached obj
-	// ZebraFeeds tweak: use cache only if refresh not forced or if explicitely requested
+	// use cache only if refresh not forced or if explicitely requested
 	if ($refreshtime != 0) {
 		if ( $cache_status == 'HIT' || $refreshtime == -1) {
 			$feed = $cache->get( $cache_key );
@@ -145,8 +148,9 @@ function zf_fetch_rss($channelDesc, $refreshtime, &$resultString) {
 	if ( $feed ) {
 		zf_debug("Fetch successful<br/>");
 		/* one shot: add our extra data and do our post processing
+		  (we will here fix missing dates)
 		BEFORE storing to cache */
-		$feed->normalize($channelDesc);
+		$feed->normalize($feedHistory);
 
 		/* set channel data, like title and description from what's
 		configured in the subscription list */

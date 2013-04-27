@@ -220,7 +220,7 @@ class aggregator {
 				if (isset($subscription->channel->xmlurl) && trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
 
 					/* create feedhandler and get feed, auto mode */
-					$handler = new FeedHandler($subscription);
+					$handler = new FeedHandler($subscription, $this->_visits['lastsessionend'], $this->_now);
 					/* assign feed to $this->_feed;*/
 					$this->_feed = $handler->getAutoFeed();
 					$this->_printChannel($subscription, false, false);
@@ -262,7 +262,7 @@ class aggregator {
 		if ($sub) {
 			//print $sub->__toString();
 			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub);
+			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
 			/* assign feed to $this->_feed;*/
 			$this->_feed = $handler->getAutoFeed();
 			$this->_printChannel($sub, false, false);
@@ -277,7 +277,7 @@ class aggregator {
 		if ($sub) {
 			zf_debug("loading all cached items for ".$sub->__toString());
 			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub);
+			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
 			/* assign feed to $this->_feed;*/
 			$this->_feed = $handler->getFeedFromCache();
 			$this->_printChannel($sub, true, true);
@@ -291,7 +291,7 @@ class aggregator {
 		$sub = $this->list->getSubscription($pos);
 		if ($sub) {
 			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub);
+			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
 			/* assign feed to $this->_feed;*/
 			$this->_feed = $handler->getRefreshedFeed();
 			$this->_printChannel($sub, false, true);
@@ -369,7 +369,7 @@ class aggregator {
 		if ($sub) {
 			zf_debug("printing articles for ".$sub->__toString());
 			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub);
+			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
 			/* assign feed to $this->_feed;*/
 			$this->_feed = $handler->getFeedFromCache();
 			$this->view->useFeed($this->_feed);
@@ -422,7 +422,7 @@ class aggregator {
 		foreach($subs as $sub) {
 			if ($sub->isSubscribed) {
 				/* create feedhandler and get feed, auto mode */
-				$handler = new FeedHandler($sub);
+				$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
 				/* assign feed to $this->_feed;*/
 				$feed = $handler->getAutoFeed();
 				if($feed !=null ) {
@@ -535,7 +535,7 @@ class aggregator {
 
 		}// ZF_NEWITEMS==server
 	}
-	
+
 	public function getFeedItems() {
 		return $this->_feed->items;
 	}
@@ -551,10 +551,6 @@ class aggregator {
 		sort($data);
 		closedir($handle);
 		return $data;
-	}
-
-	public function getFeedItems() {
-		return $this->_feed->items;
 	}
 
 }

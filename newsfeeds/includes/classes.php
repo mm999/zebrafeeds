@@ -17,8 +17,12 @@ class ChannelDescriptor {
 	//URL of the subscription file - feed
 	public $xmlurl;
 
+	public function __construct($address){
+		$this->xmlurl = $address;
+		$this->id = zf_makeId($this->xmlurl, '');
+	}
+
 	public function normalize() {
-		 $this->id = zf_makeId($this->xmlurl, '');
 	}
 
 	public function __toString(){
@@ -34,10 +38,6 @@ class Publisher extends ChannelDescriptor{
 
 	//URL to channel logo
 	public $logo;
-
-	public function __construct() {
-
-	}
 
 }
 
@@ -57,8 +57,8 @@ class Subscription {
 	public $position = 1;
 	public $isSubscribed = true;
 
-	public function __construct(){
-		$this->channel = new ChannelDescriptor();
+	public function __construct($address){
+		$this->channel = new ChannelDescriptor($address);
 	}
 
 	public function initFromXMLattributes(&$attributes) {
@@ -74,10 +74,6 @@ class Subscription {
 
 		if ($attributes['DESCRIPTION'] != '') {
 			$this->channel->description = html2specialchars($attributes['DESCRIPTION']);
-		}
-
-		if ($attributes['XMLURL'] != '') {
-			$this->channel->xmlurl = html2specialchars($attributes['XMLURL']);
 		}
 
 		if ( ($attributes['REFRESHTIME'] != '') && (is_numeric($attributes['REFRESHTIME'])) ) {
@@ -122,11 +118,15 @@ class NewsItem {
 	//array of enclosure objects
 	public $enclosures;
 
-	public function __construct() {
+	public function __construct($publisherUrl, $link, $title, $date) {
 		$this->enclosures = array();
 		$this->isTruncated = false;
 		$this->isNew = false;
 		$this->date_timestamp = -1;
+		$this->link = $link;
+		$this->title = $title;
+		$this->date_timestamp = $date;
+		$this->id = zf_makeId($publisherUrl, $this->link.$this->title);
 	}
 
 /*all sorts of processing to the item object
@@ -137,9 +137,8 @@ class NewsItem {
 
  publisher
 */
-	public function normalize($publisher) {
+	public function normalize($history) {
 		/* build our id, used as CSS element id. add timestamp to make it unique  */
-		$this->id = zf_makeId($publisher->xmlurl, $this->link.$this->title);
 
 		if ( $this->date_timestamp == 0) {
 
@@ -147,7 +146,6 @@ class NewsItem {
 			// history management system decide
 			//$item['date_timestamp'] = 0;
 			//print_r($channel);
-			$history= $publisher->history;
 			$firstseen = $history->getDateFirstSeen($this->id);
 			if ($firstseen == 0) {
 				$firstseen = time();

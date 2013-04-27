@@ -29,9 +29,13 @@ class FeedHandler {
 
 	protected $_feed;
 	protected $_subscription;
+	protected $lastvisit;
+	protected $now;
 
-	public function __construct($subscription) {
+	public function __construct($subscription, $lastvisit, $now) {
 		$this->_subscription = $subscription;
+		$this->lastvisit = $lastvisit;
+		$this->now = $now;
 	}
 
 	public function getFeedFromCache() {
@@ -76,35 +80,23 @@ class FeedHandler {
 		zf_debug("Refresh mode: ". ZF_REFRESHMODE." ; requested Refreshtime : $requestedRefreshtime ; used refresh time: $usedrefreshtime");
 
 
-		// TODO: check this
-		/*if (!$ignorehistory) {
-			$channeldata['history'] = new history($channelDesc->xmlurl);
-		}*/
-
 		// QUICK DEBUG $refreshtime = -1;
 
 		zf_debugRuntime("before fetch ".$channelDesc->xmlurl);
 		$resultString = '';
-		$this->_feed = zf_fetch_rss( $channelDesc, $usedrefreshtime, $resultString );
+		$history = new history($channelDesc->xmlurl);
+
+		$this->_feed = zf_fetch_rss($channelDesc, $history, $usedrefreshtime, $resultString);
 		zf_debugRuntime("after fetch ".$channelDesc->xmlurl);
 
 		if ($this->_feed) {
-
-			// compare each item id with our fetch history, for this feed
-			// mark new items as such
-			//TODO handle history
-			/*if ( !$ignorehistory) {
-
-				$channeldata['history']->handleCurrentItems($this->_feed->items,
-					$this->_visits['lastsessionend'],
-					$this->_now);
-				// delete unseen items from db
-				$channeldata['history']->purge();
-			}*/
-
-			//print_r($this->_feed->items);
-
+			/* detect new yet unseen items
+			this happens now, because this feed is already in the cache and it makes
+			no sens to use the cached value of "isNew" */
+			$history->markNewFeedItems($this->_feed->items, $this->lastvisit, $this->now);
+			$history->purge();
 		}
+		unset($history);
 
 		// in case of Error
 		// get error reason from zf_custom_fetch_rss
