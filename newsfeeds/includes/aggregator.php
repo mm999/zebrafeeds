@@ -52,15 +52,11 @@ class aggregator {
 
 	public $errorLog;
 
-	// feed options: only when viewmode is not feed
-	// array with
-	// - trimtype
-	// - trimsize
-	// - userfunction
-	// - matchexpression
-
-	private $_feedOptions;
+	// what will printMainView use, by feed or by date
 	private $_viewMode;
+
+	// feed options: only when viewmode is not feed
+	private $_feedOptions;
 	private $_view;
 
 	// private properties
@@ -84,7 +80,6 @@ class aggregator {
 
 		$this->errorLog = '';
 		$this->_viewMode = 'feed';
-		$this->_feedOptions->trimType = 'none';
 		/* lastvisit= absolute last time seen here */
 		$this->_visits['lastvisit'] = 0;
 		/* lastsessionend= the time of end of previous session */
@@ -129,13 +124,14 @@ class aggregator {
 				// a zf_addFeed call
 				$this->list = $subscriptionsList;
 
-				/* sets the default options from the list*/
+				/* sets the default options from the list.
+				Only used for printMainView*/
 				$this->_viewMode = $this->list->viewMode;
 
 				//we set this only if we have to trim. otherwise we might be forcing an unwanted trimming
 				if ($this->_viewMode == 'trim') {
-					$this->_feedOptions->trimType = $this->list->trimType;
-					$this->_feedOptions->trimSize = $this->list->trimSize;
+					$this->_feedOptions->setTrim($this->list->trimType,
+												$this->list->trimSize);
 				}
 			} else {
 				echo '<strong>'.$subscriptionsList->lastError.'<br />Make sure OPML file exists and is readable...</strong>';
@@ -154,12 +150,12 @@ class aggregator {
 	overruling the setting saved in the OPML list */
 	public function setTrim($trimtype, $trimsize) {
 		$this->_viewMode = 'trim';
-		$this->_feedOptions->trimSize = $trimsize;
-		$this->_feedOptions->trimType = $trimtype;
+		$this->_feedOptions->setTrim($trimsize, $trimtype);
 	}
 
 	/* changes the trimming options. Also forces the view mode to trim */
 	public function setTrimString($str) {
+		zf_debug('trim set to:'. $str);
 		$this->setViewMode('trim');
 		$this->_feedOptions->setTrimStr($str);
 	}
@@ -179,7 +175,6 @@ class aggregator {
 	public function printMainView() {
 
 		if (count($this->list->subscriptions) > 0) {
-			//$this->_template->printHeader();
 			zf_debug('Viewmode:'. $this->_viewMode);
 
 
@@ -218,12 +213,8 @@ class aggregator {
 		foreach($sortedChannels as $subscription) {
 			if ($subscription->isSubscribed) {
 				if (isset($subscription->channel->xmlurl) && trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
-
-					/* create feedhandler and get feed, auto mode */
-					$handler = new FeedHandler($subscription, $this->_visits['lastsessionend'], $this->_now);
-					/* assign feed to $this->_feed;*/
-					$this->_feed = $handler->getAutoFeed();
-					$this->_printChannel($subscription, false, false);
+					// this sub, auto, auto
+					$this->printSingleSubscribedChannel($sub, 'auto');
 				}
 			}
 		}
@@ -232,7 +223,7 @@ class aggregator {
 	/* render a "virtual" channel
 	 create a feed aggregating all channels
 	renders the feed by date */
-	private function printListByDate() {
+	public function printListByDate() {
 
 		//consistency check
 		if ($this->_viewMode != 'trim') {
@@ -254,66 +245,68 @@ class aggregator {
 		$this->view->renderFeed();
 	}
 
-	/* configured number of channel's items, with header, auto cache/refresh*/
-	public function printSingleChannel($pos) {
-
-		/* get sub by pos from list */
-		$sub = $this->list->getSubscription($pos);
-		if ($sub) {
-			//print $sub->__toString();
-			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
-			/* assign feed to $this->_feed;*/
-			$this->_feed = $handler->getAutoFeed();
-			$this->_printChannel($sub, false, false);
-		}
-	}
-
-	/* all channel's items, no header, from cache */
-	public function printAllCachedItems($pos) {
-
-		/* get sub by pos from list */
-		$sub = $this->list->getSubscription($pos);
-		if ($sub) {
-			zf_debug("loading all cached items for ".$sub->__toString());
-			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
-			/* assign feed to $this->_feed;*/
-			$this->_feed = $handler->getFeedFromCache();
-			$this->_printChannel($sub, true, true);
-		}
-	}
-
-	/* prints configured number of channel's items, no header, force refresh */
-	public function printRefreshedItems($pos) {
-
-		/* get sub by pos from list */
-		$sub = $this->list->getSubscription($pos);
-		if ($sub) {
-			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
-			/* assign feed to $this->_feed;*/
-			$this->_feed = $handler->getRefreshedFeed();
-			$this->_printChannel($sub, false, true);
-		}
-	}
-
-	/* renders a single real channel, the old way: channel header,
-	natural order, only a max number of items
-	viewAll: if true, as many items as possible
-	onlyItems: if true, does not show channel header
+	/* output a single channel, obtained by position
+	 pos : position in the list
+	 $mode: 'auto', 'refresh', 'cache'
+	 $max: number of channel's items,
+	 	0: auto from subscription list
+	 	-1 is all
 	 */
-	private function _printChannel($subscription, $viewAll = false, $onlyItems = false) {
+	public function printSingleChannelById($channelId, $mode, $wantSummary) {
+		/* get sub by pos from list */
+		$sub = $this->list->getSubscription($channelId);
+		if ($sub) {
+			$this->printSingleSubscribedChannel($sub, $mode, $wantSummary);
+		} else {
+			zf_debug('print: id not found:'. $channelId);
+
+		}
+	}
+
+	/* output a single channel, obtained by position
+	 pos : position in the list
+	 $mode: 'auto', 'refresh', 'cache'
+	 $max: number of channel's items,
+	 	0: auto from subscription list
+	 	-1 is all
+	 */
+	public function printSingleSubscribedChannel($sub, $mode, $wantSummary=false) {
+
+		//print $sub->__toString();
+		/* create feedhandler and get feed, auto mode */
+		$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
+
+		/* assign feed to $this->_feed;*/
+		switch ($mode) {
+		case 'auto':
+			$this->_feed = $handler->getAutoFeed();
+			break;
+		case 'cache':
+			$this->_feed = $handler->getFeedFromCache();
+			break;
+		case 'refreh':
+			$this->_feed = $handler->getRefreshedFeed();
+			break;
+		}
+
 		zf_debug("viewing channel ".$subscription->__toString());
 
-		if ($this->_feed != null) {
+//TODO		$this->_feed->setTrim(Options->trimType != 'none') {
 
-			if (!$viewAll) {
-				zf_debug('Triming to items: '.$subscription->shownItems);
-				$this->_feed->trimItems($subscription->shownItems);
+		if ($this->_feedOptions->trimType != 'none') {
+			/* (trimType,trimSize) is either
+			 ('auto',0) => use subscription value for trimSize
+			 OR
+			 ('news', <N>) => trim to trimSize
+			 */
+			if ($this->_feedOptions->trimSize > 0) {
+				zf_debug('Triming to items: '.$this->_feedOptions->trimSize);
+				$this->_feed->trimItems($this->_feedOptions->trimSize);
+			} else if ($this->_feedOptions->trimSize == 0) {
+				zf_debug('Triming to items: '.$sub->shownItems);
+				$this->_feed->trimItems($sub->shownItems);
 			}
-			// true: we want sorting
-			//$this->_feed->postProcess(true);
+
 			if ($this->list != null) {
 				$this->view->addTags(array( 'list' => $this->list->name));
 			}  else {
@@ -323,16 +316,56 @@ class aggregator {
 			$this->view->useFeed($this->_feed);
 
 			// could become true if we wanted date grouping for every channel
+			// will only be useful for TemplateView
 			$this->view->groupByDay = false;
 
 			//render with no channel header if requested and applicable
-			if ($onlyItems) {
-				$this->view->renderNewsItems();
-			} else {
-				$this->view->renderFeed();
-			}
+			$this->view->summaryInFeed = $wantSummary;
+			$this->view->renderFeed();
 		} else {
 			zf_debug('Internal error. no feed loaded.');
+		}
+
+	}
+
+
+  /* prints a single news description.
+    Always taken from cache.
+	$channelId: position of channel in list
+	$itemid : our own item id
+   */
+	public function printArticle($channelId, $itemid) {
+
+		/* get sub by pos from list */
+		$sub = $this->list->getSubscription($channelId);
+		if ($sub) {
+			zf_debug("printing articles for ".$sub->__toString());
+			/* create feedhandler and get feed, auto mode */
+			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
+			/* assign feed to $this->_feed;*/
+			$this->_feed = $handler->getFeedFromCache();
+			$this->view->useFeed($this->_feed);
+			$this->view->renderArticle($itemid);
+		}
+	}
+
+  /* prints a single news summary.
+    Always taken from cache.
+	$channelId: position of channel in list
+	$itemid : our own item id
+   */
+	public function printSummary($channelId, $itemid) {
+
+		/* get sub by pos from list */
+		$sub = $this->list->getSubscription($channelId);
+		if ($sub) {
+			zf_debug("printing articles for ".$sub->__toString());
+			/* create feedhandler and get feed, auto mode */
+			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
+			/* assign feed to $this->_feed;*/
+			$this->_feed = $handler->getFeedFromCache();
+			$this->view->useFeed($this->_feed);
+			$this->view->renderSummary($itemid);
 		}
 	}
 
@@ -357,30 +390,8 @@ class aggregator {
 
 
 
-  /* prints a single news description.
-    Always taken from cache.
-	$pos: position of channel in list
-	$itemid : our own item id
-   */
-	public function printArticle($pos, $itemid) {
-
-		/* get sub by pos from list */
-		$sub = $this->list->getSubscription($pos);
-		if ($sub) {
-			zf_debug("printing articles for ".$sub->__toString());
-			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
-			/* assign feed to $this->_feed;*/
-			$this->_feed = $handler->getFeedFromCache();
-			$this->view->useFeed($this->_feed);
-			$this->view->renderArticle($itemid);
-		}
-	}
-
-
-	/* generate bottom line */
+	/* generate bottom line NOT USED IF JSON*/
 	private function printCredits() {
-	//TODO: handle JSON output
 		if ((!defined("ZF_SHOWCREDITS")) || (ZF_SHOWCREDITS!='no')) {
 			echo ' <div id="generator">aggregated by <a href="http://www.cazalet.org/zebrafeeds">ZebraFeeds</a></div>';
 		}
@@ -388,13 +399,12 @@ class aggregator {
 		zf_debugRuntime("after credits");
 	}
 
-	public function printStatus($message) {
-	//TODO: handle JSON output
+	/*public function printStatus($message) {
+	//TODO: handle JSON output -> NOT USED IF JSON
 		echo '<div class="zfchannelstatus">'.$message.'</div>';
-	}
+	}*/
 
 	public function printErrors() {
-	//TODO: handle JSON output
 		if ((ZF_DISPLAYERROR =="yes")  && (!empty($this->errorLog)) ) {
 			$this->printStatus($this->errorLog);
 		}
@@ -415,7 +425,7 @@ class aggregator {
 		// create an empty, meant to be virtual, feed object
 		// we'll merge all feeds containing actual data into it
 		$this->_feed = new AggregatedFeed($this->list);
-		$this->_feed->setTrim($this->_feedOptions->trimType, $this->_feedOptions->trimSize);
+		$this->_feed->setTrim($this->_feedOptions);
 
 		$subs = $this->list->subscriptions;
 
@@ -426,6 +436,7 @@ class aggregator {
 				/* assign feed to $this->_feed;*/
 				$feed = $handler->getAutoFeed();
 				if($feed !=null ) {
+					zf_debug('merging into Aggregated feed');
 					$this->_feed->mergeWith($feed);
 				} else
 					zf_debug("feed is null");
@@ -534,10 +545,6 @@ class aggregator {
 			}
 
 		}// ZF_NEWITEMS==server
-	}
-
-	public function getFeedItems() {
-		return $this->_feed->items;
 	}
 
 	public function getListNames() {

@@ -1,5 +1,6 @@
 <?php
 
+/*=======*/
 /*  abstract specification for a channel providing a feed*/
 class ChannelDescriptor {
 	//unique id from url
@@ -30,6 +31,7 @@ class ChannelDescriptor {
 	}
 }
 
+/*=======*/
 /* channel with data obtained from publisher */
 class Publisher extends ChannelDescriptor{
 
@@ -42,6 +44,7 @@ class Publisher extends ChannelDescriptor{
 }
 
 
+/*=======*/
 /*   for a channel providing a feed
 impact: opml.php
 */
@@ -54,7 +57,7 @@ class Subscription {
 	public $shownItems = ZF_DEFAULT_NEWS_COUNT;
 
 	public $refreshTime = ZF_DEFAULT_REFRESH_TIME;
-	public $position = 1;
+	public $position = -1;
 	public $isSubscribed = true;
 
 	public function __construct($address){
@@ -94,6 +97,7 @@ class Subscription {
 
 }
 
+/*=======*/
 
 class NewsItem {
 
@@ -179,14 +183,81 @@ class NewsItem {
 		array_push($this->enclosures, $enclosure);
 	}
 
-	public function toJSON() {
-		//TODO: to improve
-		return json_encode($this);
+	/* returns a JSON-serializable header of this instance,
+	without the publisher and enclosures */
+	public function getSerializableHeader() {
+		return new SerializableItemHeader($this);
+	}
+
+	/* returns a JSON-serializable header of this instance,
+	including the publisher and without enclosures */
+	public function getFullSerializableHeader($summary = false) {
+		$header = new SerializableItemHeader($this);
+		$header->setPublisher($this->publisher);
+		if ($summary) $header->summary = $this->summary;
+		return $header;
+	}
+
+	/* returns a JSON-serializable header of this instance,
+	including the publisher and without enclosures */
+	public function getSerializableItem() {
+		return new SerializableItem($this);
 	}
 }
 
+/*=======*/
+class SerializableItemHeader {
+	// unique id from title and desc
+	public $id;
+	// address and title of the news
+	public $link;
+	public $title;
+	//time stamp of the news publication if provided, or first seen if not
+	public $date_timestamp;
+	public $isNew;
 
+	public $summary; //might end up empty;
+	//Publisher this item was obtained from
+	// might end up empty
+	public $publisherId;
+	public $publisherLink;
+	public $publisherTitle;
+	public $publisherIcon;
 
+	// make this object out of a NewsItem object
+	public function __construct($item) {
+		$this->id = $item->id;
+		$this->link = $item->link;
+		$this->title = $item->title;
+		$this->isNew = $item->isNew;
+		$this->date_timestamp = $item->date_timestamp;
+
+	}
+
+	/* assign it a Publisher object */
+	public function setPublisher($publisher) {
+		$this->publisherId = $publisher->id;
+		$this->publisherLink = $publisher->link;
+		$this->publisherTitle = $publisher->title;
+		$this->publisherIcon = $publisher->favicon;
+	}
+}
+
+/*=======*/
+class SerializableItem extends SerializableItemHeader {
+	public $description;
+	public $enclosures;
+	public function __construct($item) {
+
+		parent::__construct($item);
+		$this->description = $item->description;
+		$this->enclosures = $item->enclosures;
+		$this->setPublisher($item->publisher);
+
+	}
+
+}
+/*=======*/
 class Enclosure {
 	public $link;
 	public $length;
@@ -209,17 +280,21 @@ class Enclosure {
 }
 
 
+/*=======*/
 class FeedOptions {
+	// how to shorten the list of items
 	public $trimType = 'none';
+	// freshness number in days, hours or news
 	public $trimSize = 0;
 	public $matchExpression = "";
 
 	public function setTrim($type, $size) {
+		zf_debug("FeedOption trim to: $size $type");
 		$this->trimType = $type;
 		$this->trimSize = $size;
 	}
 
-	//allowed values: Xdays, Ynews,  Zhours, today,  yesterday, new
+	//allowed values: Xdays, Ynews,  Zhours, today,  yesterday, onlynew, auto
 	public function setTrimStr($trimString) {
 		if (preg_match("/([0-9]+)(.*)/",$trimString, $matches)) {
             $this->setTrim($matches[2],$matches[1]);
@@ -232,6 +307,13 @@ class FeedOptions {
         }
 		if ($trimString == 'onlynew') {
             $this->setTrim('onlynew', 0);
+        }
+
+        // 'auto' is supported, but Feed object won't do anything with it
+        // trimItems must be called explicitely with right value to be of any
+        // use
+		if ($trimString == 'auto') {
+            $this->setTrim('auto', 0);
         }
 	}
 

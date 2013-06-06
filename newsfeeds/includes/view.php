@@ -24,22 +24,14 @@
  feeds render the same way. The only option here, is to group by day or not
  */
 
-class AbstractView {
+abstract class AbstractFeedView {
 	protected $feed;
-
-	public function __construct() {
-	}
 
 	public function useFeed($feed) {
 		$this->feed = $feed;
 	}
 
-	public function renderFeed() {
-	}
-
-	public function renderNewsItems() {
-		$this->renderFeed();
-	}
+	abstract public function renderFeed();
 
 	public function renderArticle($itemid) {
 		$item = $this->feed->lookupItem($itemid);
@@ -54,29 +46,70 @@ class AbstractView {
 		}
 	}
 
+	public function renderSummary($itemid) {
+		$item = $this->feed->lookupItem($itemid);
+		if ($item) {
+			if (function_exists('zf_itemfilter')) {
+				zf_debug('Calling filter');
+				zf_itemfilter($item);
+			}
+			$this->_doPrintSummary($item);
+		} else {
+			echo  "Content not available";
+		}
+
+	}
+
+	abstract protected function _doPrintArticle($item);
+	abstract protected function _doPrintSummary($item);
+
+	abstract public function addTags($tags);
+}
+
+
+class JSONView extends AbstractFeedView {
+
+	public $summaryInFeed = false;
+
+	public function renderFeed() {
+
+		$out = array();
+		// foreach item of the feed
+		$items = $this->feed->getItems();
+		foreach ($items as $item) {
+			//   add JSON friendly object to array
+			$classname = get_class($this->feed);
+			switch ($classname) {
+				case 'PublisherFeed':
+					// get short header without publisher
+					$out[] = $item->getSerializableHeader($this->summaryInFeed);
+					break;
+				case 'AggregatedFeed':
+					// get full header with publisher info
+					$out[] = $item->getFullSerializableHeader($this->summaryInFeed);
+			}
+		}
+
+		echo json_encode($out);
+
+	}
+
 	protected function _doPrintArticle($item) {
+		echo json_encode($item->getSerializableItem());
+	}
+
+	protected function _doPrintSummary($item) {
+		echo json_encode($item->summary);
 	}
 
 	public function addTags($tags) {
 	}
-}
-
-
-class JSONView extends AbstractView {
-
-	public function renderFeed() {
-		echo json_encode($this->feed);
-	}
-
-	protected function _doPrintArticle($item) {
-		echo json_encode($item);
-	}
 
 }
 
 
 
-class TemplateView extends AbstractView{
+class TemplateView extends AbstractFeedView{
 
 
 	// optional: separate each news day
@@ -115,7 +148,7 @@ class TemplateView extends AbstractView{
 	}
 
 	/* print only news items, no header */
-	public function renderNewsItems() {
+	protected function renderNewsItems() {
 
 		$doNewOnes = true;
 
@@ -211,6 +244,10 @@ class TemplateView extends AbstractView{
 	protected function _doPrintArticle($item) {
 		$this->template->printArticle($item);
 	}
+
+	protected function _doPrintSummary($item) {
+	}
+
 
 	public function addTags($tags) {
 		$this->template->addTags($tags);

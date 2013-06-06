@@ -26,12 +26,15 @@ if (!defined('ZF_VER')) exit;
 
 require_once($zf_path . 'includes/history.php');
 
-class AbstractFeed {
+abstract class AbstractFeed {
 	// aggregated, normalized items
 	// if we aggregate several feeds, index is timestamp
 	public $items;
 	public $publisher;
 	public $last_fetched = 0;
+
+	// merging/filter options
+	protected $_feedOptions = null;
 
 	public function __construct($address) {
 		$this->items = array();
@@ -52,11 +55,18 @@ class AbstractFeed {
 		array_push($this->items, $item);
 	}
 
-	/* get rid of superfluous items exceeding our limit ,  only by numbers (trimtype)*/
+	public function setTrim($opt) {
+		$this->_feedOptions = $opt;
+	}
+
+
+	/* get rid of superfluous items exceeding our limit, removing the bottom
+	of the array, only by numbers (trimSize)*/
 	public function trimItems($trimsize) {
 		$this->items = array_slice($this->items, 0, $trimsize);
 	}
 
+/* TODO: all this trimming functions in one, applying to any kind of feed */
 	public function filterNonNew() {
 		$currentitems = clone($this->items);
 		$this->items = array();
@@ -67,8 +77,8 @@ class AbstractFeed {
 		}
 	}
 
-	public function getJSONItems() {
-		return json_encode($this->items);
+	public function getItems() {
+		return $this->items;
 	}
 
 	public function lookupItem($itemid) {
@@ -137,9 +147,6 @@ can be trimmed to last X [news|days|hours] */
 class AggregatedFeed extends AbstractFeed {
 
 
-	// merging/filter options
-	public $trimtype = 'none';
-	public $trimsize = 0;
 	public $matchExpression = '';
 
 	// timestamp before which we don't want news
@@ -169,25 +176,25 @@ class AggregatedFeed extends AbstractFeed {
 
 		// fill the description
 		$description = "Viewing ";
-		if ($this->trimtype == 'today') {
+		if ($this->_feedOptions->trimType == 'today') {
 			$description .= 'today\'s news ';
 			$this->publisher->link .= '&zftrim=today';
-		} else if ($this->trimtype == 'yesterday') {
+		} else if ($this->_feedOptions->trimType == 'yesterday') {
 			$description .= 'yesterday\'s news ';
 			$this->publisher->link .= '&zftrim=yesterday';
-		} else if ($this->trimtype == 'onlynew') {
+		} else if ($this->_feedOptions->trimType == 'onlynew') {
 			$description .= 'only new news items ';
 			$this->publisher->link .= '&zftrim=onlynew';
-		} else if ($this->trimtype == 'hours') {
-			$description .= 'news of the last '.$this->trimsize.' hours ';
-			$this->publisher->link .= '&zftrim='.$this->trimsize.$this->trimtype;
-		} else if ($this->trimtype == 'days') {
-			$description .= 'news in the last '.$this->trimsize.' days ';
-			$this->publisher->link .= '&zftrim='.$this->trimsize.$this->trimtype;
-		} else if ($this->trimtype == 'news') {
-			$description .= 'latest '.$this->trimsize.' news ';
-			$this->publisher->link .= '&zftrim='.$this->trimsize.$this->trimtype;
-		} else if ($this->trimtype == 'none') {
+		} else if ($this->_feedOptions->trimType == 'hours') {
+			$description .= 'news of the last '.$this->_feedOptions->trimSize.' hours ';
+			$this->publisher->link .= '&zftrim='.$this->_feedOptions->trimSize.$this->_feedOptions->trimType;
+		} else if ($this->_feedOptions->trimType == 'days') {
+			$description .= 'news in the last '.$this->_feedOptions->trimSize.' days ';
+			$this->publisher->link .= '&zftrim='.$this->_feedOptions->trimSize.$this->_feedOptions->trimType;
+		} else if ($this->_feedOptions->trimType == 'news') {
+			$description .= 'latest '.$this->_feedOptions->trimSize.' news ';
+			$this->publisher->link .= '&zftrim='.$this->_feedOptions->trimSize.$this->_feedOptions->trimType;
+		} else if ($this->_feedOptions->trimType == 'none') {
 			$description .= "all news";
 			$this->publisher->link .= '&zfviewmode=date';
 		}
@@ -205,16 +212,18 @@ class AggregatedFeed extends AbstractFeed {
 		$this->matchExpression = $expr;
 	}
 
-	public function setTrim($type,$size=0) {
-		$this->trimsize = $size;
-		$this->trimtype = $type;
-		zf_debug("AggregatedFeed trim set to $this->trimtype, $this->trimsize");
+	public function setTrim($opt) {
+		parent::setTrim($opt);
+
+		zf_debug("AggregatedFeed trim set to ". $this->_feedOptions->trimType.', '.
+		$this->_feedOptions->trimSize);
+
 		// get timestamp we don't want to go further
-		if ($this->trimtype == 'hours') {
+		if ($this->_feedOptions->trimType == 'hours') {
 			// earliest is the timestamp before which we should ignore news
-			$this->_earliest = time() - (3600 * $this->trimsize);
+			$this->_earliest = time() - (3600 * $this->_feedOptions->trimSize);
 		}
-		if ($this->trimtype =='days') {
+		if ($this->_feedOptions->trimType =='days') {
 			// earliest is the timestamp before which we should ignore news
 
 			// get timestamp of today at 0h00
@@ -222,10 +231,7 @@ class AggregatedFeed extends AbstractFeed {
 
 			// substract x-1 times 3600*24 seconds from that
 			// x-1 because the current day counts, in the last x days
-			$this->_earliest = $todayts -  (3600*24*($this->trimsize-1));
-		}
-		if ($type =='news') {
-			$this->trimsize = $size;
+			$this->_earliest = $todayts -  (3600*24*($this->_feedOptions->trimSize-1));
 		}
 	}
 
@@ -234,11 +240,13 @@ class AggregatedFeed extends AbstractFeed {
 	/* function to call after all RSS have been merged
 	in order to finalize processing, like sorting and trimming */
 	public function postProcess($sort = true) {
+		zf_debug("Post processing aggregated feed: sort=$sort, trimType =".
+			$this->_feedOptions->trimType);
 		if ($sort) {
 			$this->sortItems();
 		}
-		if ($this->trimtype == 'trim')
-			$this->trimItems($this->trimsize);
+		if ($this->_feedOptions->trimType == 'news')
+			$this->trimItems($this->_feedOptions->trimSize);
 
 		if ((defined('ZF_ONLYNEW') && ZF_ONLYNEW == 'yes') ) {
 			$this->filterNonNew();
@@ -260,7 +268,7 @@ class AggregatedFeed extends AbstractFeed {
 	protected function mergeItems($feed) {
 
 		$itemcount = 0;
-		foreach ($feed->items as &$item) {
+		foreach ($feed->items as $item) {
 
 			$itemts = (isset($item->date_timestamp)) ? $item->date_timestamp: 0;
 			$basetime = time();
@@ -279,7 +287,7 @@ class AggregatedFeed extends AbstractFeed {
 				}
 			}
 
-			if ($this->trimtype == 'hours' || $this->trimtype =='days') {
+			if ($this->_feedOptions->trimType == 'hours' || $this->_feedOptions->trimType =='days') {
 				// consider onlyrecent items
 				if (ZF_DEBUG==4) {
 					zf_debug( "comparing item date ".date("F j, Y, g:i a",$itemts)."(".$itemts.") to earliest wanted ". $this->_earliest ." : ".date("F j, Y, g:i a",$this->_earliest));
@@ -296,21 +304,21 @@ class AggregatedFeed extends AbstractFeed {
 					}
 					continue;
 				}
-			} else if($this->trimtype == 'today') {
+			} else if($this->_feedOptions->trimType == 'today') {
 				if ($itemts < $todayts ) {
 					if (ZF_DEBUG==4) {
 						zf_debug('News item \"'.$item->title.'\" is not from today. Skipped.'.$itemts.' lower than '.$todayts);
 					}
 					continue;
 				}
-			} else if($this->trimtype == 'yesterday') {
+			} else if($this->_feedOptions->trimType == 'yesterday') {
 				if ($itemts >= $todayts || $itemts < $yesterdayts) {
 					if (ZF_DEBUG==4) {
 						zf_debug('News item \"'.$item->title.'\" is not from yesterday. Skipped.');
 					}
 					continue;
 				}
-			} else if($this->trimtype == 'onlynew') {
+			} else if($this->_feedOptions->trimType == 'onlynew') {
 				if ( ! $item->isnew ) {
 					if (ZF_DEBUG==4) {
 						zf_debug('News item \"'.$item->title.'\" is not new/unseen. Skipped.');
@@ -341,7 +349,7 @@ class AggregatedFeed extends AbstractFeed {
 
 			// finally add our item to the news array
 			if (ZF_DEBUG==4) {
-				zf_debug('Item merged: "'.$item->title.'" (trimtype: '.$this->trimtype.')');
+				zf_debug('Item merged: "'.$item->title.'" (trimtype: '.$this->_feedOptions->trimType.')');
 			}
 
 			array_push($this->items, $item);

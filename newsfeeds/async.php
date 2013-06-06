@@ -30,132 +30,146 @@ if (strlen(ZF_URL) == 0) {
 	exit;
 }
 
-global $zf_aggregator;
-if (!isset($zf_aggregator)) {
-	$zf_aggregator = new Aggregator();
-}
+$zf_aggregator = new Aggregator();
 
 
 
 
 /* Asynchronous requests section
 use the global zf_page array only to tell if the template used is dynamic
-parameters
-type : request type
+
+parameters dictionary
+======================
+q : query type. Values:
  - item: a single new item, with article view
- - channelallitems: we want all the news items available for a channel
- - channelforcerefresh : we want a refreshed list of items of a channel
- - channel: we want channel header + showed items
+ - summary
+ - channel: we want channel news, sorted by date
+ - list (always by date)
+ - subs (for one single list)
+ - allsubs
 
-zflist:
-   name of the OPML list to lookup channel in.
+zflist: name of the OPML list to lookup channel in.
 
-pos: position of the channel in the list
+id: id of the channel (computed from the xmlurl)
 
 itemid : the news item unique id for lookup
 
+f: output type (json, html) default to json
 
+max: max number of items to show for a channel.
+     Applicable only when q=channel
+     0: auto (default)
+     -1: all
+
+mode: feed fetch mode. applicable only for type=channel
+	- auto: let subscription decide, according to refresh time (default)
+	- cache: force from cache
+	- refresh: force refresh feed from source
+
+sum: 1 summary included in news item header, 0 no summary (default)
+     Applicable only when q=channel or q=list
+
+trim: how to shorten the number of items when getting a list, to get only news
+	  or the last hour, since 4 days, or only new ones.
+	  only when q=list. Allowed values are:
+	           none (default), <N>days, <N>hours,
+              <N>news, today, yesterday, onlynew
+
+	  when q=channel allowed values are:
+	           none (show all), auto (default), <N>news
  */
 
 /* record a visit for operations that resend a list of news
 	do both server and client, one of them will possibly do something
  */
 
-
+/* === 1: define output type =====*/
 /* output type: JSON or HTML or (TODO) RSS */
-$f = isset($_GET['f'])?$_GET['f']:'html';
+$f = isset($_GET['f'])?$_GET['f']:'json';
 
-if ($f =='json') {
-	$zf_aggregator->useJSON();
-	header('Content-Type: application/json; charset='.ZF_ENCODING);
-} else {
+if ($f =='html') {
 	$zf_aggregator->useTemplate(zf_getDisplayTemplateName());
 	header('Content-Type: text/html; charset='.ZF_ENCODING);
+} else {
+	$zf_aggregator->useJSON();
+	header('Content-Type: application/json; charset='.ZF_ENCODING);
 }
 
 $zf_aggregator->recordServerVisit();
 $zf_aggregator->recordClientVisit();
 
 
-/* type of content:
-	channel, item, channelforcerefresh, channelallitems,
-	listwithchannels
-*/
-if (isset($_GET['type'])) {
-	$type = $_GET['type'];
+
+/* === 2: find out query type and main parameters =====*/
+if (isset($_GET['q'])) {
+	$type = $_GET['q'];
 } else {
-	die('no query defined');
+	die('no query type defined');
 }
 
-
-if (isset($_GET['pos'])) {
-
-
-	/* position-id of the channel in the OPML list */
-	$pos = $_GET['pos'];
+$channelId = isset($_GET['id']) ? $_GET['id'] : -1;
+$itemid = isset($_GET['itemid']) ? $_GET['itemid'] : -1;
+$sum = isset($_GET['sum']) ? $_GET['sum'] : 0;
 
 
-	$itemid = isset($_GET['itemid']) ? $_GET['itemid'] : '';
-	// a data structure just as if extracted from an opml file
+/* === 3: are we dealing with a list? load it ===== */
+// this will go away when we only have one single OPML list
+// then we'll get the list name explicitely
+$zf_list = zf_getCurrentListName();
+if (strlen($zf_list)>0) $zf_aggregator->useList($zf_list);
+
+/* === 4: Process our request type and dispatch ==== */
+
+switch ($type) {
+
+	case 'item':
+		$zf_aggregator->printArticle($channelId, $itemid);
+		break;
 
 
-	$zf_list = zf_getCurrentListName();
-	$zf_aggregator->useList($zf_list);
+	case 'channel':
+		$trim = isset($_GET['trim']) ? $_GET['trim'] : 'auto';
+		if ($trim != 'none') $zf_aggregator->setTrimString($trim);
 
-	// force output encoding for AJAX request
-
-	if ($type == "item") {
-		$zf_aggregator->printArticle($pos, $itemid);
-	}
-
-
-	if ($type == "channel") {
+		//$numItems = isset($_GET['max']) ? $_GET['max'] : 0;
+		$mode = isset($_GET['mode']) ? $_GET['mode'] : 'auto';
 
 		// channel with header and items, auto cache/refresh
-		$zf_aggregator->printSingleChannel($pos);
+		$zf_aggregator->printSingleChannelById($channelId, $mode, $sum==1);
+		break;
 
-	}
+	case 'list':
+		$trim = isset($_GET['trim']) ? $_GET['trim'] : 'none';
+		if ($trim!='none') $zf_aggregator->setTrimString($trim);
+		$zf_aggregator->printListByDate();
+		break;
 
-	if ($type == "channelallitems") {
-		$zf_aggregator->printStatus('Showing all news');
-		$zf_aggregator->printAllCachedItems($pos);
+	case 'summary':
+		$zf_aggregator->printSummary($channelId, $itemid);
+		break;
 
-	}
+	case 'subs':
 
-	if ($type == "channelforcerefresh") {
-		$zf_aggregator->printStatus('Showing refreshed news');
-		$zf_aggregator->printRefreshedItems($pos);
-	}
+	case 'allsubs':
 
-	$zf_aggregator->printErrors();
-	exit;
-}
-
-if ($type == 'listswithchannels') {
-
-	/**
-	 * TODO
-	 * returns all categories and their channels
-	 * as a JSON object indexed by categories names
-	 */
-	$catlist = zf_aggregagor->getListNames();
-	$cats = Array();
-	foreach ($catlist as $categf) {
-		$list = new opml($categf);
-		if ($list->load()) {
-			$sortedchannels = array();
-			foreach($list->subscriptions as $i => $subscription) {
-				if ($subscription->isSubscribed) {
-					$sortedchannels[$subscription->position] = $subscription;
-					$sortedchannels[$subscription->position]['opmlindex'] = $i;
+		$catlist = $zf_aggregator->getListNames();
+		$cats = Array();
+		foreach ($catlist as $categf) {
+			$list = new opml($categf);
+			if ($list->load()) {
+				$sortedchannels = array();
+				foreach($list->subscriptions as $i => $subscription) {
+					if ($subscription->isSubscribed) {
+						$sortedchannels[$subscription->position] = $subscription;
+						$subscription->opmlindex = $i;
+					}
 				}
+				ksort($sortedchannels);
+				$cats[$categf] = $sortedchannels;
 			}
-			ksort($sortedchannels);
-			$cats[$categf] = $sortedchannels;
 		}
-	}
-	echo json_encode($cats);
-	exit;
+		echo json_encode($cats);
+		break;
 }
 
 
