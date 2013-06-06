@@ -63,7 +63,7 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 	if ($includeIt) {
 		$subscription = new Subscription(html2specialchars($attributes['XMLURL']));
 		$subscription->initFromXMLAttributes($attributes);
-		$zf_opmlItems[$subscription->position] = $subscription;
+		$zf_opmlItems[$subscription->channel->id] = $subscription;
 	}
 
 	if (isset($attributes['VIEWMODE']) ) {
@@ -90,12 +90,15 @@ function html2specialchars($str){
 	 return strtr($str, $trans_table);
 }
 
+
+// TODO rename this to SubscriptionList
 class opml {
 
 	private $_isFile;
 	private $_parseMode;
 
 	public $name;
+
 	public $subscriptions;
 
 	public $viewMode;
@@ -176,6 +179,8 @@ class opml {
 				$this->viewMode = $zf_opmlOptions['viewmode'];
 				$this->trimType = $zf_opmlOptions['trimtype'];
 				$this->trimSize = $zf_opmlOptions['trimsize'];
+
+
 
 			} else {
 				$this->lastError = "Error parsing subscriptions file <br />error: $xmlError at line: $xmlCrtline";
@@ -319,21 +324,22 @@ class opml {
 	}
 
 	public function isPositionTaken($pos, $exceptAt) {
-		for($i = 0; $i < count($this->subscriptions); $i++) {
-			if ($i == $exceptAt) continue;
-			//echo $i.' -- '.$this->channels;
-			if ($this->subscriptions[$i]->position == $pos) {
-				return $i;
+		foreach($this->subscriptions as $id => $sub) {
+			if ($sub->position == $exceptAt) continue;
+			//echo $i.' -- '.$sub->channels;
+			if ($sub->channel->position == $pos) {
+				return $pos;
 			}
 		}
 		return -1;
 	}
-	public function removeChannelAtPos($index) {
-		unset($this->subscription[$index]);
+
+	public function removeSubscriptionById($id) {
+		unset($this->subscription[$id]);
 	}
 
 	/* update the channel at position $index
-	 return true if ok, or false if duplicate position problem */
+	 return true if ok, or false if duplicate position problem
 	public function setChannelAtPos($index, $subscription) {
 		$checkPos = $this->isPositionTaken($subscription->position, $index);
 		if ($checkPos > -1){
@@ -342,17 +348,17 @@ class opml {
 		}
 		$this->subscriptions[$index] = $subscription;
 		return true;
-	}
+	}*/
 
 	public function addSubscription($sub) {
 		$newpos = $this->getNextPosition();
 		$sub->position = $newpos;
-		$this->subscriptions[$newpos] = $sub;
+		$this->subscriptions[$sub->channel->id] = $sub;
 	}
 
-	public function getSubscription($pos) {
-		if (isset($this->subscriptions[$pos])) {
-			return $this->subscriptions[$pos];
+	public function getSubscription($id) {
+		if (isset($this->subscriptions[$id])) {
+			return $this->subscriptions[$id];
 		} else {
 			return null;
 		}
@@ -364,7 +370,7 @@ class opml {
 
 		$nextPos = $this->getNextPosition();
 
-		foreach ($this->subscriptions as $i => &$subscription) {
+		foreach ($this->subscriptions as $i => $subscription) {
 			if (!($subscription->position > 0 && is_numeric($subscription->position))) {
 				$subscription->position = $nextPos++;
 			}
