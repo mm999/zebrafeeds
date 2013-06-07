@@ -56,11 +56,6 @@ itemid : the news item unique id for lookup
 
 f: output type (json, html) default to json
 
-max: max number of items to show for a channel.
-     Applicable only when q=channel
-     0: auto (default)
-     -1: all
-
 mode: feed fetch mode. applicable only for type=channel
 	- auto: let subscription decide, according to refresh time (default)
 	- cache: force from cache
@@ -108,7 +103,7 @@ if (isset($_GET['q'])) {
 }
 
 $channelId = isset($_GET['id']) ? $_GET['id'] : -1;
-$itemid = isset($_GET['itemid']) ? $_GET['itemid'] : -1;
+$itemId = isset($_GET['itemid']) ? $_GET['itemid'] : -1;
 $sum = isset($_GET['sum']) ? $_GET['sum'] : 0;
 
 
@@ -123,7 +118,7 @@ if (strlen($zflist)>0) $zf_aggregator->useList($zflist);
 switch ($type) {
 
 	case 'item':
-		$zf_aggregator->printArticle($channelId, $itemid);
+		$zf_aggregator->printArticle($channelId, $itemId);
 		break;
 
 
@@ -145,7 +140,7 @@ switch ($type) {
 		break;
 
 	case 'summary':
-		$zf_aggregator->printSummary($channelId, $itemid);
+		$zf_aggregator->printSummary($channelId, $itemId);
 		break;
 
 	case 'subs':

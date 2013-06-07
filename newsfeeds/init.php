@@ -1,5 +1,5 @@
 <?php
-// ZebraFeeds - copyright (c) 2006 Laurent Cazalet
+// ZebraFeeds - copyright (c) 2006-2013 Laurent Cazalet
 // http://www.cazalet.org/zebrafeeds
 //
 
@@ -40,7 +40,6 @@ define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
 define('ZF_DEBUG', 0);
-//if (DBG_LEVEL & DBG_LOG) echo "LOG";
 
 // debug output 1=console otherwise stdout
 define('ZF_DEBUG_CONSOLE', 0);
@@ -61,7 +60,7 @@ require_once($zf_path . 'includes/common.php');
 require_once($zf_path . 'feedfilter.php');
 
 setlocale(LC_ALL, ZF_LOCALE);
-define('ZF_VER', '1.3');
+define('ZF_VER', '2.0');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
 
 define("ZF_DATADIR", $zf_path.'data');
