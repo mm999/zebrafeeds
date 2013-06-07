@@ -80,11 +80,11 @@ class Subscription {
 		}
 
 		if ( ($attributes['REFRESHTIME'] != '') && (is_numeric($attributes['REFRESHTIME'])) ) {
-			$subscription->refreshTime = $attributes['REFRESHTIME'];
+			$this->refreshTime = $attributes['REFRESHTIME'];
 		}
 
 		if ( ($attributes['SHOWEDITEMS'] != '') && (is_numeric($attributes['SHOWEDITEMS'])) ) {
-			$subscription->refreshTime = $attributes['SHOWEDITEMS'];
+			$this->shownItems = $attributes['SHOWEDITEMS'];
 		}
 
 		$this->isSubscribed = ($attributes['ISSUBSCRIBED'] == 'yes');
@@ -155,7 +155,7 @@ class NewsItem {
 				$firstseen = time();
 			}
 			$this->date_timestamp = $firstseen;
-			if (ZF_DEBUG==2) {
+			if (ZF_DEBUG & DBG_AGGR) {
 				zf_debug('-- using history time '. $this->date_timestamp);
 			}
 
