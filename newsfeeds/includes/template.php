@@ -357,7 +357,7 @@ class template {
 		$hasSummary = strpos($this->_buffer, '{summary}');
 		$this->_buffer = str_replace('{summary}', $ssummary, $this->_buffer);
 
-		$zfarticleurl = ZF_HOMEURL.'?type=article&zftemplate='.urlencode($this->name).'&itemid='.$item->id.'&xmlurl='.urlencode($item->publisher->xmlurl);
+		$zfarticleurl = ZF_HOMEURL.'?q=article&itemid='.$item->id.'&id='.$item->publisher->id;
 
 		if ($hasSummary && $item->isTruncated)
 			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';

@@ -42,6 +42,22 @@ zf_debug("Aggregator loaded");
 $zf_aggregator->recordServerVisit();
 
 
+/* === 2: find out query type and main parameters =====*/
+if (isset($_GET['q'])) {
+	$q = $_GET['q'];
+}
+
+if ($q=='article') {
+	$channelId = isset($_GET['id']) ? $_GET['id'] : -1;
+	$itemId = isset($_GET['itemid']) ? $_GET['itemid'] : -1;
+
+	$zf_aggregator->useDefaultTemplate();
+	$zf_aggregator->useDefaultList();
+	$zf_aggregator->printArticle($channelId, $itemId);
+
+	exit;
+}
+
 if (ZF_RENDERMODE == 'automatic') {
 	zf_debug("Using automatic mode");
 	$zf_aggregator->useDefaultTemplate();
