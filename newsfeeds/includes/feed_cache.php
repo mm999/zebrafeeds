@@ -1,10 +1,10 @@
 <?php
 /*
- * Feed cache class for ZebraFeeds. 
- 
- 
+ * Feed cache class for ZebraFeeds.
+
+
  Borrowed from MagpieRSS:
- 
+
  * Author:		Kellan Elliott-McCrea <kellan@protest.net>
  * Version:		0.51
  * License:		GPL
@@ -74,11 +74,7 @@ class FeedCache {
 		$cache_file = $this->file_name( $url );
 
 		if ( ! file_exists( $cache_file ) ) {
-			if (ZF_DEBUG) {
-				zf_debug(
-				"Cache doesn't contain: $url (cache file: $cache_file)"
-				);
-			}
+			zf_debug("Cache doesn't contain: $url (cache file: $cache_file)", DBG_FEED);
 			return 0;
 		}
 

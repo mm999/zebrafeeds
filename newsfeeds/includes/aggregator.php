@@ -118,7 +118,7 @@ class aggregator {
 
 			$subscriptionsList = new opml($listName);
 			if ($subscriptionsList->load()) {
-				zf_debug('loaded list '.$listName);
+				zf_debug('loaded list '.$listName, DBG_LIST);
 				// record the information saying that this channel list
 				// actually comes from a subscription list, not from
 				// a zf_addFeed call
@@ -134,7 +134,7 @@ class aggregator {
 												$this->list->trimSize);
 				}
 			} else {
-				echo '<strong>'.$subscriptionsList->lastError.'<br />Make sure OPML file exists and is readable...</strong>';
+				echo '<strong>'.$subscriptionsList->lastError.'<br/>Make sure OPML file exists and is readable...</strong>';
 			}
 		}
 	}
@@ -155,7 +155,7 @@ class aggregator {
 
 	/* changes the trimming options. Also forces the view mode to trim */
 	public function setTrimString($str) {
-		zf_debug('trim set to:'. $str);
+		zf_debug('trim set to:'. $str, DBG_AGGR);
 		$this->setViewMode('trim');
 		$this->_feedOptions->setTrimStr($str);
 	}
@@ -175,7 +175,7 @@ class aggregator {
 	public function printMainView() {
 
 		if (count($this->list->subscriptions) > 0) {
-			zf_debug('Viewmode:'. $this->_viewMode);
+			zf_debug('Viewmode:'. $this->_viewMode, DBG_FEED);
 
 
 			// sort if not by feed or if we want to match a string
@@ -289,7 +289,7 @@ class aggregator {
 			break;
 		}
 
-		zf_debug("viewing channel ".$subscription->__toString());
+		zf_debug("viewing channel ".$sub->__toString(), DBG_RENDER);
 
 //TODO		$this->_feed->setTrim(Options->trimType != 'none') {
 
@@ -436,10 +436,10 @@ class aggregator {
 				/* assign feed to $this->_feed;*/
 				$feed = $handler->getAutoFeed();
 				if($feed !=null ) {
-					zf_debug('merging into Aggregated feed');
+					zf_debug('merging into Aggregated feed', DBG_AGGR);
 					$this->_feed->mergeWith($feed);
 				} else
-					zf_debug("feed is null");
+					zf_debug("feed $sub->channel is null", DBG_AGGR);
 			}
 		}
 		$this->_feed->postProcess();
@@ -479,17 +479,13 @@ class aggregator {
 
 			$fp = @fopen($name, 'r');
 			if ( ! $fp ) {
-				if (ZF_DEBUG==7) {
-					zf_debug("Failed to open visit file for reading: $name");
-				}
+				zf_debug("Failed to open visit file for reading: $name", DBG_SESSION);
 			} else {
 				if ($filesize = filesize($name) ) {
 					$data = fread( $fp, filesize($name) );
 					$this->_visits = unserialize( $data );
 				}
-				if (ZF_DEBUG == 7 ) {
-					zf_debug('last visit in server file: '.date('dS F Y h:i:s A', $this->_visits['lastvisit']));
-				}
+				zf_debug('last visit in server file: '.date('dS F Y h:i:s A', $this->_visits['lastvisit']), DBG_SESSION);
 			}
 
 		} else {
@@ -497,19 +493,15 @@ class aggregator {
 			// read visit time from cookie
 			$this->_visits['lastvisit'] = $_COOKIE['lastvisit'];
 			$this->_visits['lastsessionend'] = $_COOKIE['lastsessionend'];
-			if (ZF_DEBUG == 7 ) {
-				zf_debug('last visit in cookie: '.date('dS F Y h:i:s A', $this->_visits['lastvisit']));
-				zf_debug('last session end in cookie: '.date('dS F Y h:i:s A', $this->_visits['lastsessionend']));
-			}
+			zf_debug('last visit in cookie: '.date('dS F Y h:i:s A', $this->_visits['lastvisit']), DBG_SESSION);
+			zf_debug('last session end in cookie: '.date('dS F Y h:i:s A', $this->_visits['lastsessionend']), DBG_SESSION);
 
 		}
 
 		// if our last visit happened X seconds ago
 		if ($this->_now - $this->_visits['lastvisit'] > ZF_SESSION_DURATION) {
 			$this->_visits['lastsessionend'] = $this->_visits['lastvisit'];
-			if (ZF_DEBUG==7) {
-				zf_debug("Session expired, last session end is now set to last visit");
-			}
+			zf_debug("Session expired, last session end is now set to last visit", DBG_SESSION);
 
 		}
 		//echo date('dS F Y h:i:s A', $this->_now) . ' - '. date('dS F Y h:i:s A', $this->_visits['lastvisit']);
@@ -539,10 +531,8 @@ class aggregator {
 			$lastsessionend = $this->_visits['lastsessionend'];
 			/*}*/
 			$res2 = setcookie('lastsessionend', $this->_visits['lastsessionend'], $expire);
-			if (ZF_DEBUG == 7 ) {
-				zf_debug('writing last visit in cookie: '.date('dS F Y h:i:s A', $this->_visits['lastvisit'])." ($res1)");
-				zf_debug('writing last session end in cookie: '.date('dS F Y h:i:s A', $lastsessionend)." ($res2)");
-			}
+			zf_debug('writing last visit in cookie: '.date('dS F Y h:i:s A', $this->_visits['lastvisit'])." ($res1)", DBG_SESSION);
+			zf_debug('writing last session end in cookie: '.date('dS F Y h:i:s A', $lastsessionend)." ($res2)", DBG_SESSION);
 
 		}// ZF_NEWITEMS==server
 	}

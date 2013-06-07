@@ -132,14 +132,17 @@ function zf_makeId($feedUrl, $itemLink) {
 }
 
 
-
-function zf_debug($msg, $lvl=E_USER_NOTICE ) {
-	if (ZF_DEBUG > 0) {
-		//trigger_error('ZF debug:'.$msg, $lvl);
+// log in an area. If no area provided, log it anyway
+function zf_debug($msg, $area=DBG_ALL) {
+	if (ZF_DEBUG & $area) {
 		$btr=debug_backtrace();
 		$line=$btr[0]['line'];
 		$file=basename($btr[0]['file']);
-		print "<pre>DBG ($file:$line) $msg</pre>\n";
+		if (ZF_DEBUG_CONSOLE) {
+			trigger_error("(ZF/$file:$line) ".$msg, E_USER_NOTICE);
+		} else {
+			print "ZF/($file:$line) $msg".(ZF_DEBUG_HTML==1?'<br/>':'')."\n";
+		}
 	}
 }
 
@@ -156,7 +159,7 @@ function zf_error($msg, $lvl=E_USER_WARNING) {
 
 function zf_debugRuntime($location) {
 
-	if (ZF_DEBUG == 6) {
+	if (ZF_DEBUG & DBG_RUNTIME) {
 		global $zf_debugData;
 		$zf_debugData['clock'][] = microtime();
 		$count = count($zf_debugData['clock']);

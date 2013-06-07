@@ -67,9 +67,7 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
 		return false;
 	} else {
 		$url = $channelDesc->xmlurl;
-		if ( ZF_DEBUG > 1) {
-			zf_debug('requested feed '.$url.'<br/>', E_USER_NOTICE) ;
-		}
+			zf_debug('requested feed '.$url, DBG_FEED);
 	}
 
 	// Flow
@@ -83,12 +81,10 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
 
 	//debug("Refresh:".$refreshtime , E_USER_WARNING);
 	$cache = new FeedCache( ZF_CACHEDIR, $refreshtime*60 );
-	if ( ZF_DEBUG > 1) {
-		zf_debug("Requested refresh time ".$refreshtime, E_USER_NOTICE);
-	}
+	zf_debug("Requested refresh time ".$refreshtime, DBG_FEED);
 
 	if (ZF_DEBUG && $cache->ERROR) {
-		zf_debug($cache->ERROR, E_USER_WARNING);
+		zf_debug($cache->ERROR, DBG_FEED);
 	}
 
 
@@ -106,9 +102,9 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
 		$cache_status = $cache->check_cache($cache_key);
 		if ( ZF_DEBUG > 1) {
 			if ($cache_status != 'MISS') {
-				zf_debug("Cache ok. Cache age ".($cache->cache_age($cache_key)/60).', '.md5($cache_key). ' modif:'.date ("F d Y H:i:s.", filemtime($cache->file_name($cache_key))), E_USER_NOTICE);
+				zf_debug("Cache ok. Cache age ".($cache->cache_age($cache_key)/60).', '.md5($cache_key). ' modif:'.date ("F d Y H:i:s.", filemtime($cache->file_name($cache_key))), DBG_FEED);
 			} else {
-				zf_debug("Not in cache: $cache_key", E_USER_NOTICE);
+				zf_debug("Not in cache: $cache_key", DBG_FEED);
 			}
 		}
 	}
@@ -121,9 +117,7 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
 			if ( isset($feed) and $feed ) {
 				// should be cache age
 				$feed->from_cache = 1;
-				if ( ZF_DEBUG > 1) {
-					zf_debug("Cache ($cache_status, refreshtime: $refreshtime)<br/>", E_USER_NOTICE);
-				}
+				zf_debug("Cache ($cache_status, refreshtime: $refreshtime)", DBG_FEED);
 			   /* set channel data, like title and description from what's
 				configured in the subscription list */
 				//TODO: set publisher
@@ -133,20 +127,17 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
 
 				return $feed;
 			} else {
-				if ( ZF_DEBUG > 1) {
-					zf_debug("invalid Cache ($cache_status, refreshtime: $refreshtime)<br/>", E_USER_NOTICE);
-				}
-
+				zf_debug("invalid Cache ($cache_status, refreshtime: $refreshtime)", DBG_FEED);
 			}
 		}
 	}
 
 		// if we got there, it means we have to fetch from network
-	zf_debug('fetching remote file '.$url.'<br/>', E_USER_NOTICE);
+	zf_debug('fetching remote file '.$url, DBG_FEED);
 
 	$feed = zf_xpie_fetch_feed($channelDesc, $resultString);
 	if ( $feed ) {
-		zf_debug("Fetch successful<br/>");
+		zf_debug("Fetch successful", DBG_FEED);
 		/* one shot: add our extra data and do our post processing
 		  (we will here fix missing dates)
 		BEFORE storing to cache */
@@ -165,10 +156,7 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
 		return $feed;
 	}
 
-
-	if ( ZF_DEBUG) {
-		zf_debug('failed fetching remote file '.$url.'<br/>', E_USER_NOTICE);
-	}
+	zf_debug('failed fetching remote file '.$url, DBG_FEED);
 
 	// if we are here, fetch failed
 
@@ -177,9 +165,7 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
     if ( isset($feed) and $feed ) {
         // should be cache age
         $feed->from_cache = 1;
-        if ( ZF_DEBUG ) {
-            zf_debug("Returning STALE object for $url");
-        }
+        zf_debug("Returning STALE object for $url", DBG_FEED);
         /* set channel data, like title and description from what's
         configured in the subscription list */
         $feed->customizePublisher($channelDesc);

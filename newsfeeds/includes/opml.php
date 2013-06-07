@@ -75,8 +75,8 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 	if (isset($attributes['TRIMSIZE']) ) {
 		$zf_opmlOptions['trimsize'] = ($attributes['TRIMSIZE'] != '')?$attributes['TRIMSIZE']:'5';
 	}
-	if (ZF_DEBUG == 10) {
-		print_r($attributes);
+	if (ZF_DEBUG & DBG_LIST) {
+		//print_r($attributes);
 	}
 }
 
@@ -151,6 +151,7 @@ class opml {
 
 		$xml_parser = xml_parser_create();
 		xml_set_element_handler($xml_parser, "zf_opmlStartElement", "zf_opmlEndElement");
+		zf_debug('Opening file '.$opmlfilename, DBG_OPML);
 		@$fp = fopen($opmlfilename, "r");
 		$data = "";
 		if ($fp) {
@@ -184,11 +185,12 @@ class opml {
 
 			} else {
 				$this->lastError = "Error parsing subscriptions file <br />error: $xmlError at line: $xmlCrtline";
+				zf_debug("$xmlError at line: $xmlCrtline", DBG_OPML);
 				return false;
 			}
 		} else {
-				$this->lastError = 'Error opening the subscriptions file!';
-				return false;
+			$this->lastError = 'Error opening the subscriptions file!';
+			return false;
 		}
 		$this->_sanitize();
 		return true;

@@ -46,9 +46,7 @@ abstract class AbstractFeed {
 			$keepit = zf_itemfilteronfetch($item);
 			if (!$keepit) {
 				// finally add our item to the news array
-				if (ZF_DEBUG==4) {
-					zf_debug('Item discarded by user function: \"'.$item->title.'\"');
-				}
+				zf_debug('Item discarded by user function: \"'.$item->title.'\"', DBG_AGGR);
 				continue;
 			}
 		}
@@ -63,6 +61,7 @@ abstract class AbstractFeed {
 	/* get rid of superfluous items exceeding our limit, removing the bottom
 	of the array, only by numbers (trimSize)*/
 	public function trimItems($trimsize) {
+		zf_debug("Keeping only last $trimsize items", DBG_AGGR);
 		$this->items = array_slice($this->items, 0, $trimsize);
 	}
 
@@ -174,7 +173,24 @@ class AggregatedFeed extends AbstractFeed {
 		$this->publisher->id = zf_makeId($this->publisher->xmlurl,'');
 
 
-		// fill the description
+		$description = "Aggregated feed";
+
+		$this->publisher->description = $description;
+
+
+	}
+
+
+
+	public function setMatchExpression($expr) {
+		$this->matchExpression = $expr;
+	}
+
+	public function setTrim($opt) {
+		parent::setTrim($opt);
+
+
+		// fill/update the description
 		$description = "Viewing ";
 		if ($this->_feedOptions->trimType == 'today') {
 			$description .= 'today\'s news ';
@@ -204,19 +220,9 @@ class AggregatedFeed extends AbstractFeed {
 		$this->publisher->description = $description;
 
 
-	}
 
-
-
-	public function setMatchExpression($expr) {
-		$this->matchExpression = $expr;
-	}
-
-	public function setTrim($opt) {
-		parent::setTrim($opt);
-
-		zf_debug("AggregatedFeed trim set to ". $this->_feedOptions->trimType.', '.
-		$this->_feedOptions->trimSize);
+		zf_debug("AggregatedFeed, trim set to ". $this->_feedOptions->trimType.', '.
+		$this->_feedOptions->trimSize, DBG_AGGR);
 
 		// get timestamp we don't want to go further
 		if ($this->_feedOptions->trimType == 'hours') {
@@ -241,7 +247,7 @@ class AggregatedFeed extends AbstractFeed {
 	in order to finalize processing, like sorting and trimming */
 	public function postProcess($sort = true) {
 		zf_debug("Post processing aggregated feed: sort=$sort, trimType =".
-			$this->_feedOptions->trimType);
+			$this->_feedOptions->trimType, DBG_AGGR);
 		if ($sort) {
 			$this->sortItems();
 		}
@@ -267,6 +273,7 @@ class AggregatedFeed extends AbstractFeed {
 		 */
 	protected function mergeItems($feed) {
 
+		zf_debug( 'Merging feed '.$feed->publisher->title, DBG_AGGR);
 		$itemcount = 0;
 		foreach ($feed->items as $item) {
 
@@ -277,89 +284,62 @@ class AggregatedFeed extends AbstractFeed {
 			$todayts = strtotime(date("F j, Y"));
 			$yesterdayts = $todayts - (3600*24);
 
+			zf_debug( 'Merging item "'.$item->title.'"', DBG_AGGR);
 			// optionally exclude news with date in future
 			if (ZF_NOFUTURE == 'yes') {
 				if ($itemts > $basetime ) {
-					if (ZF_DEBUG==4) {
-						zf_debug('News item \"'.$item->title.'\" has future date. Skipped.'.$basetime.' lower than '.$itemts);
-					}
+					zf_debug('Item has future date. Skipped.'.$basetime.' lower than '.$itemts, DBG_AGGR);
 					continue;
 				}
 			}
 
 			if ($this->_feedOptions->trimType == 'hours' || $this->_feedOptions->trimType =='days') {
 				// consider onlyrecent items
-				if (ZF_DEBUG==4) {
-					zf_debug( "comparing item date ".date("F j, Y, g:i a",$itemts)."(".$itemts.") to earliest wanted ". $this->_earliest ." : ".date("F j, Y, g:i a",$this->_earliest));
-				}
+				zf_debug( "comparing item date ".date("F j, Y, g:i a",$itemts)."(".$itemts.") to earliest wanted ". $this->_earliest ." : ".date("F j, Y, g:i a",$this->_earliest), DBG_AGGR);
 
 				if ( $itemts >= $this->_earliest) {
-					if (ZF_DEBUG==4) {
-						zf_debug( 'News item within time frame');
-					}
-
+					zf_debug( 'Item within time frame', DBG_AGGR);
 				} else {
-					if (ZF_DEBUG==4) {
-						zf_debug( 'News item outside time frame');
-					}
+					zf_debug( 'Item outside time frame', DBG_AGGR);
 					continue;
 				}
 			} else if($this->_feedOptions->trimType == 'today') {
 				if ($itemts < $todayts ) {
-					if (ZF_DEBUG==4) {
-						zf_debug('News item \"'.$item->title.'\" is not from today. Skipped.'.$itemts.' lower than '.$todayts);
-					}
+					zf_debug('Item is not from today. Skipped.'.$itemts.' lower than '.$todayts, DBG_AGGR);
 					continue;
 				}
 			} else if($this->_feedOptions->trimType == 'yesterday') {
 				if ($itemts >= $todayts || $itemts < $yesterdayts) {
-					if (ZF_DEBUG==4) {
-						zf_debug('News item \"'.$item->title.'\" is not from yesterday. Skipped.');
-					}
+					zf_debug('Item is not from yesterday. Skipped.', DBG_AGGR);
 					continue;
 				}
 			} else if($this->_feedOptions->trimType == 'onlynew') {
 				if ( ! $item->isnew ) {
-					if (ZF_DEBUG==4) {
-						zf_debug('News item \"'.$item->title.'\" is not new/unseen. Skipped.');
-					}
+					zf_debug('Item is not new/unseen. Skipped.', DBG_AGGR);
 					continue;
 				}
-			} else {
-				// no particular trim
-				if (ZF_DEBUG==4) {
-					zf_debug( 'Item '.$item->title.' passes timeframe check');
-				}
 			}
+			zf_debug( 'Item passes timeframe check', DBG_AGGR);
 
 			// last check: do we need to match, and does this news match
 			if ( strlen($this->matchExpression) > 0) {
 
 				if (!$this->itemMatches($item)) {
-					if (ZF_DEBUG==4) {
-						zf_debug( 'News item DOES NOT match. rejected');
-					}
+					zf_debug( 'Item DOES NOT match expr. rejected', DBG_AGGR);
 					continue;
 				} else {
-					if (ZF_DEBUG==4) {
-						zf_debug( 'News item match');
-					}
+					zf_debug( 'Item matches exp', DBG_AGGR);
 				}
 			}
 
 			// finally add our item to the news array
-			if (ZF_DEBUG==4) {
-				zf_debug('Item merged: "'.$item->title.'" (trimtype: '.$this->_feedOptions->trimType.')');
-			}
-
+			zf_debug('Item merged', DBG_AGGR);
 			array_push($this->items, $item);
 
 			$itemcount++;
-			if (ZF_DEBUG==4) {
-				zf_debug("Merged $itemcount item(s) from ".$feed->publisher->title);
-			}
 
 		}// foreach item of feed
+		zf_debug("Merged $itemcount item(s) from ".$feed->publisher->title, DBG_AGGR);
 
 	}
 
@@ -388,9 +368,7 @@ class AggregatedFeed extends AbstractFeed {
 
 	/* sort our aggregated items */
 	public function sortItems() {
-		if (ZF_DEBUG==4) {
-			zf_debug('sorting items');
-		}
+		zf_debug('sorting items', DBG_AGGR);
 
 		/* sort by timestamp */
 		usort($this->items, 'zf_compareItemsDate');

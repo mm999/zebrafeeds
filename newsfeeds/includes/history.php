@@ -56,7 +56,7 @@ class history {
         $fp = @fopen( $this->_fileName, 'w' );
 
         if ( ! $fp ) {
-            zf_debug( "History unable to open file for writing: $this->_fileName, $this->_address");
+            zf_debug( "History unable to open file for writing: $this->_fileName, $this->_address", DBG_SESSION);
             return 0;
         }
 
@@ -70,13 +70,13 @@ class history {
     public function load(){
 
         if ( ! file_exists( $this->_fileName ) ) {
-            zf_debug( "History file not found $this->_fileName, $this->_address");
+            zf_debug( "History file not found $this->_fileName, $this->_address", DBG_SESSION);
             return 0;
         }
 
         $fp = @fopen($this->_fileName, 'r');
         if ( ! $fp ) {
-            zf_debug( "Failed to open history file for reading: $this->_fileName");
+            zf_debug( "Failed to open history file for reading: $this->_fileName", DBG_SESSION);
             return 0;
         }
 
@@ -85,7 +85,7 @@ class history {
         	$this->_timestamps = unserialize( $data );
         	return 1;
     	}
-            zf_debug( "Failed to open history file: $this->_fileName");
+            zf_debug( "Failed to open history file: $this->_fileName", DBG_SESSION);
 
     	return 0;
 
@@ -95,7 +95,7 @@ class history {
         $res = unlink( $this->_fileName );
 
         if ( ! $res ) {
-            zf_debug( "Unable to delete history file: $this->_fileName, $this->_address");
+            zf_debug( "Unable to delete history file: $this->_fileName, $this->_address", DBG_SESSION);
             return false;
         }
         return true;
@@ -109,14 +109,12 @@ class history {
      * called during caching of RSS object
      */
     public function getDateFirstSeen($id) {
-        if (ZF_DEBUG == 7) {
-            zf_debug($this->_address .': getting time first seen for item- '. $id);
-        }
+    	zf_debug($this->_address .': getting time first seen for item- '. $id, DBG_SESSION);
 
         if (!isset($this->_timestamps[$id])) {
-            if (ZF_DEBUG == 7) {
-                zf_debug('New item '.$id.' (getting date of first time seen)');
-            }
+
+            zf_debug('New item '.$id.' (getting date of first time seen)', DBG_SESSION);
+
             $this->_timestamps[$id]['ts'] = time();
         }
         return $this->_timestamps[$id]['ts'];
@@ -130,10 +128,8 @@ class history {
     */
     public function markNewFeedItems($items, $since, $now) {
 
-        if (ZF_DEBUG == 7) {
-            zf_debug($this->_address .': marking items newer than: '.date('dS F Y h:i:s A', $since));
-            zf_debug('now it\'s '.date('dS F Y h:i:s A', $now));
-        }
+		zf_debug($this->_address .': marking items newer than: '.date('dS F Y h:i:s A', $since), DBG_SESSION);
+		zf_debug('now it\'s '.date('dS F Y h:i:s A', $now), DBG_SESSION);
         // for each item
         // if item in timestamps table
         //   check 'timestamp' against 'now'
@@ -146,27 +142,21 @@ class history {
             //$id = zf_makeId('',$items[$i]['link']);
             $id = $item->id;
 
-			if (ZF_DEBUG == 7) {
-				zf_debug('checking item '.$id.": ".$item->title);
-			}
+			zf_debug('checking item '.$id.": ".$item->title, DBG_SESSION);
+
 			// did we have this item in our DB?
             if (isset($this->_timestamps[$id])) {
                 // found in our history DB
                 // it's new if it appeared after our since time stamp reference
 
                 if (ZF_NEWITEMS != 'no') {
-                    if (ZF_DEBUG == 7) {
-                        zf_debug('item last seen on '.date('dS F Y h:i:s A', $this->_timestamps[$id]['ts']));
-                    }
+                    zf_debug('item last seen on '.date('dS F Y h:i:s A', $this->_timestamps[$id]['ts']), DBG_SESSION);
+
                     if ($this->_timestamps[$id]['ts'] - $since > 0 ) {
-                        if (ZF_DEBUG == 7) {
-                            zf_debug('=> new unseen item');
-                        }
+                        zf_debug('=> new unseen item', DBG_SESSION);
                         $item->isNew = true;
                     } else {
-                        if (ZF_DEBUG == 7) {
-                            zf_debug('=> This is old news');
-                        }
+                    	zf_debug('=> This is old news', DBG_SESSION);
                         $item->isNew = false;
                     }
                 }
@@ -174,7 +164,7 @@ class history {
 
             } else {
                 /* should happen only if items have date */
-                if (ZF_DEBUG) zf_debug('Dated item marked as new: '.$item->title);
+                zf_debug('Dated item marked as new: '.$item->title, DBG_SESSION);
                 $this->_timestamps[$id]['ts'] = $now;
                 $item->isNew= true;
 
@@ -195,9 +185,8 @@ class history {
         $tmpts = $this->_timestamps;
 
         //echo "<code>"; print_r($tmpts); echo "</code>";
-        if (ZF_DEBUG == 7) {
-            zf_debug($cnt. " news to check for purge on " . $this->_address);
-        }
+        zf_debug($cnt. " news to check for purge on " . $this->_address, DBG_SESSION);
+
         foreach ($tmpts as $id => $entry) {
 
             if (!$entry['current']) {
@@ -210,9 +199,7 @@ class history {
             }
 
         }
-        if (ZF_DEBUG == 7) {
-            zf_debug(count($this->_timestamps). " news left after purge on " .$this->_address);
-        }
+        zf_debug(count($this->_timestamps). " news left after purge on " .$this->_address, DBG_SESSION);
         $this->save();
 
     }

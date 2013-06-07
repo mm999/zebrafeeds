@@ -73,11 +73,11 @@ class FeedHandler {
 
 		//is auto requested, check against global variable
 		if ($requestedRefreshtime > 0) {
-			zf_debug("requesting default refresh time for ".$channelDesc->xmlurl);
+			zf_debug("requesting default refresh time for ".$channelDesc->xmlurl, DBG_FEED);
 			$usedrefreshtime = (ZF_REFRESHMODE == 'automatic')? $requestedRefreshtime: -1;
 		}
 
-		zf_debug("Refresh mode: ". ZF_REFRESHMODE." ; requested Refreshtime : $requestedRefreshtime ; used refresh time: $usedrefreshtime");
+		zf_debug("Refresh mode: ". ZF_REFRESHMODE." ; requested Refreshtime : $requestedRefreshtime ; used refresh time: $usedrefreshtime", DBG_FEED);
 
 
 		// QUICK DEBUG $refreshtime = -1;
@@ -104,6 +104,8 @@ class FeedHandler {
 			// user friendly channel title
 			//$channelTitle = isset($channeldata['title']) ? $channeldata['title']:$channeldata['xmlurl'];
 			$this->errorLog .= $resultString.'<br/>';
+			zf_debug('error reported: '. $resultString, DBG_FEED);
+
 		}
 
 		return $this->_feed;

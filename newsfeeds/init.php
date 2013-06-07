@@ -27,18 +27,32 @@ define('ZF_NEWONTOP', 'no'); // if yes, will show first the new/unseen items on 
 //define('ZF_ISNEW_STRING', '<img src="'.ZF_URL.'/images/new.png" border="0" title="is new since last visit" alt="New"/>');
 define('ZF_ISNEW_STRING', 'newclass');
 
-/* debug values for ZF_DEBUG
- 4: feed aggregation
- 6: run time
- 7: history, session and cookies
-10: OPLM read
+/* bit debug values for ZF_DEBUG
 */
+define('DBG_LIST', 2); // list handling & management
+define('DBG_AGGR', 4); // feed aggregation/merging
+define('DBG_RUNTIME', 8); // trace runtime
+define('DBG_OPML', 16); // opml load
+define('DBG_SESSION', 32); // history, session, cookies
+define('DBG_FEED', 64); // handling/fetching feeds
+define('DBG_RENDER', 128); // view and template rendering
+define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
+// use DBG_xxx | DBG_yyy | ... to select what to see in the logs
 define('ZF_DEBUG', 0);
+//if (DBG_LEVEL & DBG_LOG) echo "LOG";
+
+// debug output 1=console otherwise stdout
+define('ZF_DEBUG_CONSOLE', 0);
+
+// for stdout debug, log format
+// 1=html otherwise text
+define('ZF_DEBUG_HTML', 0);
 
 /*--------------------------*/
 
 error_reporting(0);
+ini_set('display_errors', 'Off');
 
 if (ZF_USEOPML == 'yes') {
     require_once($zf_path . 'includes/opml.php');
@@ -91,7 +105,11 @@ defaultConfig('ZF_HOMELIST', 'sample');
 //error_reporting(E_ERROR | E_WARNING | E_PARSE);
 //error_reporting (E_ALL ^ E_NOTICE);
 if (ZF_DEBUG) {
-    error_reporting (E_ALL);
+	ini_set('display_errors', ZF_DEBUG_CONSOLE==0?'On':'Off');
+	ini_set('html_errors', ZF_DEBUG_HTML==1?'On':'Off');
+	error_reporting (E_ALL| E_STRICT);
+
+	// preparation of performance monitoring
 	global $zf_debugData;
 	$zf_debugData['clock'][] = microtime();
 	if (function_exists('getrusage')) {
