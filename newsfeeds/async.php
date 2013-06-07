@@ -115,8 +115,8 @@ $sum = isset($_GET['sum']) ? $_GET['sum'] : 0;
 /* === 3: are we dealing with a list? load it ===== */
 // this will go away when we only have one single OPML list
 // then we'll get the list name explicitely
-$zf_list = zf_getCurrentListName();
-if (strlen($zf_list)>0) $zf_aggregator->useList($zf_list);
+$zflist = zf_getCurrentListName();
+if (strlen($zflist)>0) $zf_aggregator->useList($zflist);
 
 /* === 4: Process our request type and dispatch ==== */
 
@@ -149,6 +149,19 @@ switch ($type) {
 		break;
 
 	case 'subs':
+		$list = new opml($zflist);
+		if ($list->load()) {
+			$sortedchannels = array();
+			foreach($list->subscriptions as $i => $subscription) {
+				if ($subscription->isSubscribed) {
+					$sortedchannels[$subscription->position] = $subscription;
+					$subscription->opmlindex = $i;
+				}
+			}
+			ksort($sortedchannels);
+		}
+		echo json_encode($sortedchannels);
+		break;
 
 	case 'allsubs':
 
