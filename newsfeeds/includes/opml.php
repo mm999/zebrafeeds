@@ -99,10 +99,23 @@ class opml {
 
 	public $name;
 
+	/* array of subscription Objects */
 	public $subscriptions;
 
+	/* how this list will be rendered by default in printMainView
+	- feed: sorted by channel, max "subscription->shownItems" items displayed
+	- date: all news; sorted by date
+	- trim: by date, according to trimType and trimSize
+	setting ignored in async mode (output by calls to async.php)
+	*/
 	public $viewMode;
+
+	/* render max "trimSize" latest news, days, hours
+	irrelevant if viewMode is feed */
 	public $trimType;
+
+	/* number of news/days/hours to render
+	irrelevant if viewMode is feed */
 	public $trimSize;
 
 	public $lastError;
@@ -233,15 +246,15 @@ class opml {
 				$temphtmlurl = stripslashes($sub->channel->link);
 				$tempxmlurl = stripslashes($sub->channel->xmlurl);
 				fwrite($fp, "\t\t<outline type=\"rss\"" .
-									" position=\"" . $sub->channel->position .
+									" position=\"" . $sub->position .
 									"\" text=\"" . htmlspecialchars($temptitle, ENT_QUOTES) .
 									"\" title=\"" . htmlspecialchars($temptitle, ENT_QUOTES) .
 									"\" description=\"" . htmlspecialchars($tempdesc, ENT_QUOTES) .
 									"\" xmlUrl=\"" . htmlspecialchars($tempxmlurl, ENT_QUOTES) .
 									"\" htmlUrl=\"" . htmlspecialchars($temphtmlurl, ENT_QUOTES) .
-									"\" refreshTime=\"" . $sub->channel->refreshTime .
-									"\" showedItems=\"" . $sub->channel->shownItems .
-									"\" isSubscribed=\"" . $sub->channel->isSubscribed .
+									"\" refreshTime=\"" . $sub->refreshTime .
+									"\" showedItems=\"" . $sub->shownItems .
+									"\" isSubscribed=\"" . ($sub->isSubscribed?'yes':'no').
 									"\" />\n");
 			}
 
@@ -389,4 +402,3 @@ class opml {
 
 
 
-?>

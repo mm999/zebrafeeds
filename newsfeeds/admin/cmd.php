@@ -34,28 +34,25 @@ if (isset($_POST['action'])) {
 if ($action == "savechannel" ) {
 
 
-    $channel['title'] = $_POST['title'];
-    $channel['xmlurl'] = $_POST['xmlurl'];
-    $channel['showeditems'] = $_POST['showeditems'];
-    $channel['refreshtime'] = $_POST['refreshtime'];
-    $channel['description'] = $_POST['description'];
-    $channel['position'] = $_POST['position'];
-    $channel['issubscribed'] = $_POST['issubscribed'];
-    $channel['articlelink'] = $_POST['articlelink'];
-
-    $index = $_POST['index'];
+    $id = $_POST['id'];
     $listName = $_POST['list'];
-
 
     $list = new opml($listName);
 
     Header('Content-Type: text/html; charset='.ZF_ENCODING);
 
     if ($list->load()) {
-        if (!$list->setChannelAtPos($index, $channel)) {
-            echo $list->lastError;
-            
-        } else {
+
+		$sub = $list->getSubscription($id);
+		if ($sub) {
+			$sub->channel->title = $_POST['title'];
+			$sub->channel->xmlurl =  $_POST['xmlurl'];
+			$sub->channel->description = $_POST['description'];
+			$sub->position = $_POST['position'];
+			$sub->shownItems = $_POST['shownitems'];
+			$sub->refreshTime = $_POST['refreshtime'];
+			$sub->isSubscribed = ($_POST['issubscribed'] =='yes');
+
             if ($list->save()) {
                 echo 'Saved';
             } else {
@@ -67,8 +64,5 @@ if ($action == "savechannel" ) {
     }
 
 }
-
-
-?>
 
 

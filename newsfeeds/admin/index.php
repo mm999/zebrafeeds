@@ -38,12 +38,12 @@ zfLogin();
 
 ?>
 <!DOCTYPE html>
-
 	<html>
 	<head>
 	<title>ZebraFeeds admin panel</title>
 	<link rel="stylesheet" type="text/css" href="admin.css"/>
-	</head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">	</head>
 	<body>
 
 

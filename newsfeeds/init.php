@@ -57,6 +57,7 @@ if (ZF_USEOPML == 'yes') {
     require_once($zf_path . 'includes/opml.php');
 }
 require_once($zf_path . 'includes/common.php');
+require_once($zf_path . 'includes/classes.php');
 require_once($zf_path . 'feedfilter.php');
 
 setlocale(LC_ALL, ZF_LOCALE);
@@ -64,7 +65,8 @@ define('ZF_VER', '2.0');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
 
 define("ZF_DATADIR", $zf_path.'data');
-define("ZF_OPMLDIR", $zf_path.'categories');
+define("ZF_OPMLBASEDIR", 'categories');
+define("ZF_OPMLDIR", $zf_path.ZF_OPMLBASEDIR);
 define("ZF_TEMPLATESDIR", $zf_path.'templates');
 define("ZF_HISTORYDIR", ZF_DATADIR.'/history');
 
@@ -119,4 +121,4 @@ if (ZF_DEBUG) {
 
 
 }
-?>
+

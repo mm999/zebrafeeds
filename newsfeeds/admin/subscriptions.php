@@ -23,41 +23,41 @@ if (zfAuth()==false) exit;
 /* we would need this to clear the history file */
 //require_once($zf_path . 'includes/history.php');
 
-function sortChannelsByName($channels) {
+function sortChannelsByName($subscriptions) {
 	/* sort channels list by setting the array key to the position */
 	$sortedchannels = array();
-	foreach($channels as $i => $channel) {
-		if ($channel['xmlurl'] != '') {
+	foreach($subscriptions as $i => $sub) {
+		if ($sub->channel->xmlurl != '') {
 			/* tackle duplicate names */
-			if (isset($sortedchannels[$channel['title']]) || (strlen($channel['title'])) == 0) {
-				$title = $channel['title']. ' ('.$channel['position'].')';
+			if (isset($sortedchannels[$sub->channel->title]) || (strlen($sub->channel->title)) == 0) {
+				$title = $sub->channel->title. ' ('.$sub->position.')';
 			} else {
-				$title = $channel['title'];
-			} 
+				$title = $sub->channel->title;
+			}
 			/*echo $title.' -- ';*/
-			$sortedchannels[$title] = $channel;
-			/* but we need to keep the original index to identify the feed, next time we need it in 
+			$sortedchannels[$title] = $sub;
+			/* but we need to keep the original index to identify the feed, next time we need it in
 			a copy/delete operation */
-			$sortedchannels[$title]['opmlindex'] = $i;
+			//$sortedchannels[$title]->opmlindex = $i;
 		}
 	}
 	ksort($sortedchannels);
-	return $sortedchannels; 
+	return $sortedchannels;
 }
 
-function sortChannelsByPosition($channels) {
+function sortChannelsByPosition($subscriptions) {
 	/* sort channels list by setting the array key to the position */
 	$sortedChannels = array();
-	foreach($channels as $i => $channel) {
-		if ($channel['xmlurl'] != '') {
-			$sortedchannels[$channel['position']] = $channel;
-			/* but we need to keep the original index to identify the feed, next time we need it in 
+	foreach($subscriptions as $i => $sub) {
+		if ($sub->channel->xmlurl != '') {
+			$sortedchannels[$sub->position] = $sub;
+			/* but we need to keep the original index to identify the feed, next time we need it in
 			a copy/delete operation */
-			$sortedchannels[$channel['position']]['opmlindex'] = $i;
+			//$sortedchannels[$sub->position]['opmlindex'] = $i;
 		}
 	}
 	ksort($sortedchannels);
-	return $sortedchannels; 
+	return $sortedchannels;
 }
 
 
@@ -66,35 +66,31 @@ function sortChannelsByPosition($channels) {
 channel are sorted according to their position
 arg : channel, an array of feeds (got from opml functions)
 */
-function displayChannelList($channels) {
+function displayChannelList($subs) {
 
-	$channelcount = count($channels);
+	$channelcount = count($subs);
 
 	if ($channelcount > 0) {
 		$namehtmldata = <<<EOD
 <div title="Edit feed properties" class="sub-line">
 	<input type="checkbox" name="actionbox{i}" value="checkbox"/>
-		<span id="title{i}" class="{class} link" onclick="showEditForm({i}); return false;">{chantitle}</span>&nbsp;
+		<span id="title{i}" class="{class} link" onclick="showEditForm('{i}'); return false;">{chantitle}</span>&nbsp;
 	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" alt="website"/></a>
 </div>
 EOD;
 
-		foreach($channels as $key => $channel) {
+		foreach($subs as $id => $sub) {
 			$tempdata = '';
-			
+
 			/* first let's do the name line */
-			$tempdata = str_replace("{i}", $channel['opmlindex'], $namehtmldata);
-			$channel['title'];
-			if ($channel['issubscribed'] != 'yes' ) {
-				$class = 'unsubscribed';
-			} else {
-				$class = 'subscribed';
-			}
+			$tempdata = str_replace("{i}", $sub->channel->id, $namehtmldata);
+			//$sub->channel->title;
+			$class = $sub->isSubscribed?'subscribed':'unsubscribed';
 			$tempdata = str_replace("{zfurl}", ZF_URL, $tempdata);
 			$tempdata = str_replace("{class}", $class, $tempdata);
-			$tempdata = str_replace("{chantitle}", $channel['title'], $tempdata);
-			$tempdata = str_replace("{htmlurl}", htmlentities($channel['htmlurl']), $tempdata);
-			echo $tempdata;			
+			$tempdata = str_replace("{chantitle}", $sub->channel->title, $tempdata);
+			$tempdata = str_replace("{htmlurl}", htmlentities($sub->channel->link), $tempdata);
+			echo $tempdata;
 		}
 	} else {
 		echo "Subscription list empty";
@@ -104,9 +100,9 @@ EOD;
 /* function to be called while displaying the channel edit form
 arg : channel, an array of feeds (got from opml functions)
 */
-function displayChannelEditForm($channels) {
+function displayChannelEditForm($subs) {
 
-	$channelcount = count($channels);
+	$channelcount = count($subs);
 
 	if ($channelcount > 0) {
 
@@ -132,9 +128,9 @@ function displayChannelEditForm($channels) {
 			<div class="col2"><input name="refreshtime" id="refreshtime{i}" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes</div>
 			<div class="col1"><label for="showeditems{i}">Displayed items:</label></div>
 			<div class="col2"><input name="showeditems" id="showeditems{i}" type="text" size="4" value="{showeditems}"/></div>
-	
+
 			<div class="savepanel">
-				<input type="button" name="save" value="Save" onclick="saveChannel({i}, this.form); return false;"/>&nbsp;
+				<input type="button" name="save" value="Save" onclick="saveChannel('{i}', this.form); return false;"/>&nbsp;
 				<input type="reset" name="reset" value="Reset"/>
 				<div id="opresult{i}" class="opresult">
 				</div>
@@ -144,24 +140,24 @@ function displayChannelEditForm($channels) {
 </div>
 EOD;
 
-		foreach($channels as $key => $channel) {
+		foreach($subs as $id => $sub) {
 			/* then the form */
 			$tempdata = '';
-			$tempdata = str_replace("{i}", $channel['opmlindex'], $formhtmldata);
-			
+			$tempdata = str_replace("{i}", $sub->channel->id, $formhtmldata);
+
 			$tempdata = str_replace("{zfurl}", ZF_URL, $tempdata);
-			$tempdata = str_replace("{xmlurl}", htmlspecialchars($channel['xmlurl']), $tempdata);
-			$tempdata = str_replace("{description}", $channel['description'], $tempdata);
-			$tempdata = str_replace("{chantitle}", $channel['title'], $tempdata);
-			$tempdata = str_replace("{position}", $channel['position'], $tempdata);
-			$tempdata = str_replace("{refreshtime}", $channel['refreshtime'], $tempdata);
-			$tempdata = str_replace("{showeditems}", $channel['showeditems'], $tempdata);
-			if ($channel['issubscribed'] == 'yes') {
+			$tempdata = str_replace("{xmlurl}", htmlspecialchars($sub->channel->xmlurl), $tempdata);
+			$tempdata = str_replace("{description}", $sub->channel->description, $tempdata);
+			$tempdata = str_replace("{chantitle}", $sub->channel->title, $tempdata);
+			$tempdata = str_replace("{position}", $sub->position, $tempdata);
+			$tempdata = str_replace("{refreshtime}", $sub->refreshTime, $tempdata);
+			$tempdata = str_replace("{showeditems}", $sub->shownItems, $tempdata);
+			if ($sub->isSubscribed) {
 				$tempdata = str_replace('{issubscribed}', 'checked="checked"', $tempdata);
 			} else {
 				$tempdata = str_replace('{issubscribed}', '', $tempdata);
 			}
-			echo $tempdata;			
+			echo $tempdata;
 		}
 	}
 }
@@ -191,9 +187,9 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 	echo '<div id="core">';
 	if ($list->load()) {
 
-		$list->options['viewmode'] = $_POST["zfviewmode"];
-		$list->options['trimtype'] = $_POST["zftrimtype"];
-		$list->options['trimsize'] = $_POST["zftrimsize"];
+		$list->viewMode = $_POST["zfviewmode"];
+		$list->trimtype = $_POST["zftrimtype"];
+		$list->trimSize = $_POST["zftrimsize"];
 		if ($list->save()) {
 			displayStatus($list->lastResult);
 		} else {
@@ -211,10 +207,10 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 		// make a copy
 		//$newList = $list;
 		echo "Deleting feeds <ul>";
-		$initialCount = count($list->channels);
+		$initialCount = count($list->subscription);
 		for($i = 0;$i < $initialCount; $i++) {
 			if ($_POST["actionbox$i"] == 'checkbox') {
-				echo '<li>'.$list->channels[$i]['title'].'</li>';
+				echo '<li>'.$list->subscriptions[$i]->channel->title.'</li>';
 				/*also delete the history file
 				$hst = new history($list->channels[$i]['xmlurl']);
 				$hst->delete();*/
@@ -278,28 +274,28 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 } elseif ($_POST['move'] == 'move') {
 	echo '<div id="core">';
 	$targetList = new opml($_POST['zfdestlist']);
-	
+
 	if ($list->load() && $targetList->load()) {
 
 		$done = 0;
 		$nextpos = $targetList->getNextPosition();
-		
+
 		/* see which feeds have been selected */
 		echo "Moving channels to <strong>".$targetList->name."</strong><ul>";
-		$initialCount = count($list->channels) ;
-		
+		$initialCount = count($list->subscriptions) ;
+
 		for($i = 0;$i < $initialCount;$i++) {
 			if ($_POST["actionbox$i"] == 'checkbox') {
-				$movingChannel = $list->channels[$i];
-				echo '<li>'.$movingChannel['title'].'</li>';
-				$movingChannel['position'] = $nextpos++;
-				$targetList->channels[] = $movingChannel;
+				$movingSub = $list->subscriptions[$i];
+				echo '<li>'.$movingSub->channel->title.'</li>';
+				$movingSub->position = $nextpos++;
+				$targetList->addSubscription($movingSub);
 				$list->removeChannelAtPos($i);
 				$done++;
 			}
 		}
 		echo "</ul>";
-		
+
 		if ($done > 0) {
 			if ($targetList->save()) {
 				if ($list->save()) {
@@ -309,7 +305,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 					displayStatus($list-lastError);
 					displayGotoButton($list->name);
 				}
-				
+
 			} else {
 				displayStatus($targetList->lastError);
 				displayGotoButton($targetList->name);
@@ -317,7 +313,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 		} else {
 			displayStatus("No channel selected");
 		}
-		
+
 	} else {
 		displayStatus("Error opening the subscription list(s) for reading !");
 	}
@@ -328,16 +324,16 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 } elseif ($_POST['copy'] == 'copy') {
 	echo '<div id="core">';
 	$targetList = new opml($_POST['zfdestlist']);
-	
+
 	if ($list->load() && $targetList->load()) {
 
 		$done = 0;
 		$nextpos = $targetList->getNextPosition();
-		
+
 		/* see which feeds have been selected */
 		echo 'Copying channels to <strong>'.$targetList->name."</strong><ul>";
 		$initialCount = count($list->channels) ;
-		
+
 		for($i = 0;$i < $initialCount;$i++) {
 			if ($_POST["actionbox$i"] == 'checkbox') {
 				$movingChannel = $list->channels[$i];
@@ -348,7 +344,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 			}
 		}
 		echo '</ul>';
-		
+
 		if ($done > 0) {
 			if ($targetList->save()) {
 				displayStatus($targetList->lastResult);
@@ -360,7 +356,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 		} else {
 			displayStatus("No channel selected");
 		}
-		
+
 	} else {
 		displayStatus("Error opening the subscription list(s) for reading !");
 	}
@@ -371,14 +367,14 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 //----------------------------------------------------------------------------
 /* default case : display channels list, with list control form on top */
 
-	
+
 ?>
 	<div id="core">
 	<div id="listsform">
 		<form name="zflists" action="<?php echo $_SERVER['PHP_SELF'];?>?zfaction=subscriptions" method="post">
 			<?php
 				if (!empty($currentListName)) {
-					
+
 				?>
 				Display list:
 			<select name="zflist" onchange="this.form.submit();">
@@ -401,13 +397,13 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 	</form>
 	</div>
 
-  
+
 <?php
 	if ($list->load() ) {
-		if ($list->options['viewmode'] == 'feed' ) {
-			$sortedChannels = sortChannelsByPosition($list->channels);
+		if ($list->viewMode == 'feed' ) {
+			$sortedChannels = sortChannelsByPosition($list->subscriptions);
 		} else {
-			$sortedChannels = sortChannelsByName($list->channels);
+			$sortedChannels = sortChannelsByName($list->subscriptions);
 		}
 ?>
 		<script type="text/javascript">
@@ -426,7 +422,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 					} else {
 						currentid = id;
 						toggleVisibleById('editform' + currentid);
-						
+
 					}
 					//document.getElementById('title' + currentid).scrollIntoView(true);
 					document.getElementById('editform' + currentid).top = 25;
@@ -437,27 +433,27 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 				//savebutton = document.getElementById('editform' + currentid).elements["save"];
 				//savebutton.disabled = false;
 			}
-			
+
 			function toggleChecks() {
 				void(d=document);
 				void(el=d.getElementsByTagName('INPUT'));
-				for(i=0;i<el.length;i++) { 
-					if(document.subscriptionsform.checkboxall.checked==1) { 
-						void(el[i].checked=1) 
+				for(i=0;i<el.length;i++) {
+					if(document.subscriptionsform.checkboxall.checked==1) {
+						void(el[i].checked=1)
 					} else {
 						void(el[i].checked=0)
 					}
 				}
 			}
-			
+
 			function onUpdateViewMode(index) {
-				switch (index) { 
-					case 1: 
-						document.getElementById('trimoptions').style.display='inline'; 
+				switch (index) {
+					case 1:
+						document.getElementById('trimoptions').style.display='inline';
 						break;
 
 					default:
-						document.getElementById('trimoptions').style.display='none'; 
+						document.getElementById('trimoptions').style.display='none';
 						break;
 				}
 			}
@@ -467,19 +463,19 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 				var title  = encodeURIComponent(aform.elements["chantitle"].value);
 				var xmlurl = encodeURIComponent(aform.elements["xmlurl"].value);
 				var description = encodeURIComponent(aform.elements["description"].value);
-				
+
 				var position = aform.elements["position"].value;
 				if (aform.elements["issubscribed"].checked) {
 					var issubscribed = 'yes';
-				} else { 
+				} else {
 					var issubscribed = 'no';
 				}
 				var showeditems = aform.elements["showeditems"].value;
 				var refreshtime = aform.elements["refreshtime"].value;
-				
+
 				savebutton = aform.elements["save"];
 				savebutton.disabled = true;
-				
+
 				var statusbox = document.getElementById('opresult'+id);
 				statusbox.style.display = 'none';
 				statusbox.innerHTML = '';
@@ -489,23 +485,23 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 				channeldata[0] = id;
 				channeldata[1] = aform.elements["chantitle"].value;
 				channeldata[2] = issubscribed;
-				
+
 				http.open('POST', 'cmd.php', true);
 				http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-				
+
 				http.onreadystatechange = onSaveCallback;
-				var query= "action=savechannel&index=" + id
-								+ "&list=" + encodeURIComponent('<?php echo $currentListName; ?>') 
+				var query= "action=savechannel&id=" + id
+								+ "&list=" + encodeURIComponent('<?php echo $currentListName; ?>')
 								+ "&title=" + title
 								+ "&xmlurl=" + xmlurl
 								+ "&description=" + description
 								+ "&position=" + position
 								+ "&issubscribed=" + issubscribed
-								+ "&showeditems=" + showeditems
+								+ "&shownitems=" + showeditems
 								+ "&refreshtime=" + refreshtime;
 				http.send(query);
 			}
-			
+
 			function onSaveCallback() {
 				if (http.readyState == 4) { // Complete
 					if (http.status == 200) { // OK response
@@ -534,16 +530,16 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 				<div id="listsettings">
 					Default view
 					<select name="zfviewmode" onchange="index=this.selectedIndex; onUpdateViewMode(index);">
-						<option value="feed" <?php echo ($list->options['viewmode'] == 'feed') ? 'selected="selected"' : '';?> >By channel</option>
-						<option value="trim" <?php echo ($list->options['viewmode'] == 'trim') ? 'selected="selected"' : '';?> >View only last...</option>
-						<option value="date" <?php echo ($list->options['viewmode'] == 'date') ? 'selected="selected"' : '';?> >By date - view all news</option>
+						<option value="feed" <?php echo ($list->viewMode == 'feed') ? 'selected="selected"' : '';?> >By channel</option>
+						<option value="trim" <?php echo ($list->viewMode == 'trim') ? 'selected="selected"' : '';?> >View only last...</option>
+						<option value="date" <?php echo ($list->viewMode == 'date') ? 'selected="selected"' : '';?> >By date - view all news</option>
 					</select>
-					<div id="trimoptions" style="display: <?php echo ($list->options['viewmode'] == 'trim')? 'inline' : 'none'; ?>">
-						<input name="zftrimsize" type="text" size="3" value="<?php echo $list->options['trimsize']; ?>"/>
+					<div id="trimoptions" style="display: <?php echo ($list->viewMode == 'trim')? 'inline' : 'none'; ?>">
+						<input name="zftrimsize" type="text" size="3" value="<?php echo $list->trimSize; ?>"/>
 						<select name="zftrimtype">
-							<option value="days" <?php echo ($list->options['trimtype'] == 'days') ? 'selected="selected"' : '';?> >days</option>
-							<option value="news" <?php echo ($list->options['trimtype'] == 'news') ? 'selected="selected"' : '';?> >news</option>
-							<option value="hours" <?php echo ($list->options['trimtype'] == 'hours') ? 'selected="selected"' : '';?> >hours</option>
+							<option value="days" <?php echo ($list->trimType == 'days') ? 'selected="selected"' : '';?> >days</option>
+							<option value="news" <?php echo ($list->trimType == 'news') ? 'selected="selected"' : '';?> >news</option>
+							<option value="hours" <?php echo ($list->trimType == 'hours') ? 'selected="selected"' : '';?> >hours</option>
 						</select>
 					</div>
 					<div class="listctrl">
@@ -553,7 +549,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 				</div>
 				<div id="chancolumn">
 					<div id="chancolumnheader">
-					<?php echo ($list->options['viewmode'] == 'feed')?'<span class="chanlistcheck">
+					<?php echo ($list->viewMode == 'feed')?'<span class="chanlistcheck">
 						<small><em>Sorted by position</em></small> </span><br/><br/>':'';?>
 						<input type="checkbox" name="checkboxall" value="checkbox" title="check/uncheck all" onclick="Javascript:toggleChecks()"/> <em>toggle all</em>
 					</div>
@@ -570,15 +566,15 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 						<div>
 					<?php  $liststr = listExceptCateg($currentListName);
 					  if (strlen($liststr) > 0) { ?>
-							
+
 							=&gt; To list&nbsp;
 							<select name="zfdestlist">
 							<?php
 								echo listExceptCateg($currentListName);
 							?>
 							</select>
-							<input name="copy" type="submit" id="copy" value="copy" onclick="if (!confirm('Are you sure you want to copy the selected feeds?')) {return false;}"/> 
-							<input name="move" type="submit" id="move" value="move" onclick="if (!confirm('Are you sure you want to move the selected feeds?')) {return false;}"/> 
+							<input name="copy" type="submit" id="copy" value="copy" onclick="if (!confirm('Are you sure you want to copy the selected feeds?')) {return false;}"/>
+							<input name="move" type="submit" id="move" value="move" onclick="if (!confirm('Are you sure you want to move the selected feeds?')) {return false;}"/>
 
 							<div style="display: inline-block; margin-left: 40px;">
 							<input name="delete" type="submit" id="delete" value="delete" onclick="if (!confirm('Are you sure you want to delete the selected feeds?')) {return false;}"/>
@@ -590,7 +586,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 			</form>
 			<div id="editcolumn" >
 				<?php displayChannelEditForm($sortedChannels);?>
-			</div>  
+			</div>
 
 		</div>
 	</div>
@@ -600,5 +596,5 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 			displayStatus($list->lastError);
 			echo '</div>';
 	}
- } 
+ }
 ?>
