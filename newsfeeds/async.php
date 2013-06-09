@@ -66,12 +66,12 @@ sum: 1 summary included in news item header, 0 no summary (default)
 
 trim: how to shorten the number of items when getting a list, to get only news
 	  or the last hour, since 4 days, or only new ones.
-	  only when q=list. Allowed values are:
-	           none (default), <N>days, <N>hours,
+	  only when q=list. Allowed values override list settings and are:
+	          none, auto (default - use list settings), <N>days, <N>hours,
               <N>news, today, yesterday, onlynew
 
 	  when q=channel allowed values are:
-	           none (show all), auto (default), <N>news
+	           none (show all), auto (default, use subscription setting), <N>news
  */
 
 /* record a visit for operations that resend a list of news
@@ -134,8 +134,8 @@ switch ($type) {
 		break;
 
 	case 'list':
-		$trim = isset($_GET['trim']) ? $_GET['trim'] : 'none';
-		if ($trim!='none') $zf_aggregator->setTrimString($trim);
+		$trim = isset($_GET['trim']) ? $_GET['trim'] : 'auto';
+		if ($trim!='auto') $zf_aggregator->setTrimString($trim);
 		$zf_aggregator->printListByDate();
 		break;
 
@@ -181,4 +181,3 @@ switch ($type) {
 }
 
 
-?>
