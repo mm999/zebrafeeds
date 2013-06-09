@@ -230,4 +230,3 @@ function getRelativeTime($date_ts) {
 }
 
 
-?>

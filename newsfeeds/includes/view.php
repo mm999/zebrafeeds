@@ -254,4 +254,3 @@ class TemplateView extends AbstractFeedView{
 	}
 }
 
-?>

@@ -182,10 +182,3 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
 
 }
 
-
-
-
-
-
-
-?>

@@ -71,4 +71,3 @@ if (ZF_RENDERMODE == 'automatic') {
 	zf_debug("Using manual mode");
 }
 
-?>
