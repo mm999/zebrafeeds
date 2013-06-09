@@ -293,34 +293,35 @@ class AggregatedFeed extends AbstractFeed {
 				}
 			}
 
-			if ($this->_feedOptions->trimType == 'hours' || $this->_feedOptions->trimType =='days') {
-				// consider onlyrecent items
-				zf_debug( "comparing item date ".date("F j, Y, g:i a",$itemts)."(".$itemts.") to earliest wanted ". $this->_earliest ." : ".date("F j, Y, g:i a",$this->_earliest), DBG_AGGR);
+			if ($this->_feedOptions->trimType !== 'none') {
+				if ($this->_feedOptions->trimType == 'hours' || $this->_feedOptions->trimType =='days') {
+					// consider onlyrecent items
+					zf_debug( "comparing item date ".date("F j, Y, g:i a",$itemts)."(".$itemts.") to earliest wanted ". $this->_earliest ." : ".date("F j, Y, g:i a",$this->_earliest), DBG_AGGR);
 
-				if ( $itemts >= $this->_earliest) {
-					zf_debug( 'Item within time frame', DBG_AGGR);
-				} else {
-					zf_debug( 'Item outside time frame', DBG_AGGR);
-					continue;
+					if ( $itemts >= $this->_earliest) {
+						zf_debug( 'Item within time frame', DBG_AGGR);
+					} else {
+						zf_debug( 'Item outside time frame', DBG_AGGR);
+						continue;
+					}
+				} else if($this->_feedOptions->trimType == 'today') {
+					if ($itemts < $todayts ) {
+						zf_debug('Item is not from today. Skipped.'.$itemts.' lower than '.$todayts, DBG_AGGR);
+						continue;
+					}
+				} else if($this->_feedOptions->trimType == 'yesterday') {
+					if ($itemts >= $todayts || $itemts < $yesterdayts) {
+						zf_debug('Item is not from yesterday. Skipped.', DBG_AGGR);
+						continue;
+					}
+				} else if($this->_feedOptions->trimType == 'onlynew') {
+					if ( ! $item->isnew ) {
+						zf_debug('Item is not new/unseen. Skipped.', DBG_AGGR);
+						continue;
+					}
 				}
-			} else if($this->_feedOptions->trimType == 'today') {
-				if ($itemts < $todayts ) {
-					zf_debug('Item is not from today. Skipped.'.$itemts.' lower than '.$todayts, DBG_AGGR);
-					continue;
-				}
-			} else if($this->_feedOptions->trimType == 'yesterday') {
-				if ($itemts >= $todayts || $itemts < $yesterdayts) {
-					zf_debug('Item is not from yesterday. Skipped.', DBG_AGGR);
-					continue;
-				}
-			} else if($this->_feedOptions->trimType == 'onlynew') {
-				if ( ! $item->isnew ) {
-					zf_debug('Item is not new/unseen. Skipped.', DBG_AGGR);
-					continue;
-				}
+				zf_debug( 'Item passes timeframe check', DBG_AGGR);
 			}
-			zf_debug( 'Item passes timeframe check', DBG_AGGR);
-
 			// last check: do we need to match, and does this news match
 			if ( strlen($this->matchExpression) > 0) {
 
@@ -410,5 +411,3 @@ function zf_cleanupDate($datestr) {
 
 }
 
-
-?>
