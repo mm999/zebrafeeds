@@ -52,10 +52,10 @@ class aggregator {
 
 	public $errorLog;
 
-	// what will printMainView use, by feed or by date
+	// what will printMainView use, by feed or by date, or trimmed
 	private $_viewMode;
 
-	// feed options: only when viewmode is not feed
+	// feed options: how to trim for the Feed object
 	private $_feedOptions;
 	private $_view;
 
@@ -72,6 +72,7 @@ class aggregator {
 
 	public function __construct() {
 		$this->_feedOptions = new FeedOptions();
+		$this->_feedOptions->setTrim('auto', 0);
 		$this->channels = array();
 		$this->list = null;
 
@@ -125,14 +126,13 @@ class aggregator {
 				$this->list = $subscriptionsList;
 
 				/* sets the default options from the list.
-				Only used for printMainView*/
+				Only used for printMainView
+				can be date, feed or trim */
 				$this->_viewMode = $this->list->viewMode;
 
-				//we set this only if we have to trim. otherwise we might be forcing an unwanted trimming
-				if ($this->_viewMode == 'trim') {
-					$this->_feedOptions->setTrim($this->list->trimType,
-												$this->list->trimSize);
-				}
+				/* trimType will be news or days or hours */
+				$this->_feedOptions->setTrim($this->list->trimType,
+											 $this->list->trimSize);
 			} else {
 				echo '<strong>'.$subscriptionsList->lastError.'<br/>Make sure OPML file exists and is readable...</strong>';
 			}
@@ -140,7 +140,9 @@ class aggregator {
 	}
 
 
-	/* behavior settings */
+	/* tells which ordering mode to use when viewing a list
+	can override the list settings
+	values= feed or date*/
 	public function setViewMode($mode) {
 		$this->_viewMode = $mode;
 	}
@@ -175,7 +177,7 @@ class aggregator {
 	public function printMainView() {
 
 		if (count($this->list->subscriptions) > 0) {
-			zf_debug('Viewmode:'. $this->_viewMode, DBG_FEED);
+			zf_debug('Viewmode:'. $this->_viewMode, DBG_RENDER);
 
 
 			// sort if not by feed or if we want to match a string
@@ -213,7 +215,7 @@ class aggregator {
 		foreach($sortedChannels as $subscription) {
 			if ($subscription->isSubscribed) {
 				if (isset($subscription->channel->xmlurl) && trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
-					// this sub, auto, auto
+					//
 					$this->printSingleSubscribedChannel($sub, 'auto');
 				}
 			}
@@ -224,11 +226,6 @@ class aggregator {
 	 create a feed aggregating all channels
 	renders the feed by date */
 	public function printListByDate() {
-
-		//consistency check
-		if ($this->_viewMode != 'trim') {
-			$this->_feedOptions->trimType = 'none';
-		}
 
 		$this->buildAggregatedFeed();
 		if ($this->list != null) {
@@ -266,9 +263,8 @@ class aggregator {
 	/* output a single channel, obtained by position
 	 pos : position in the list
 	 $mode: 'auto', 'refresh', 'cache'
-	 $max: number of channel's items,
-	 	0: auto from subscription list
-	 	-1 is all
+	 $wantSummary: do we want summary included? default false
+
 	 */
 	public function printSingleSubscribedChannel($sub, $mode, $wantSummary=false) {
 
@@ -291,20 +287,37 @@ class aggregator {
 
 		zf_debug("viewing channel ".$sub->__toString(), DBG_RENDER);
 
-//TODO		$this->_feed->setTrim(Options->trimType != 'none') {
+/*
+	 if we get here, it's either
+	 - async request: viewMode does not matter (feed or trim),
+	                  trimType can be auto (if default) or news
+	                -> if trimType is auto, trim feed to "$sub->shownItems" items
+	                -> otherwise, trim feed to "$this->feedOptions" items
+	 - printMainView: viewMode is feed then trimType is auto
+	                -> trim feed to "$this->feedOptions" items
 
-		if ($this->_feedOptions->trimType != 'none') {
-			/* (trimType,trimSize) is either
-			 ('auto',0) => use subscription value for trimSize
+
+		(trimType,trimSize) is either
+		 ('auto',0) => use subscription value for trimSize
 			 OR
-			 ('news', <N>) => trim to trimSize
-			 */
-			if ($this->_feedOptions->trimSize > 0) {
-				zf_debug('Triming to items: '.$this->_feedOptions->trimSize);
-				$this->_feed->trimItems($this->_feedOptions->trimSize);
-			} else if ($this->_feedOptions->trimSize == 0) {
-				zf_debug('Triming to items: '.$sub->shownItems);
-				$this->_feed->trimItems($sub->shownItems);
+		 ('news', <N>) => trim to trimSize
+
+*/
+		if ($this->_feed) {
+
+			switch ($this->_feedOptions->trimType) {
+				case 'auto':
+					zf_debug('Trimming to subscription shownItems: '.$sub->shownItems, DBG_AGGR);
+					$this->_feed->trimItems($sub->shownItems);
+					break;
+				case 'news':
+					zf_debug('Trimming to requested nr of items: '.$this->_feedOptions->trimSize, DBG_AGGR);
+					$this->_feed->trimItems($this->_feedOptions->trimSize);
+					break;
+				case 'none':
+					zf_debug('No trimming', DBG_AGGR);
+					break;
+
 			}
 
 			if ($this->list != null) {
@@ -323,7 +336,7 @@ class aggregator {
 			$this->view->summaryInFeed = $wantSummary;
 			$this->view->renderFeed();
 		} else {
-			zf_debug('Internal error. no feed loaded.');
+			zf_debug('Internal error. no feed loaded.', DBG_AGGR);
 		}
 
 	}
@@ -553,5 +566,3 @@ class aggregator {
 }
 
 
-
-?>
