@@ -91,11 +91,12 @@ class FeedHandler {
 
 		if ($this->_feed) {
 			/* detect new yet unseen items
-			this happens now, because this feed is already in the cache and it makes
-			no sens to use the cached value of "isNew" */
+			this happens now, because when this feed is already in the cache
+			it makes no sense to use the cached value of "isNew" */
 			$history->markNewFeedItems($this->_feed->items, $this->lastvisit, $this->now);
 			$history->purge();
 		}
+
 		unset($history);
 
 		// in case of Error

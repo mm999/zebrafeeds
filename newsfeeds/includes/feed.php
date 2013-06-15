@@ -28,7 +28,7 @@ require_once($zf_path . 'includes/history.php');
 
 abstract class AbstractFeed {
 	// aggregated, normalized items
-	// if we aggregate several feeds, index is timestamp
+	// if we aggregate several feeds, index is numeric position in the array
 	public $items;
 	public $publisher;
 	public $last_fetched = 0;
@@ -335,6 +335,8 @@ class AggregatedFeed extends AbstractFeed {
 
 			// finally add our item to the news array
 			zf_debug('Item merged', DBG_AGGR);
+
+			// dont use addItem not to call the filter callback again
 			array_push($this->items, $item);
 
 			$itemcount++;
