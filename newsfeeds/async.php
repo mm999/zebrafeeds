@@ -124,7 +124,7 @@ switch ($type) {
 
 	case 'channel':
 		$trim = isset($_GET['trim']) ? $_GET['trim'] : 'auto';
-		if ($trim != 'none') $zf_aggregator->setTrimString($trim);
+		if ($trim != 'auto') $zf_aggregator->setTrimString($trim);
 
 		//$numItems = isset($_GET['max']) ? $_GET['max'] : 0;
 		$mode = isset($_GET['mode']) ? $_GET['mode'] : 'auto';
