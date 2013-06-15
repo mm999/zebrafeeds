@@ -53,7 +53,7 @@ class aggregator {
 	public $errorLog;
 
 	// what will printMainView use, by feed or by date, or trimmed
-	private $_viewMode;
+	private $_mainViewMode;
 
 	// feed options: how to trim for the Feed object
 	private $_feedOptions;
@@ -80,7 +80,7 @@ class aggregator {
 		$this->view = null;
 
 		$this->errorLog = '';
-		$this->_viewMode = 'feed';
+		$this->_mainViewMode = 'feed';
 		/* lastvisit= absolute last time seen here */
 		$this->_visits['lastvisit'] = 0;
 		/* lastsessionend= the time of end of previous session */
@@ -128,7 +128,7 @@ class aggregator {
 				/* sets the default options from the list.
 				Only used for printMainView
 				can be date, feed or trim */
-				$this->_viewMode = $this->list->viewMode;
+				$this->_mainViewMode = $this->list->viewMode;
 
 				/* trimType will be news or days or hours */
 				$this->_feedOptions->setTrim($this->list->trimType,
@@ -144,14 +144,14 @@ class aggregator {
 	can override the list settings
 	values= feed or date*/
 	public function setViewMode($mode) {
-		$this->_viewMode = $mode;
+		$this->_mainViewMode = $mode;
 	}
 
 
 	/* changes the trimming options. Also forces the view mode to trim,
 	overruling the setting saved in the OPML list */
 	public function setTrim($trimtype, $trimsize) {
-		$this->_viewMode = 'trim';
+		$this->_mainViewMode = 'trim';
 		$this->_feedOptions->setTrim($trimsize, $trimtype);
 	}
 
@@ -164,6 +164,7 @@ class aggregator {
 
 
 	public function matchNews($expression) {
+		$this->_mainViewMode = 'trim';
 		$this->_feedOptions->matchExpression = $expression;
 	}
 
@@ -177,16 +178,16 @@ class aggregator {
 	public function printMainView() {
 
 		if (count($this->list->subscriptions) > 0) {
-			zf_debug('Viewmode:'. $this->_viewMode, DBG_RENDER);
+			zf_debug('Viewmode:'. $this->_mainViewMode, DBG_RENDER);
 
 
-			// sort if not by feed or if we want to match a string
-			if (($this->_viewMode != 'feed') || !empty($this->_feedOptions->matchExpression)) {
+			// by date if not explicitly by feed
+			if ($this->_mainViewMode != 'feed') {
 				$this->printListByDate();
 			} else {
 				$this->printListByChannel();
 			}
-			//$this->_template->printFooter();
+
 		} else {
 			$this->printStatus('No feeds');
 		}
@@ -204,17 +205,15 @@ class aggregator {
 		/*if we have feeds to display */
 		$subs = $this->list->subscriptions;
 		foreach($subs as $i => $subscription) {
-			if ($subscription->channel->xmlurl != '') {
-				// change the array key to be the position
-				$sortedChannels[$subscription->position] = $subscription;
-			}
+			// change the array key to be the position
+			$sortedChannels[$subscription->position] = $subscription;
 		}
 		ksort($sortedChannels);
 		//print_r($sortedChannels);
 
 		foreach($sortedChannels as $subscription) {
 			if ($subscription->isSubscribed) {
-				if (isset($subscription->channel->xmlurl) && trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
+				if (trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
 					//
 					$this->printSingleSubscribedChannel($sub, 'auto');
 				}
