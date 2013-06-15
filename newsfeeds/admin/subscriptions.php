@@ -126,8 +126,8 @@ function displayChannelEditForm($subs) {
 			<div class="col2"><input name="position" id="position{i}" type="text" size="3" value="{position}"/></div>
 			<div class="col1"><label for="refreshtime{i}">Refresh time:</label> </div>
 			<div class="col2"><input name="refreshtime" id="refreshtime{i}" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes</div>
-			<div class="col1"><label for="showeditems{i}">Displayed items:</label></div>
-			<div class="col2"><input name="showeditems" id="showeditems{i}" type="text" size="4" value="{showeditems}"/></div>
+			<div class="col1"><label for="shownitems{i}">Displayed items:</label></div>
+			<div class="col2"><input name="shownitems" id="shownitems{i}" type="text" size="4" value="{shownitems}"/></div>
 
 			<div class="savepanel">
 				<input type="button" name="save" value="Save" onclick="saveChannel('{i}', this.form); return false;"/>&nbsp;
@@ -151,7 +151,7 @@ EOD;
 			$tempdata = str_replace("{chantitle}", $sub->channel->title, $tempdata);
 			$tempdata = str_replace("{position}", $sub->position, $tempdata);
 			$tempdata = str_replace("{refreshtime}", $sub->refreshTime, $tempdata);
-			$tempdata = str_replace("{showeditems}", $sub->shownItems, $tempdata);
+			$tempdata = str_replace("{shownitems}", $sub->shownItems, $tempdata);
 			if ($sub->isSubscribed) {
 				$tempdata = str_replace('{issubscribed}', 'checked="checked"', $tempdata);
 			} else {
@@ -470,7 +470,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 				} else {
 					var issubscribed = 'no';
 				}
-				var showeditems = aform.elements["showeditems"].value;
+				var shownitems = aform.elements["shownitems"].value;
 				var refreshtime = aform.elements["refreshtime"].value;
 
 				savebutton = aform.elements["save"];
@@ -497,7 +497,7 @@ if ( ($_POST['save'] == 'save changes') || ($_POST['save2'] == 'save changes') )
 								+ "&description=" + description
 								+ "&position=" + position
 								+ "&issubscribed=" + issubscribed
-								+ "&shownitems=" + showeditems
+								+ "&shownitems=" + shownitems
 								+ "&refreshtime=" + refreshtime;
 				http.send(query);
 			}
