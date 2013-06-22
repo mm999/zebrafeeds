@@ -1,0 +1,126 @@
+@sidebar_width: 200px;
+@main_padding: 15px;
+#zebrabar {
+    width: @sidebar_width;
+    
+    -webkit-transform: translate(-@sidebar_width, 0);
+    transform: translate(-@sidebar_width, 0);
+    
+    &> ul > li {
+        margin-bottom: @main_padding;
+        &> a {
+            font-size: 12pt;
+            height: 35px;
+            line-height: 35px;
+        }
+        &> .expandr {
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+        }
+    }
+}
+
+
+.itemtitle {
+    font-size: 10pt;
+    margin: 0;
+}
+
+.newstitlelist {
+    line-height: 13pt;
+/*  padding: 0;*/
+}   
+
+#zfOverlay {
+
+}
+#zffixednews {
+    margin: 0;
+    min-height: 500px;
+    border: none;
+    img {
+        max-width: 93%;
+    }
+    #newsContent {
+        height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+        
+    }
+}
+
+#zfbartitle {
+    display: block;
+    left: -200px;
+    height: 40px;
+    top: 0;
+    left: 0;
+}
+
+#slideContainer {
+    width: 200%;
+    position:   relative;
+}
+
+.zfchannelbox {
+    box-shadow: none;
+    margin: 0;
+}
+
+.channel {
+    border-radius: 0;
+    padding: 12px 5px;
+}
+.feed {
+    overflow-x: hidden;
+    overflow-y: auto;
+    .page {
+        padding: 0 @main_padding;
+        .item {
+            &.h-60, &.h-40, &.w-30,
+            &.w-60, &.w-40 {
+                height: auto;
+                width: 100%;
+                padding: 10px 0;
+            }
+            &.box-b-r {
+                border-right: none;
+            }
+            .newstitle {
+                font-size: 10pt;
+                margin: 0;
+            }
+            .newsdesc, &:after {
+                display: none;
+            }
+        }
+    }
+    .enclosure { display: none; }
+}
+
+.chanlink {
+    font-size: 15pt;
+    margin: 0;
+}
+#wrapper {
+    overflow: hidden;
+}
+#wrapper > section > header {
+/*    position: fixed;*/
+    position: absolute;
+    z-index: 199;
+    transition: box-shadow .2s linear;
+    -webkit-transition: box-shadow .2s linear;
+    text-align: left;
+    left: 0;
+    &.flying {
+        box-shadow: 0 0 4px rgba(0,0,0,.5);
+    }
+    
+    h1 {
+        margin: 0 auto;
+        width: 80%;
+    }
+    
+}
