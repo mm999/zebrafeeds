@@ -6,6 +6,7 @@ has {dynamiclength} in "template header" area
 */
 
 var ZFURL="newsfeeds";
+var REQELEMENTID = 0;
 
 function getHTTPObject() {
 	var xmlhttp;
@@ -52,20 +53,13 @@ function handleResponse() {
 
 		if (http.status == 200) { // OK response
 
-			/* split according to our separator */
-			results = http.responseText.split("|,|,|");
-
 			//alert(results);
-			element = parent.document.getElementById(results[0]);
-			if (element == null) {
-				element = document.getElementById(results[0]);
-			}
-
+			element = parent.document.getElementById(REQELEMENTID);
 
 			if (element == null) {
 				alert('Problem with response: ' + http.responseText);
 			} else {
-				element.innerHTML = results[1];
+				element.innerHTML = http.responseText;
 			}
 
 
@@ -83,18 +77,20 @@ function zf_getArticle(chanid, itemid, outputelementid) {
 		// we have to output in another div
 	requestparams = "q=item&id=" + chanid + "&itemid=" + itemid;
 	requestContent(requestparams);
+	REQELEMENTID = outputelementid;
 }
 
 
 function zf_getAllNews(chanid,refreshtime, outputelementid) {
 	requestparams = "q=channel&trim=none&id=" + chanid;
 	requestContent(requestparams);
+	REQELEMENTID = outputelementid;
 }
 
 function zf_getRefreshedNews(chanid,outputelementid) {
 	requestparams = "q=channel&trim=auto&mode=refresh&id=" + chanid ;
 	requestContent(requestparams);
-
+	REQELEMENTID = outputelementid;
 }
 
 
