@@ -25,7 +25,7 @@ require_once('newsfeeds/init.php');
 	<div id="wrapper">
 	    <div id="zfOverlay"></div>
 		<nav id="zebrabar">
-			<?php #require ('newsfeeds/zebrabar.php'); ?>
+			<?php //require ('newsfeeds/zebrabar.php'); ?>
 		</nav>
 		<section id="content">
 		    <header class="menuBar">

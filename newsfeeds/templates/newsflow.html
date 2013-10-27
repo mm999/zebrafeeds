@@ -111,17 +111,17 @@
 	right: 5px;
 }
 .datelabel a:link {
-	color: #621b2f; 
-	text-decoration: none; 
+	color: #621b2f;
+	text-decoration: none;
 }
 
 .datelabel a:visited {
-	color: #939393; 
-	text-decoration: none; 
+	color: #939393;
+	text-decoration: none;
 }
 
 .datelabel a:hover {
-	text-decoration: none; 
+	text-decoration: none;
 }
 
 
@@ -156,9 +156,9 @@
 
 .storycontent {
 	margin-top: 25px;
-	padding-left: 35px; 
-	padding-right:30px; 
-	padding-bottom: 20px; 
+	padding-left: 35px;
+	padding-right:30px;
+	padding-bottom: 20px;
 	font-size:14pt;
 	max-width: 80%;
 }
@@ -178,7 +178,10 @@
 }
 </style>
 
+<script type="text/javascript" src="newsfeeds/zfclientside.js"></script>
+
 <script type="text/javascript">
+var ZFTEMPLATE = 'newsflow';
 var ZFCURRENTNEWSID = 0;
 
 function toggleVisible(element, initial) {
@@ -202,7 +205,7 @@ function toggleVisibleById(id, initial) {
 
 /* all in one: fetch and show
 itemid is the zfeeder news item id, not the html element id
-outputid is the id of the element to send the output to. 
+outputid is the id of the element to send the output to.
 the server know what to do...
 */
 function showItem(feedurl, itemid, outputid) {
@@ -229,11 +232,11 @@ function highlightCurrent(newcurrentid) {
 			return;
 		}
 	}
-	/* finally, open the one the user clicked on, remember it for next time, 
+	/* finally, open the one the user clicked on, remember it for next time,
 	 and give it a border */
 	ZFCURRENTNEWSID = newcurrentid;
 	zfcurrentelement = newcurrentelement;
-	
+
 	zfcurrentelement.style.border = '2px solid #66c';
 	document.getElementById('HEAD' + ZFCURRENTNEWSID).style.backgroundColor = '#EFEFEF';
 	document.getElementById('TITLE' + ZFCURRENTNEWSID).style.color = '#AEAEAE';
@@ -244,12 +247,11 @@ function highlightCurrent(newcurrentid) {
 }
 
 </script>
-		
+
 <!-- ENDtemplateHeader -->
 
 
 <!-- header -->
-{dynamicnews}
 <div id="zfwrapper">
 <!-- ENDheader -->
 <!-- channel -->
@@ -261,7 +263,7 @@ function highlightCurrent(newcurrentid) {
 			last updated: {lastupdated}
 			<img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" style="border:0;" onclick="zf_getRefreshedNews('{feedurl}', 10, 0, 'NEWSLIST'+'{chanid}');" />
 			<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" style="border:0;" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
-		</div>		
+		</div>
 	</div>
 </div>
 <div class="newslist" id="NEWSLIST{chanid}">
@@ -270,7 +272,7 @@ function highlightCurrent(newcurrentid) {
 <div id="ITEM{itemid}">
 	<div class="newstitle" id="HEAD{itemid}">
 		<!-- this is the tricky bit, to have ajaxed news items -->
-		<span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{feedurl}','{itemid}');">{title}</span>
+		<span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{chanid}','{itemid}');">{title}</span>
 		<span class="datelabel">{relativedate}</span>
 	</div>
 	<div class="newsdesc" id="ZFCONTENT{itemid}">
@@ -288,9 +290,9 @@ function highlightCurrent(newcurrentid) {
 <!-- newsByDate -->
 <div id="ITEM{itemid}">
 <div class="newstitle" id="HEAD{itemid}">
-	{chanfavicon} <span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{feedurl}','{itemid}');">{title}</span> 
+	{chanfavicon} <span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{chanid}','{itemid}');">{title}</span>
 	<span class="chantitle"><a href="{link}">{chantitle}</a></span>
-	
+
 	<span class="datelabel">{relativedate}</span>
 </div>
 <div class="newsdesc" id="ZFCONTENT{itemid}">

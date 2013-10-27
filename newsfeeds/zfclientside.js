@@ -5,6 +5,8 @@ client side functions - ajax stuff, included only if the template
 has {dynamiclength} in "template header" area
 */
 
+var ZFURL="newsfeeds";
+
 function getHTTPObject() {
 	var xmlhttp;
 
@@ -33,7 +35,7 @@ function requestContent(requestparams) {
 	scripturl = ZFURL + "/async.php";
 
 	//http.onload = null;
-	http.open("GET", scripturl + '?zftemplate='+ ZFTEMPLATE + '&' + requestparams, true);
+	http.open("GET", scripturl + '?zftemplate='+ ZFTEMPLATE + '&f=html&' + requestparams, true);
 	//alert(scripturl + '?' + requestparams);
 
 	http.onreadystatechange = handleResponse;
@@ -74,26 +76,23 @@ function handleResponse() {
 
 
 /* lookup in <feedurl>, item with id <itemid>, and put it in <outputelementid>*/
-function zf_getArticle(feedurl, itemid, outputelementid) {
+function zf_getArticle(chanid, itemid, outputelementid) {
 	/* if the output element id exists in the document, then
 	 we have to send the result of the ajax query to a fixed
 	 CSS element whose id is outputelementid */
-	if (outputelementid != null && document.getElementById(outputelementid) )  {
 		// we have to output in another div
-		requestparams = "type=item&xmlurl=" + escape(feedurl) + "&outputelementid=" + outputelementid + "&itemid=" + itemid;
-		requestContent(requestparams);
-
-	}
-}
-
-
-function zf_getAllNews(feedurl,refreshtime, outputelementid) {
-	requestparams = "type=channelallitems&xmlurl=" + escape(feedurl) + "&refreshtime="+refreshtime+"&outputelementid=" + outputelementid;
+	requestparams = "q=item&id=" + chanid + "&itemid=" + itemid;
 	requestContent(requestparams);
 }
 
-function zf_getRefreshedNews(feedurl,showeditems,refreshtime,outputelementid) {
-	requestparams = "type=channelforcerefresh&xmlurl=" + escape(feedurl) + "&maxitems="+showeditems+ "&refreshtime="+refreshtime+"&outputelementid=" + outputelementid;
+
+function zf_getAllNews(chanid,refreshtime, outputelementid) {
+	requestparams = "q=channel&trim=none&id=" + chanid;
+	requestContent(requestparams);
+}
+
+function zf_getRefreshedNews(chanid,outputelementid) {
+	requestparams = "q=channel&trim=auto&mode=refresh&id=" + chanid ;
 	requestContent(requestparams);
 
 }
@@ -101,5 +100,4 @@ function zf_getRefreshedNews(feedurl,showeditems,refreshtime,outputelementid) {
 
 var http = getHTTPObject();
 
-// another global var, ZFURL will be defined on the fly
 

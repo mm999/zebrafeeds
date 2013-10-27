@@ -118,17 +118,17 @@
 	padding-top: 2px;
 }
 .datelabel a:link {
-	color: #621b2f; 
-	text-decoration: none; 
+	color: #621b2f;
+	text-decoration: none;
 }
 
 .datelabel a:visited {
-	color: #939393; 
-	text-decoration: none; 
+	color: #939393;
+	text-decoration: none;
 }
 
 .datelabel a:hover {
-	text-decoration: none; 
+	text-decoration: none;
 }
 
 
@@ -154,7 +154,7 @@
 	text-decoration: underline;
 }
 .newsbottom {
-	font-size: 80%; 
+	font-size: 80%;
 	margin-top:30px;
 }
 .articletitle {
@@ -180,11 +180,15 @@
 }
 
 </style>
+<script type="text/javascript" src="newsfeeds/zfclientside.js"></script>
+
+<script type="text/javascript">
+var ZFTEMPLATE = 'portal';
+</script>
 <!-- ENDtemplateHeader -->
 
 
 <!-- header -->
-{dynamicnews}
 <div id="zfwrapper">
 <!-- ENDheader -->
 <!-- channel -->
@@ -207,7 +211,7 @@
 <!-- news -->
 <div class="newsitem" id="ITEM{itemid}">
 	<div class="newstitle" id="HEAD{itemid}">
-		<a href="{articleurl}" class="{isnew}">{title}</a>&nbsp; 
+		<a href="{articleurl}" class="{isnew}">{title}</a>&nbsp;
 		<a href="{link}" title="{chantitle}">&raquo;&raquo;</a>&nbsp;<span class="datelabel">{relativedate}</span>
 	</div> <!-- end newstitle -->
 </div> <!-- end newsitem -->

@@ -39,7 +39,6 @@ class template {
 	private $newsByDate;
 	private $article;
 
-	private $isDynamic;
 	private $isInvalid;
 
 	// optional tags to convert
@@ -66,7 +65,6 @@ class template {
 		$this->newsByDate = '';
 		$this->article = '';
 
-		$this->isDynamic = false;
 		$this->isInvalid = false;
 
 		$this->_html = '';
@@ -105,8 +103,6 @@ class template {
 		$this->newsDayFooter  = $this->_extractSection('newsDayFooter', 'channelFooter', true);
 		$this->article	  	  = $this->_extractSection('article');
 
-		// dynamicnews tag can be either in pageHeader or in header
-		$this->isDynamic = strpos($this->header, '{dynamicnews}') || strpos($this->pageHeader, '{dynamicnews}');
 		// unset to free memory
 		unset($this->_html);
 	}
@@ -143,19 +139,12 @@ class template {
 	public function printPageHeader($feed) {
 		$this->_buffer = $this->pageHeader;
 		$this->_formatCommon();
-		$this->_formatDynamicCode();
 		$this->_printBuffer();
 	}
 
 	public function printHeader() {
 		$code = '';
-		if ($this->isDynamic) {
-			$code .= '<script type="text/javascript">var ZFURL="'.ZF_URL.'"; var ZFTEMPLATE="'.$this->name.'";</script>';
-			$this->_buffer = $code. "\n". $this->header;
-			$this->_formatDynamicCode();
-		} else {
-			$this->_buffer = $this->header;
-		}
+		$this->_buffer = $this->header;
 		$this->_formatCommon();
 		// allow options in this sections, for RSS feed generation
 		$this->_formatOptions();
@@ -170,11 +159,6 @@ class template {
 		$this->_printBuffer();
 	}
 
-
-	protected function _formatDynamicCode() {
-		$this->_buffer = str_replace('{dynamicnews}', '<script type="text/javascript" src="'.ZF_URL.'/zfclientside.js"></script>', $this->_buffer);
-
-	}
 
 
 	public function printNews($item) {
