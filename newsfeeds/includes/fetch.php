@@ -20,7 +20,7 @@
 //
 /*
 - check cache. if cache oK, read Feed object from cache
-- otherwise, fetch basic Feed object from either SimplePie or Magpie.
+- otherwise, fetch basic Feed object from either SimplePie.
    Feed object is then a simple data structure translation
 - process feed object, clean up dates and polish data
 - save to cache
@@ -31,11 +31,7 @@ require_once($zf_path . 'includes/feed.php');
 require_once($zf_path . 'includes/feed_cache.php');
 require_once($zf_path . 'includes/history.php');
 
-if (ZF_RSSPARSER == "magpie") {
-	require_once($zf_path . 'includes/magpie_fetch.php');
-} else {
-	require_once($zf_path . 'includes/simplepie_fetch.php');
-}
+require_once($zf_path . 'includes/simplepie_fetch.php');
 
 
 
@@ -47,7 +43,7 @@ if (ZF_RSSPARSER == "magpie") {
 
 	$refreshtime argument is expected to be in minutes
 
-	should be the only call to magpie or simplepie
+	should be the only call to simplepie
 
 	if refreshtime == -1 (infinite): force the use of the cached version
 	if refreshtime == 0	 : force refresh from publisher's website
@@ -56,11 +52,6 @@ if (ZF_RSSPARSER == "magpie") {
 	returns an object of the Feed class
  */
 function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) {
-
-	if (ZF_RSSPARSER == "magpie") {
-		// initialize constants
-		init();
-	}
 
 	if ( empty($channelDesc->xmlurl) ) {
 		error("zf_fetch_rss called without a url");
@@ -77,7 +68,7 @@ function zf_fetch_rss($channelDesc, $feedHistory, $refreshtime, &$resultString) 
 	// 4. if remote fails, return stale object, or error
 
 		/* ZF change here: instead of a constant, use our variable
-		magpieRSS cache age is in seconds, but $refreshtime is in minutes */
+		RSS cache age is in seconds, but $refreshtime is in minutes */
 
 	//debug("Refresh:".$refreshtime , E_USER_WARNING);
 	$cache = new FeedCache( ZF_CACHEDIR, $refreshtime*60 );

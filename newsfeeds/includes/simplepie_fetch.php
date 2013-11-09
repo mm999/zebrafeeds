@@ -20,7 +20,8 @@
 
 if (!defined('ZF_VER')) exit;
 
-require_once($zf_path . 'includes/simplepie.inc');
+require_once($zf_path . 'includes/SimplePie/SimplePieAutoLoader.php');
+require_once($zf_path . 'includes/SimplePie/SimplePie.php');
 require_once($zf_path . 'includes/feed.php');
 
 
