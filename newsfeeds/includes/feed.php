@@ -152,24 +152,24 @@ class AggregatedFeed extends AbstractFeed {
 	private $_earliest;
 
 	// when the feed is virtual, this is the name of the list
-	private $listName;
-	private $list;
+	private $tag;
+	private $subscription;
 
 	public $shownItems;
 
 	/* this feed is an aggregation of feeds from a list
 	   this method initializes this
 	 */
-	public function __construct($subscriptionList) {
+	public function __construct($tag) {
 
-		parent::__construct(ZF_URL.'?f=rss&zflist='.urlencode($this->listName));
-		$this->listName = $subscriptionList->name;
+		parent::__construct(ZF_URL.'?f=rss&tag='.urlencode($tag));
+		$this->tag = $tag;
 
 		$this->_earliest = 0;
 
-		$this->publisher->title = (ZF_OWNERNAME ==""?"":ZF_OWNERNAME." - ").$this->listName;
+		$this->publisher->title = (ZF_OWNERNAME ==""?"":ZF_OWNERNAME." - ").$this->tag;
 		//TODO: make RSS address prettier
-		$this->publisher->link = ZF_HOMEURL.'?zflist='.urlencode($this->listName);
+		$this->publisher->link = ZF_HOMEURL.'?zflist='.urlencode($this->tag);
 		$this->publisher->id = zf_makeId($this->publisher->xmlurl,'');
 
 

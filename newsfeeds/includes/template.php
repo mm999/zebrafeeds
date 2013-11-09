@@ -183,7 +183,7 @@ class template {
 	public function printArticle($item) {
 		$this->_buffer = $this->article;
 		$this->_formatCommon();
-		$this->_formatChannel($item->channel);
+		$this->_formatChannel($item->publisher);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 	}

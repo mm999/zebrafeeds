@@ -45,10 +45,8 @@ class aggregator {
 	// might come from an OPML list, or not
 	public $channels;
 
-	// if the aggregator use a list to get its channels from,
-	// here is the list. In this case $this->channels is a reference to
-	// $list->channels
 	public $subscriptions;
+	private $storage;
 
 	public $errorLog;
 
@@ -74,7 +72,7 @@ class aggregator {
 		$this->_feedOptions = new FeedOptions();
 		$this->_feedOptions->setTrim('auto', 0);
 		$this->channels = array();
-		$this->list = null;
+		$this->subscriptions = array();
 
 		$this->_feed = null;
 		$this->view = null;
@@ -86,6 +84,19 @@ class aggregator {
 		/* lastsessionend= the time of end of previous session */
 		$this->_visits['lastsessionend'] = 0;
 		$this->_now = time();
+		if (ZF_USEOPML) {
+			$this->storage = new SubscriptionStorage();
+			zf_debug('loaded subscriptions', DBG_LIST);
+			// get all active subscriptions regardless of tag
+			$this->useTag('');
+		}
+		/* sets the default options
+		Only used for printMainView
+		can be date, feed or trim */
+		$this->_mainViewMode = ZF_VIEWMODE;
+
+		/* trimType will be news or days or hours */
+		$this->_feedOptions->setTrim(ZF_TRIMTYPE, ZF_TRIMSIZE);
 	}
 
 	/* AGGREGATOR CONFIGURATION ---------------------  */
@@ -108,35 +119,15 @@ class aggregator {
 	}
 
 
-	public function useDefaultList(){
-		/* set config template */
-		$this->useList(ZF_HOMELIST);
+	public function useDefaultTag(){
+		/* TODO get config tag*/
+		$this->useTag();
 	}
 
-	public function useList($listName) {
 
-		if (ZF_USEOPML) {
-
-			$subscriptionsList = new opml($listName);
-			if ($subscriptionsList->load()) {
-				zf_debug('loaded list '.$listName, DBG_LIST);
-				// record the information saying that this channel list
-				// actually comes from a subscription list, not from
-				// a zf_addFeed call
-				$this->list = $subscriptionsList;
-
-				/* sets the default options from the list.
-				Only used for printMainView
-				can be date, feed or trim */
-				$this->_mainViewMode = $this->list->viewMode;
-
-				/* trimType will be news or days or hours */
-				$this->_feedOptions->setTrim($this->list->trimType,
-											 $this->list->trimSize);
-			} else {
-				echo '<strong>'.$subscriptionsList->lastError.'<br/>Make sure OPML file exists and is readable...</strong>';
-			}
-		}
+	public function useTag($tag='') {
+		// true: only subscribed
+		$this->subscriptions = $this->storage->getSubscriptions($tag,true);
 	}
 
 
@@ -177,7 +168,7 @@ class aggregator {
 	meant to be for an HTML page. shows errors and credit if configured*/
 	public function printMainView() {
 
-		if (count($this->list->subscriptions) > 0) {
+		if (count($this->subscriptions) > 0) {
 			zf_debug('Viewmode:'. $this->_mainViewMode, DBG_RENDER);
 
 
@@ -198,12 +189,12 @@ class aggregator {
 	}
 
 	/* renders a view showing news by channel. Traditional view (a la Yahoo)
-	   channels of the channels list are rendered by position order
+	   channels of the tag are rendered by position order
 	 */
 	private function printListByChannel() {
 
 		/*if we have feeds to display */
-		$subs = $this->list->subscriptions;
+		$subs = $this->subscriptions;
 		foreach($subs as $i => $subscription) {
 			// change the array key to be the position
 			$sortedChannels[$subscription->position] = $subscription;
@@ -215,7 +206,7 @@ class aggregator {
 			if ($subscription->isSubscribed) {
 				if (trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
 					//
-					$this->printSingleSubscribedChannel($sub, 'auto');
+					$this->printSingleSubscribedChannel($subscription, 'auto');
 				}
 			}
 		}
@@ -227,12 +218,7 @@ class aggregator {
 	public function printListByDate() {
 
 		$this->buildAggregatedFeed();
-		if ($this->list != null) {
-			//configure template to remove unhandled/unwanted buttons
-			$this->view->addTags(array( 'list' => $this->list->name));
-		}  else {
-			$this->view->addTags(array( 'list' => ''));
-		}
+		$this->view->addTags(array( 'list' => ''));
 
 		$this->view->addTags(array( 'publisherurl' => ZF_HOMEURL));
 		$this->view->groupByDay = true;
@@ -250,7 +236,7 @@ class aggregator {
 	 */
 	public function printSingleChannelById($channelId, $mode, $wantSummary) {
 		/* get sub by pos from list */
-		$sub = $this->list->getSubscription($channelId);
+		$sub = $this->subscription[$channelId];
 		if ($sub) {
 			$this->printSingleSubscribedChannel($sub, $mode, $wantSummary);
 		} else {
@@ -273,15 +259,15 @@ class aggregator {
 
 		/* assign feed to $this->_feed;*/
 		switch ($mode) {
-		case 'auto':
-			$this->_feed = $handler->getAutoFeed();
-			break;
-		case 'cache':
-			$this->_feed = $handler->getFeedFromCache();
-			break;
-		case 'refreh':
-			$this->_feed = $handler->getRefreshedFeed();
-			break;
+			case 'auto':
+				$this->_feed = $handler->getAutoFeed();
+				break;
+			case 'cache':
+				$this->_feed = $handler->getFeedFromCache();
+				break;
+			case 'refreh':
+				$this->_feed = $handler->getRefreshedFeed();
+				break;
 		}
 
 		zf_debug("viewing channel ".$sub->__toString(), DBG_RENDER);
@@ -304,26 +290,24 @@ class aggregator {
 */
 		if ($this->_feed) {
 
+			zf_debug('Trimming type '.$this->_feedOptions->trimType, DBG_RENDER);
 			switch ($this->_feedOptions->trimType) {
 				case 'auto':
-					zf_debug('Trimming to subscription shownItems: '.$sub->shownItems, DBG_AGGR);
+					zf_debug('Trimming to subscription shownItems: '.$sub->shownItems, DBG_RENDER);
 					$this->_feed->trimItems($sub->shownItems);
 					break;
 				case 'news':
-					zf_debug('Trimming to requested nr of items: '.$this->_feedOptions->trimSize, DBG_AGGR);
+					zf_debug('Trimming to requested nr of items: '.$this->_feedOptions->trimSize, DBG_RENDER);
 					$this->_feed->trimItems($this->_feedOptions->trimSize);
 					break;
 				case 'none':
-					zf_debug('No trimming', DBG_AGGR);
+					zf_debug('No trimming', DBG_RENDER);
 					break;
 
 			}
 
-			if ($this->list != null) {
-				$this->view->addTags(array( 'list' => $this->list->name));
-			}  else {
-				$this->view->addTags(array( 'list' => ''));
-			}
+			//TODO: use tag
+			$this->view->addTags(array( 'list' => ''));
 
 			$this->view->useFeed($this->_feed);
 
@@ -349,7 +333,7 @@ class aggregator {
 	public function printArticle($channelId, $itemid) {
 
 		/* get sub by pos from list */
-		$sub = $this->list->getSubscription($channelId);
+		$sub = $this->subscriptions[$channelId];
 		if ($sub) {
 			zf_debug("printing articles for ".$sub->__toString());
 			/* create feedhandler and get feed, auto mode */
@@ -369,7 +353,7 @@ class aggregator {
 	public function printSummary($channelId, $itemid) {
 
 		/* get sub by pos from list */
-		$sub = $this->list->getSubscription($channelId);
+		$sub = $this->subscriptions[$channelId];
 		if ($sub) {
 			zf_debug("printing articles for ".$sub->__toString());
 			/* create feedhandler and get feed, auto mode */
@@ -436,10 +420,10 @@ class aggregator {
 
 		// create an empty, meant to be virtual, feed object
 		// we'll merge all feeds containing actual data into it
-		$this->_feed = new AggregatedFeed($this->list);
+		$this->_feed = new AggregatedFeed();
 		$this->_feed->setTrim($this->_feedOptions);
 
-		$subs = $this->list->subscriptions;
+		$subs = $this->subscriptions;
 
 		foreach($subs as $sub) {
 			if ($sub->isSubscribed) {

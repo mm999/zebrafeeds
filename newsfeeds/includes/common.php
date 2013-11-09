@@ -24,26 +24,9 @@
  if return is empty, means that no valid list (requested or default)
  could be found
 */
-function zf_getCurrentListName() {
-	global $zf_path;
 
-	$list = new opml();
-	$currentListName = '';
+//TODO: a class with static functions
 
-	if ( isset($_POST['zflist']) && $_POST['zflist']!='' && file_exists($list->getFileName($_POST['zflist']))) {
-			$currentListName = $_POST['zflist'];
-	} elseif ( isset($_GET['zflist']) && $_GET['zflist']!='' && file_exists($list->getFileName($_GET['zflist']))) {
-			$currentListName = $_GET['zflist'];
-	} elseif (file_exists($list->getFileName(ZF_HOMELIST))) {
-		$currentListName = ZF_HOMELIST;
-	} else {
-	// default : get first list
-		$lists = zf_getListNames();
-		$currentListName = $lists[0];
-	}
-
-	return $currentListName;
-}
 
 /* sanity check on the template
 and set the global var containing the template name to use*/
@@ -62,21 +45,6 @@ function zf_getDisplayTemplateName() {
 }
 
 
-
-/* return an array of existing lists */
-function zf_getListNames() {
-	$data=array();
-	$handle = opendir(ZF_OPMLDIR);
-	while($dirfile = readdir($handle)) {
-		if (is_file(ZF_OPMLDIR.'/'.$dirfile) && substr($dirfile,strlen($dirfile)-4,strlen($dirfile))=='opml' ) {
-			$data[] = substr($dirfile,0,strlen($dirfile)-5);
-		}
-	}
-	sort($data);
-	closedir($handle);
-	return $data;
-}
-
 /* returns an array of available user templates
 filters out the SYSTEM.* */
 function zf_getTemplateNames() {
@@ -91,21 +59,6 @@ function zf_getTemplateNames() {
 	}
 	closedir($handle);
 	return $result;
-}
-
-/* return a string listing of existing categories suited to be inserted in a listbox
-arg: category, category to be marked as selected in the list
-*/
-function zf_ListsFormElements($list) {
-	$data = '';
-	$clist = zf_getListNames();
-	foreach($clist as $categf) {
-		if($list==$categf)
-			$data .= "<option value=\"$categf\" selected=\"selected\">$categf</option>";
-		else
-			$data .= "<option value=\"$categf\">$categf</option>";
-	}
-	return $data;
 }
 
 /* if encoding functions are available, transcode a string to our target output encoding
@@ -135,9 +88,10 @@ function zf_makeId($feedUrl, $itemLink) {
 // log in an area. If no area provided, log it anyway
 function zf_debug($msg, $area=DBG_ALL) {
 	if (ZF_DEBUG & $area) {
-		$btr=debug_backtrace();
-		$line=$btr[0]['line'];
-		$file=basename($btr[0]['file']);
+		$btr = debug_backtrace();
+		$line = $btr[0]['line'];
+		$file = basename($btr[0]['file']);
+
 		if (ZF_DEBUG_CONSOLE) {
 			trigger_error("(ZF/$file:$line) ".$msg, E_USER_NOTICE);
 		} else {
@@ -147,14 +101,11 @@ function zf_debug($msg, $area=DBG_ALL) {
 }
 
 function zf_error($msg, $lvl=E_USER_WARNING) {
-//	  trigger_error('ZF:'.$msg, $lvl);
 	$btr=debug_backtrace();
 	$line=$btr[0]['line'];
 	$file=basename($btr[0]['file']);
-	//print "<pre>ERR ($file:$line) $msg</pre>\n";
 	print "<pre>ERR ($file:$line) $msg</pre>\n";
 }
-
 
 
 function zf_debugRuntime($location) {

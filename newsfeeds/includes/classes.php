@@ -45,8 +45,7 @@ class Publisher extends ChannelDescriptor{
 
 
 /*=======*/
-/*   for a channel providing a feed
-impact: opml.php
+/*   a subscription, a channel with metadata
 */
 class Subscription {
 
@@ -59,6 +58,9 @@ class Subscription {
 	public $refreshTime = ZF_DEFAULT_REFRESH_TIME;
 	public $position = -1;
 	public $isSubscribed = true;
+
+	//array of strings, one entry per tag
+	public $tags = array();
 
 	public function __construct($address){
 		$this->channel = new ChannelDescriptor($address);
@@ -83,44 +85,21 @@ class Subscription {
 			$this->refreshTime = $attributes['REFRESHTIME'];
 		}
 
-		if ( ($attributes['SHOWEDITEMS'] != '') && (is_numeric($attributes['SHOWEDITEMS'])) ) {
-			$this->shownItems = $attributes['SHOWEDITEMS'];
+		if ( ($attributes['SHOWNITEMS'] != '') && (is_numeric($attributes['SHOWNITEMS'])) ) {
+			$this->shownItems = $attributes['SHOWNITEMS'];
+		}
+
+		if ( ($attributes['TAGS'] != '') ) {
+			$this->tags = explode(',',html2specialchars($attributes['TAGS']));
 		}
 
 		$this->isSubscribed = ($attributes['ISSUBSCRIBED'] == 'yes');
 
-		// TODO here: get list name, possibly get list object from ListManager. Singleton?
 	}
 
 	public function __toString(){
 		return $this->channel->__toString();
 	}
-
-}
-
-/*=======*/
-class SubscriptionList {
-
-	public $name;
-
-	/* array of subscription Objects of this list, indexed by channel->id*/
-	public $subscriptions;
-
-	/* how this list will be rendered by default in printMainView
-	- feed: sorted by channel, max "subscription->shownItems" items displayed
-	- date: all news; sorted by date
-	- trim: by date, according to trimType and trimSize
-	setting ignored in async mode (output by calls to async.php)
-	*/
-	public $viewMode;
-
-	/* render max "trimSize" latest news, days, hours
-	irrelevant if Aggregator viewMode is feed */
-	public $trimType;
-
-	/* number of news/days/hours to render
-	irrelevant if Aggregator viewMode is feed */
-	public $trimSize;
 
 }
 

@@ -44,11 +44,11 @@ q : query type. Values:
  - item: a single new item, with article view
  - summary
  - channel: we want channel news, sorted by date
- - list (always by date)
+ - tag (always by date)
  - subs (for one single list)
  - allsubs
 
-zflist: name of the OPML list to lookup channel in.
+tag: use only subscription with this tag.
 
 id: id of the channel (computed from the xmlurl)
 
@@ -91,7 +91,7 @@ if ($f =='html') {
 }
 
 $zf_aggregator->recordServerVisit();
-$zf_aggregator->recordClientVisit();
+//$zf_aggregator->recordClientVisit();
 
 
 
@@ -107,13 +107,9 @@ $itemId = isset($_GET['itemid']) ? $_GET['itemid'] : -1;
 $sum = isset($_GET['sum']) ? $_GET['sum'] : 0;
 
 
-/* === 3: are we dealing with a list? load it ===== */
-// this will go away when we only have one single OPML list
-// then we'll get the list name explicitely
-$zflist = zf_getCurrentListName();
-if (strlen($zflist)>0) $zf_aggregator->useList($zflist);
+/* === 3: Process our request type and dispatch ==== */
 
-/* === 4: Process our request type and dispatch ==== */
+$zf_aggregator->useTag($_GET['tag']);
 
 switch ($type) {
 
@@ -133,7 +129,7 @@ switch ($type) {
 		$zf_aggregator->printSingleChannelById($channelId, $mode, $sum==1);
 		break;
 
-	case 'list':
+	case 'tag':
 		$trim = isset($_GET['trim']) ? $_GET['trim'] : 'auto';
 		if ($trim!='auto') $zf_aggregator->setTrimString($trim);
 		$zf_aggregator->printListByDate();
@@ -143,9 +139,27 @@ switch ($type) {
 		$zf_aggregator->printSummary($channelId, $itemId);
 		break;
 
+//TODO fix
 	case 'subs':
-		$list = new opml($zflist);
-		if ($list->load()) {
+		$list = new SubscriptionStorage();
+		// $zflist);
+		$sortedchannels = array();
+		foreach($storage->subscriptions as $i => $subscription) {
+			if ($subscription->isSubscribed) {
+				$sortedchannels[$subscription->position] = $subscription;
+				$subscription->opmlindex = $i;
+			}
+		}
+		ksort($sortedchannels);
+		echo json_encode($sortedchannels);
+		break;
+
+	case 'allsubs':
+
+		$catlist = array(); //$zf_aggregator->getListNames();
+		$cats = array();
+		foreach ($catlist as $categf) {
+			$storage = new SubscriptionStorage(); //$categf);
 			$sortedchannels = array();
 			foreach($list->subscriptions as $i => $subscription) {
 				if ($subscription->isSubscribed) {
@@ -154,27 +168,7 @@ switch ($type) {
 				}
 			}
 			ksort($sortedchannels);
-		}
-		echo json_encode($sortedchannels);
-		break;
-
-	case 'allsubs':
-
-		$catlist = $zf_aggregator->getListNames();
-		$cats = Array();
-		foreach ($catlist as $categf) {
-			$list = new opml($categf);
-			if ($list->load()) {
-				$sortedchannels = array();
-				foreach($list->subscriptions as $i => $subscription) {
-					if ($subscription->isSubscribed) {
-						$sortedchannels[$subscription->position] = $subscription;
-						$subscription->opmlindex = $i;
-					}
-				}
-				ksort($sortedchannels);
-				$cats[$categf] = $sortedchannels;
-			}
+			$cats[$categf] = $sortedchannels;
 		}
 		echo json_encode($cats);
 		break;
