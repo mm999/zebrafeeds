@@ -31,7 +31,7 @@ if(zfAuth()==false) {
 if($_POST['dosave']=='Save settings')
 {
     if($_POST['newpassword'] == $_POST['confirmpassword'] && $_POST['newpassword']!='') {
-        $_POST['adminpassword'] = md5($_POST['newpassword']); 
+        $_POST['adminpassword'] = md5($_POST['newpassword']);
     } else {
         $_POST['adminpassword'] = ZF_ADMINPASS;
     }
@@ -41,7 +41,7 @@ if($_POST['dosave']=='Save settings')
         displayStatus('Configuration saved.');
         if ($_POST['refreshmode'] == 'request') {
             $refreshurl = ZF_URL.'/pub/refresh.php?key='.md5(ZF_ADMINNAME . ZF_ADMINPASS);
-            echo '<div>Newsfeeds will <strong>NOT</strong> be updated automatically. 
+            echo '<div>Newsfeeds will <strong>NOT</strong> be updated automatically.
                   You\'ll have to request it manually or through a cron job.<br/><br/>
                   Use the <a href="'.$refreshurl.'">ZebraFeeds refresh link</a> to configure your cronjob. <br/><br/><br/>
                   <em>Note: this link changes whenever you change the admin user or password.</em></div>';
@@ -66,12 +66,12 @@ else
 	<div class="twocols">
 		<div class="col1">
 			<label for="zfhomeurl">Location of your web site</label>
-<a class="info" href="#">(?)<span>Points to the page embedding ZebraFeeds. Used also in the RSS feed publisher URL.</span></a>: 	
+<a class="info" href="#">(?)<span>Points to the page embedding ZebraFeeds. Used also in the RSS feed publisher URL.</span></a>:
 		</div>
 		<div class="col2">
 			<input name="zfhomeurl" id="zfhomeurl" type="text" size="50" value="<?php echo ZF_HOMEURL; ?>" />
-		</div>		
-			
+		</div>
+
 		<div class="col1">
 			<label for="zfurl">ZebraFeeds script path URL: </label>
 		</div>
@@ -86,7 +86,7 @@ else
 		</div>
 		<div class="col1">
 			<label for="newpassword">Admin new password</label>
-<a href="#" class="info">(?)<span>leave empty if you don't want to change pass</span></a>: 
+<a href="#" class="info">(?)<span>leave empty if you don't want to change pass</span></a>:
 		</div>
 		<div class="col2">
 			<input type="password" name="newpassword" id="newpassword" />
@@ -99,7 +99,7 @@ else
 		</div>
 		<div class="col1">
 			<label for="zflogintype">Admin panel login mechanism</label>
-<a href="#" class="info">(?)<span>session: will use cookies. server: requires .htaccess and .htpasswd on server</span></a>: 
+<a href="#" class="info">(?)<span>session: will use cookies. server: requires .htaccess and .htpasswd on server</span></a>:
 		</div>
 		<div class="col2">
 			<select name="zflogintype" id="zflogintype" >
@@ -125,14 +125,11 @@ else
 		<div class="col1">
 			<label for="subfilename">Default subscription list</label>
 		        <a href="#" class="info">(?)
-			<span>the list of feeds displayed by default</span>
-			</a>: 
+			<span>the tag of subscriptions displayed by default</span>
+			</a>:
 		</div>
 		<div class="col2">
-			<select name="subfilename" id="subfilename" >
-	                <?php
-        	            echo zf_ListsFormElements(ZF_HOMELIST);
-                	?>
+			<select name="subtag" id="subtag" >
 			</select>
 		</div>
 		<div class="col1">
@@ -141,21 +138,21 @@ else
 			<span>How to refresh feeds.<br/> Automatic: when page is generated. <br/>
                            On request:  manual/scheduled refresh of feeds (by a cronjob for example).
 			</span>
-			</a>: 
+			</a>:
 		</div>
 		<div class="col2">
 			<select name="refreshmode" id="refreshmode" >
 		                <option value="automatic" <?php if(ZF_REFRESHMODE=='automatic') echo 'selected="selected"';?>>Automatic</option>
                 		<option value="request" <?php if(ZF_REFRESHMODE!='automatic') echo 'selected="selected"';?>>On request</option>
 	            </select>
- 
+
 		</div>
 	</div>
-	
+
 </div>
 <div class="frame">
 <h2>General display options</h2>
-	
+
 	<div class="twocols">
 		<div class="col1">
 			<label for="template">Template used to display news: </label>
@@ -178,7 +175,7 @@ else
 			<label for="displayerror">Display errors</label>
 			<a href="#" class="info">(?)
 			<span>if feed cannot be retrieved or parsed</span>
-			</a>: 
+			</a>:
 		</div>
 		<div class="col2">
 			<select name="displayerror" id="displayerror">
@@ -192,7 +189,7 @@ else
 <div class="frame">
 <h2>Language/localization options</h2>
 
-	<div class="twocols">	
+	<div class="twocols">
 		<div class="col1">
 			<label for="encoding">Page encoding: </label>
 		</div>
@@ -228,7 +225,7 @@ else
 			<label for="locale">Locale</label>
            		<a href="#" class="info">(?)
 			<span>Value to pass to the setlocale PHP function. It tells which language to display dates in.
-			</span></a>: 
+			</span></a>:
 		</div>
 		<div class="col2">
             <input name="locale" type="text" id="locale" value="<?php echo ZF_LOCALE;?>"/>
@@ -237,7 +234,7 @@ else
 		<div class="col1">
 			<label for="pubdateformat">News date/Time format</label>
  			<a href="#" class="info">(?)
-			<span>Format dates received from feeds (if possible). Used by the strftime PHP function.</span></a>: 
+			<span>Format dates received from feeds (if possible). Used by the strftime PHP function.</span></a>:
 		</div>
 		<div class="col2">
             <input name="pubdateformat" type="text" id="pubdateformat" value="<?php echo ZF_PUBDATEFORMAT;?>"/>
@@ -246,7 +243,7 @@ else
 		<div class="col1">
 <label for="dateformat">Day date format</label>
         	<a href="#" class="info">(?)
-		<span>Format used to display date when news are grouped by date. Should only be a date (no time) format. See the strftime PHP function.</span></a>: 
+		<span>Format used to display date when news are grouped by date. Should only be a date (no time) format. See the strftime PHP function.</span></a>:
 		</div>
 		<div class="col2">
             <input name="dateformat" type="text" id="dateformat" value="<?php echo ZF_DATEFORMAT;?>"/>
@@ -257,12 +254,12 @@ else
 <div class="frame">
 <h2>Advanced options</h2>
 
-	<div class="twocols">	
+	<div class="twocols">
 		<div class="col1">
 <label for="nofuture">Discard future news</label>
 		<a href="#" class="info">(?)
 		<span>fight RSS spamming by hiding news that want to stay on top!</span>
-		</a>: 
+		</a>:
 		</div>
 		<div class="col2">
             <select name="nofuture" id="nofuture">
@@ -270,12 +267,12 @@ else
               <option value="no" <?php if(ZF_NOFUTURE!='yes') echo 'selected="selected"';?>>no</option>
             </select>
 		</div>
-        
+
         <div class="col1">
 <label for="newitems">Mark new items</label>
 		<a href="#" class="info">(?)
 		<span>Mark items appeared since last visit, for each visitor (use cookies) or on server, i.e. since last time page was generated</span>
-		</a>: 
+		</a>:
 		</div>
 		<div class="col2">
             <select name="newitems" id="newitems">
@@ -290,7 +287,7 @@ else
 		<a href="#" class="info">(?)
 		<span>Automatic: automatically display feeds where <code>zebrafeeds.php</code> is included. <br/>
                            Manual: including zebrafeeds.php does nothing. The user functions <strong>MUST</strong> be used to see aggregated news</span>
-		</a>: 
+		</a>:
 		</div>
 		<div class="col2">
               <select name="rendermode" id="rendermode" >

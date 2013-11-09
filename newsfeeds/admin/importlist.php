@@ -20,9 +20,9 @@
 
 if (zfAuth()==false) exit;
 
-require_once($zf_path . 'includes/opml.php');
+require_once($zf_path . 'includes/subscriptionstorage.php');
 
-function displaydata(&$list)
+function displaydata($storage)
 {
     //global $items, $itemcount;
 
@@ -52,7 +52,6 @@ function displaydata(&$list)
 			</td>
 		  <td class="sub-subscribed">
 			<input name="showeditems{i}" type="text" size="4" value="{showeditems}"></input>
-			<input type="hidden" name="language{i}" value="{lang}" />
 			<input type="hidden" name="description{i}" value="{description}" />
 			<input type="hidden" name="chantitle{i}" value="{chantitle}" />
 			<input type="hidden" name="xmlurl{i}" value="{xmlurl}" />
@@ -63,18 +62,16 @@ EOD;
 
         $returndata = '';
         $i = 0;
-        foreach($list->channels as $key => $item) {
+		$subscriptions = $storage->getSubscriptions();
+        foreach($subscriptions as $key => $item) {
+			$channel = $sub->channel;
             $tempdata = '';
             $tempdata = str_replace("{i}", $i, $htmldata);
             $tempdata = str_replace("{zfurl}", ZF_URL, $tempdata);
-            $tempdata = str_replace("{chantitle}", $item['title'], $tempdata);
-            $tempdata = str_replace("{htmlurl}", $item['htmlurl'], $tempdata);
-            $tempdata = str_replace("{description}", $item['description'], $tempdata);
-            $tempdata = str_replace("{lang}", $item['language'], $tempdata);
-            $tempdata = str_replace("{xmlurl}", $item['xmlurl'], $tempdata);
-            $tempdata = str_replace("{position}", $item['position'], $tempdata);
-            $tempdata = str_replace("{refreshtime}", $item['refreshtime'], $tempdata);
-            $tempdata = str_replace("{showeditems}", $item['showeditems'], $tempdata);
+            $tempdata = str_replace("{chantitle}", $channel->title, $tempdata);
+            $tempdata = str_replace("{htmlurl}", $channel->htmlurl, $tempdata);
+            $tempdata = str_replace("{description}", $channel->description, $tempdata);
+            $tempdata = str_replace("{xmlurl}", $channel->xmlurl, $tempdata);
             if ($item['issubscribed'] == 'yes') {
                 $tempdata = str_replace("{issubscribed}", "selected=\"selected\"", $tempdata);
                 $tempdata = str_replace("{notsubscribed}", "", $tempdata);
@@ -93,9 +90,8 @@ EOD;
 $opmlurl = $_REQUEST['opmlurl'];
 if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
 
-    $list = new opml("import");
-    if ($list->load($opmlurl)) {
-        
+    $storage = new SubscriptionStorage($opmlurl);
+
 
     //$opmldata = parse_iopmlfile($opmlurl);
 ?>
@@ -140,12 +136,8 @@ if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
 
 	</form>
 	</div>
-<?php 
-        } else {
-            //remote list not readable
-            
-        }
-    
+<?php
+
     } elseif ($_POST['save'] == 'add selected feeds') {
     // first thing to do: load the current category file in memory
         //TODO fixit, dont we have a function for that?
@@ -155,9 +147,9 @@ if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
     } else {
     	$currentCategory=ZF_HOMELIST;
     }
-    $list = new opml($currentCategory);
+
     echo '<div id="core">';
- 
+
     if ($list->load()) {
         $i = 0;
         foreach($_POST as $key => $value) {
@@ -174,7 +166,7 @@ if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
                 echo "Importing channel ". $channel['title'] . '<br/>';
                 $list->channels[] = $channel;
                 $i++;
-            } elseif ($key == "xmlurl" . $i && $value != '' && $_POST["addbox" . $i] != 'checkbox') 
+            } elseif ($key == "xmlurl" . $i && $value != '' && $_POST["addbox" . $i] != 'checkbox')
                 $i++;
         }
         if ($list->save()) {
@@ -185,7 +177,7 @@ if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
         } else {
             displayStatus($list->lastError);
         }
-        
+
 
     } else {
         displayStatus("Error parsing the subscriptions list : " . $list->name ."<br/>Feeds were NOT added.");

@@ -25,13 +25,13 @@ if (ZF_RSSPARSER == "magpie") {
     require_once($zf_path . 'includes/magpie_fetch.php');
 } else {
     require_once($zf_path . 'includes/simplepie_fetch.php');
-}    
+}
 
 function simple_fetch($url, &$resultString) {
 	$channeldata['xmlurl'] = $url;
 	$resp = "";
 	$rss = zf_xpie_fetch_feed($channeldata, $resp);
-    
+
 	//$resp = _fetch_remote_file( $url );
     if ( $rss ) {
         return $rss;
@@ -74,11 +74,11 @@ function parse_feed($feedurl, $htmldata)
         //$htmldata = str_replace("{chanlicense}", $chanlicense, $htmldata);
         $htmldata = str_replace("{chandesc}", $rss->channel['tagline'], $htmldata);
         $htmldata = str_replace("{chanlink}", $rss->channel['link'], $htmldata);
-        $htmldata = str_replace("{showeditems}", ZF_DEFAULT_NEWS_COUNT, $htmldata);
+        $htmldata = str_replace("{shownitems}", ZF_DEFAULT_NEWS_COUNT, $htmldata);
         $htmldata = str_replace("{chanttl}", ZF_DEFAULT_REFRESH_TIME, $htmldata);
-        
+
         return $htmldata;
-        
+
     } else {
         return "$result $feedurl.";
     }
@@ -149,10 +149,10 @@ $feedurl = $_REQUEST['feedurl'];
 /* this is the form that displays the parsed feed information */
 $htmldata = <<<EOD
 <form name="subform" action="{formaction}" method="post">
-  
+
 <div class="twocols">
 	<div class="col1">
-		Feed URL : 
+		Feed URL :
 	</div>
 	<div class="col2">
 	<a href="{feedurl}">{feedurl}</a>
@@ -160,7 +160,7 @@ $htmldata = <<<EOD
 		{chanimg}
 	</div>
 	<div class="col1">
-		Site URL : 
+		Site URL :
 	</div>
 	<div class="col2">
 		<a href="{chanlink}">{chanlink}</a>
@@ -168,7 +168,7 @@ $htmldata = <<<EOD
 	</div>
 	<div class="col1">&nbsp;</div>
 	<div class="col2">&nbsp;</div>
-    
+
 	<div class="col1"><label for="chantitle">Title :</label></div>
      	<div class="col2">
 	        <input name="chantitle" type="text" id="chantitle" size="60" value="{chantitle}"/>
@@ -184,9 +184,9 @@ $htmldata = <<<EOD
 	<div class="col2">
 	        <input name="refreshtime" type="text" id="refreshtime" size="4" value="{chanttl}"/>&nbsp;minutes.
 	</div>
-	<div class="col1"><label for="showednews">Display :</label></div>
+	<div class="col1"><label for="shownnews">Display :</label></div>
 	<div class="col2">
-        	<input name="showednews" type="text" id="showednews" size="4" value="{showeditems}"/>&nbsp;news.
+        	<input name="shownnews" type="text" id="shownnews" size="4" value="{shownitems}"/>&nbsp;news.
 	</div>
 	<div class="col1"><label for="issubscribed">Enabled :</label></div>
 	<div class="col2">
@@ -202,14 +202,10 @@ $htmldata = <<<EOD
 	<div class="col1">&nbsp;</div>
 	<div class="col2">&nbsp;</div>
 
-	<div class="col1"><label for="zflist">Subscription list :</label></div>
+	<div class="col1"><label for="zflist">Tag(s) :</label></div>
         <div class="col2">
-		<select name="zflist" id="zflist">
-EOD;
-
-$htmldata .= zf_ListsFormElements(ZF_HOMELIST);
-$htmldata .= <<<EOD
-        </select> &nbsp;
+        	<input name="tags" type="text" id="tags" size="10" value="{tags}"/>
+        </div
 	</div>
 	<br />
 	<div id="saveconfig">
@@ -228,7 +224,7 @@ echo '<div id="core">';
 
     // first thing to do: load the current category file in memory
     $currentListName = zf_getCurrentListName();
-    
+
 /*    if (isset($_POST['zflist']) && $_POST['zflist']!='' && file_exists($zf_path . ZF_OPMLDIR . '/' . $_POST['zflist'] . '.opml')) {
     	$currentCategory=$_POST['zflist'];
     } else {
@@ -248,8 +244,9 @@ echo '<div id="core">';
             $feed['title'] = stripslashes($_POST['chantitle']);
             $feed['description'] = stripslashes($_POST['chandesc']);
             $feed['refreshtime'] = $_POST['refreshtime'];
-            $feed['showeditems'] = $_POST['showednews'];
+            $feed['shownitems'] = $_POST['shownnews'];
             $feed['issubscribed'] = $_POST['issubscribed'];
+            $feed['tags'] = $_POST['tags'];
 
 
             $list->channels[] = $feed;
@@ -261,7 +258,7 @@ echo '<div id="core">';
             } else {
                 displayStatus($list->lastError);
             }
-            
+
         } else {
             displayStatus("Error parsing the subscriptions list : " . $list->lastError . "<br/>Channel was NOT added.");
         }

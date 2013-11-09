@@ -54,17 +54,11 @@ zfLogin();
 <div id="header">
 			<ul class="tabs">
 		<?php if (ZF_USEOPML == 'yes')
-            echo "<li"; if ($zfaction == "subscriptions") echo " class=\"active\""; echo ">";
+            echo "<li"; if (in_array($zfaction, array('subscriptions', 'addnew' ,'importlist'))) echo " class=\"active\""; echo ">";
 			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=subscriptions\">Subscriptions</a></li>";?>
-		<?php if (ZF_USEOPML == 'yes')
-            echo "<li"; if ($zfaction == "addnew") echo " class=\"active\""; echo ">";
-			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=addnew\">Add new</a></li>";?>
         <?php echo "<li"; if ($zfaction == "config") echo " class=\"active\""; echo ">" ?>
-			<a href="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=config';?>">Config</a>
+			<a href="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=config';?>">Settings</a>
 		</li>
-		<?php if (ZF_USEOPML == 'yes')
-            echo "<li"; if ($zfaction == "importlist") echo " class=\"active\""; echo ">";
-			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=importlist\">Import feed list</a></li>";?>
 		<li <?php if ($zfaction == "maintenance") echo " class=\"active\""; ?>>
 			<a href="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=maintenance';?>">Maintenance</a>
 		</li>
