@@ -148,20 +148,6 @@ function displayListsForm($list){
 	echo '</form>';
 }
 
-function displayGotoButton($list='') {
-	if (empty($list)) {
-		//echo '<a href="'.$_SERVER['PHP_SELF'].'?zfaction=subscriptions">Go to subscriptions</a>';
-		displayListsForm('');
-	} else {
-		/*echo '<div class="listsform">
-		<form name="goto'.md5($list).'" action="'.$_SERVER['PHP_SELF'].'?zfaction=subscriptions" method="post">
-		<input type="hidden" name="zflist" value="'.$list.'"/>
-		<a href="javascript:document.goto'.md5($list).'.submit();">Go to '.$list.' subscription list</a>
-		</form></div>';*/
-		//<input type="submit" style="color: #00f;	background-color: transparent;	text-decoration: underline;	 border: none;	cursor: pointer;  cursor: hand;" name="go" value="Go to '.$list.' subscription list">
-		displayListsForm($list);
-	}
-}
 
 function displayStatus($message) {
 	echo '<div id="status">'.$message.'</div>';
@@ -194,6 +180,7 @@ function saveConfig(&$config) {
 		fwrite($fp,"define(\"ZF_PUBDATEFORMAT\",\"".$config['pubdateformat']."\"); // format passed to strftime to convert dates got from RSS feeds\n");
 		fwrite($fp,"define(\"ZF_DATEFORMAT\",\"".$config['dateformat']."\"); // format passed to strftime to display date when displaying news grouped by date\n");
 		fwrite($fp,"\n\n// advanced options //\n\n");
+		//TODO: remove this
 		fwrite($fp,"define(\"ZF_NEWITEMS\",\"".$config['newitems']."\"); //No: doesn't mark new items, client: marks new items for each visitor (cookie based). server: marks new items since last refresh (common to all visitors)\n");
 		fwrite($fp,"define(\"ZF_RENDERMODE\",\"".$config['rendermode']."\"); // automatic: always display aggregated feeds when zebrafeeds.php is included. manual: user the manual integration in scripts with ZebraFeeds user functions\n");
 		fwrite($fp,"define(\"ZF_NOFUTURE\",\"".$config['nofuture']."\"); // if yes then does not show news with a timestamp from the future\n");
@@ -204,6 +191,7 @@ function saveConfig(&$config) {
 		fwrite($fp,"\n\n?>");
 		fclose($fp);
 
+//TODO: save viewmode, trimtype/trimsize
 		return true;
 	} else return false;
 
