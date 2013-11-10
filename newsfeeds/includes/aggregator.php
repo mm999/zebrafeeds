@@ -35,6 +35,7 @@ require_once($zf_path . 'includes/template.php');
 require_once($zf_path . 'includes/history.php');
 require_once($zf_path . 'includes/fetch.php');
 
+//TODO: method to get tags from storage
 
 class aggregator {
 
@@ -45,8 +46,8 @@ class aggregator {
 	// might come from an OPML list, or not
 	public $channels;
 
-	public $subscriptions;
-	private $storage;
+	private $subscriptions;
+	public $storage;
 
 	public $errorLog;
 
@@ -203,7 +204,7 @@ class aggregator {
 		//print_r($sortedChannels);
 
 		foreach($sortedChannels as $subscription) {
-			if ($subscription->isSubscribed) {
+			if ($subscription->isActive) {
 				if (trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
 					//
 					$this->printSingleSubscribedChannel($subscription, 'auto');
@@ -426,7 +427,7 @@ class aggregator {
 		$subs = $this->subscriptions;
 
 		foreach($subs as $sub) {
-			if ($sub->isSubscribed) {
+			if ($sub->isActive) {
 				/* create feedhandler and get feed, auto mode */
 				$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
 				/* assign feed to $this->_feed;*/
