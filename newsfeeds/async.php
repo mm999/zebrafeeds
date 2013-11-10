@@ -57,26 +57,22 @@ itemid : the news item unique id for lookup
 
 f: output type (json, html) default to json
 
-mode: feed fetch mode. applicable only for type=channel
+mode: feed fetch mode. applicable only for q=channel
 	- auto: let subscription decide, according to refresh time (default)
 	- cache: force from cache
 	- refresh: force refresh feed from source
 
 sum: 1 summary included in news item header, 0 no summary (default)
-     Applicable only when q=channel or q=list
+     Applicable only when q=channel or q=tag
 
-trim: how to shorten the number of items when getting a list, to get only news
+trim: how to shorten the number of items when getting tagged feeds, to get only news
 	  or the last hour, since 4 days, or only new ones.
-	  only when q=list. Allowed values override list settings and are:
+	  only when q=tag. Allowed values override default settings and are:
 	          none, auto (default - use list settings), <N>days, <N>hours,
               <N>news, today, yesterday, onlynew
 
 	  when q=channel allowed values are:
 	           none (show all), auto (default, use subscription setting), <N>news
- */
-
-/* record a visit for operations that resend a list of news
-	do both server and client, one of them will possibly do something
  */
 
 /* === 1: define output type =====*/
@@ -114,11 +110,13 @@ $tag = isset($_GET['tag']) ? $_GET['tag'] : '';
 switch ($type) {
 
 	case 'item':
+		//refresh: from cache always
 		$zf_aggregator->printArticle($channelId, $itemId);
 		break;
 
 
 	case 'channel':
+		//refresh: user defined
 		$trim = isset($_GET['trim']) ? $_GET['trim'] : 'auto';
 		if ($trim != 'auto') $zf_aggregator->setTrimString($trim);
 
@@ -126,17 +124,18 @@ switch ($type) {
 		$mode = isset($_GET['mode']) ? $_GET['mode'] : 'auto';
 
 		// channel with header and items, auto cache/refresh
-		$zf_aggregator->printSingleChannelById($channelId, $mode, $sum==1);
+		$zf_aggregator->printSingleFeed($channelId, $mode, $sum==1);
 		break;
 
 	case 'tag':
-		$zf_aggregator->useTag($tag);
+		//refresh: auto refresh always
 		$trim = isset($_GET['trim']) ? $_GET['trim'] : 'auto';
 		if ($trim!='auto') $zf_aggregator->setTrimString($trim);
-		$zf_aggregator->printListByDate();
+		$zf_aggregator->printTaggedFeeds($tag);
 		break;
 
 	case 'summary':
+		//refresh: from cache always
 		$zf_aggregator->printSummary($channelId, $itemId);
 		break;
 

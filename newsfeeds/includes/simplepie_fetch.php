@@ -30,7 +30,7 @@ require_once($zf_path . 'includes/feed.php');
 module interface entry point
 returns a feed object
  */
-function &zf_xpie_fetch_feed($channel, &$resultString) {
+function zf_xpie_fetch_feed($channel, &$resultString) {
 
 	$myfeed = null;
 

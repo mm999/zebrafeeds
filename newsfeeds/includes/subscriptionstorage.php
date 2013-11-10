@@ -40,7 +40,7 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 		$subscription = new Subscription(html2specialchars($attributes['XMLURL']));
 		$subscription->initFromXMLAttributes($attributes);
 		$zf_opmlItems[$subscription->channel->id] = $subscription;
-		zf_debug('loaded sub: '.$subscription->channel->id.' '.$subscription->channel->title.'| tags: '. implode(',', $subscription->tags), DBG_OPML);
+		zf_debug('loaded sub: '.$subscription->channel->id.' '.$subscription->channel->title.'| tags('. implode(',', $subscription->tags).')', DBG_OPML);
 	}
 
 	if (ZF_DEBUG & DBG_LIST) {
@@ -229,7 +229,7 @@ class SubscriptionStorage {
 	}*/
 
 	public function storeSubscription($sub) {
-		if ($sub->position == -1) {
+		if ($sub->position < 0) {
 			$newpos = $this->getNextPosition();
 			$sub->position = $newpos;
 		}

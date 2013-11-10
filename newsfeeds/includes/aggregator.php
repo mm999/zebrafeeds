@@ -57,6 +57,7 @@ class aggregator {
 	// feed options: how to trim for the Feed object
 	private $_feedOptions;
 	private $_view;
+	private $_currentTag;
 
 	// private properties
 	// last Feed object got from the parser, the next to be
@@ -129,6 +130,7 @@ class aggregator {
 	public function useTag($tag='') {
 		// true: only subscribed
 		$this->subscriptions = $this->storage->getSubscriptions($tag,true);
+		$this->_currentTag = $tag;
 	}
 
 
@@ -175,9 +177,9 @@ class aggregator {
 
 			// by date if not explicitly by feed
 			if ($this->_mainViewMode != 'feed') {
-				$this->printListByDate();
+				$this->_printFeedsByDate();
 			} else {
-				$this->printListByChannel();
+				$this->_printFeedsByChannel();
 			}
 
 		} else {
@@ -189,10 +191,21 @@ class aggregator {
 
 	}
 
+
+	/* render a "virtual" channel
+	 create a feed aggregating all channels
+	renders the feed by date */
+	public function printTaggedFeeds($tag) {
+		$this->useTag($tag);
+		$this->_printFeedsByDate();
+	}
+
 	/* renders a view showing news by channel. Traditional view (a la Yahoo)
 	   channels of the tag are rendered by position order
+
+	   AUTO fetch mode
 	 */
-	private function printListByChannel() {
+	private function _printFeedsByChannel() {
 
 		/*if we have feeds to display */
 		$subs = $this->subscriptions;
@@ -207,7 +220,7 @@ class aggregator {
 			if ($subscription->isActive) {
 				if (trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
 					//
-					$this->printSingleSubscribedChannel($subscription, 'auto');
+					$this->printSingleSubscribedFeed($subscription, 'auto');
 				}
 			}
 		}
@@ -216,10 +229,10 @@ class aggregator {
 	/* render a "virtual" channel
 	 create a feed aggregating all channels
 	renders the feed by date */
-	public function printListByDate() {
+	private function _printFeedsByDate() {
 
-		$this->buildAggregatedFeed();
-		$this->view->addTags(array( 'list' => ''));
+		$this->_buildAggregatedFeed();
+		$this->view->addTags(array( 'tag' => $this->_currentTag));
 
 		$this->view->addTags(array( 'publisherurl' => ZF_HOMEURL));
 		$this->view->groupByDay = true;
@@ -235,11 +248,11 @@ class aggregator {
 	 	0: auto from subscription list
 	 	-1 is all
 	 */
-	public function printSingleChannelById($channelId, $mode, $wantSummary) {
+	public function printSingleFeed($channelId, $mode, $wantSummary) {
 		/* get sub by pos from list */
 		$sub = $this->subscription[$channelId];
 		if ($sub) {
-			$this->printSingleSubscribedChannel($sub, $mode, $wantSummary);
+			$this->printSingleSubscribedFeed($sub, $mode, $wantSummary);
 		} else {
 			zf_debug('print: id not found:'. $channelId);
 
@@ -252,7 +265,7 @@ class aggregator {
 	 $wantSummary: do we want summary included? default false
 
 	 */
-	public function printSingleSubscribedChannel($sub, $mode, $wantSummary=false) {
+	public function printSingleSubscribedFeed($sub, $mode, $wantSummary=false) {
 
 		//print $sub->__toString();
 		/* create feedhandler and get feed, auto mode */
@@ -376,7 +389,7 @@ class aggregator {
 		$this->_feedOptions->trimType = "news";
 		$this->_feedOptions->trimSize = ZF_RSSEXPORTSIZE;
 
-		$this->buildAggregatedFeed();
+		$this->_buildAggregatedFeed();
 		$view = new TemplateView("System.RSS");
 		zf_debugRuntime("after aggregated view created");
 
@@ -414,17 +427,21 @@ class aggregator {
 	will load all RSS objects from the channels list and merge
 	them in a feed object, on which a pointer is returned
 	 */
-	private function buildAggregatedFeed() {
-
-		// use subscription array from list as source.
-		//
+	private function _buildAggregatedFeed() {
 
 		// create an empty, meant to be virtual, feed object
 		// we'll merge all feeds containing actual data into it
-		$this->_feed = new AggregatedFeed();
+		$this->_feed = new AggregatedFeed($this->_currentTag);
 		$this->_feed->setTrim($this->_feedOptions);
 
 		$subs = $this->subscriptions;
+
+// TODO: here apply parallel cURl fetch
+// find out which of the subscriptions have expired
+// trigger parallel fetch
+// when all complete have simplepie parse them
+// convert to feed object and send to cache
+// merge into aggregated feed
 
 		foreach($subs as $sub) {
 			if ($sub->isActive) {
