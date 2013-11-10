@@ -49,7 +49,7 @@ q : query type. Values:
  - tags (all tags available in subscriptions)
 
 tag: use only subscription with this tag. default empty. applicable only for
-    q=subs
+    q=subs and q=tag
 
 id: id of the channel (computed from the xmlurl)
 
@@ -144,7 +144,7 @@ switch ($type) {
 		$sortedchannels = array();
 		$subs = $zf_aggregator->storage->getActiveSubscriptions($tag);
 		foreach( $subs as $i => $subscription) {
-			if ($subscription->isSubscribed) {
+			if ($subscription->isActive) {
 				$sortedchannels[$subscription->position] = $subscription;
 				//Why this??? $subscription->opmlindex = $i;
 			}

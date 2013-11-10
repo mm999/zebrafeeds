@@ -39,10 +39,10 @@ define('DBG_RENDER', 128); // view and template rendering
 define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
-define('ZF_DEBUG', 0);
+define('ZF_DEBUG', DBG_RENDER | DBG_OPML | DBG_LIST );
 
 // debug output 1=console otherwise stdout
-define('ZF_DEBUG_CONSOLE', 0);
+define('ZF_DEBUG_CONSOLE', 1);
 
 // for stdout debug, log format
 // 1=html otherwise text
@@ -53,8 +53,29 @@ define('ZF_DEBUG_HTML', 0);
 error_reporting(0);
 ini_set('display_errors', 'Off');
 
+//error_reporting(E_ERROR | E_WARNING | E_PARSE);
+//error_reporting (E_ALL ^ E_NOTICE);
+if (ZF_DEBUG) {
+	ini_set('display_errors', ZF_DEBUG_CONSOLE==0?'On':'Off');
+	ini_set('html_errors', ZF_DEBUG_HTML==1?'On':'Off');
+	error_reporting (E_ALL| E_STRICT);
+
+	// preparation of performance monitoring
+	global $zf_debugData;
+	$zf_debugData['clock'][] = microtime();
+	if (function_exists('getrusage')) {
+		$dat = getrusage();
+		$zf_debugData['utime_before'] = $dat["ru_utime.tv_sec"].$dat["ru_utime.tv_usec"];
+		$zf_debugData['stime_before'] = $dat["ru_stime.tv_sec"].$dat["ru_stime.tv_usec"];
+	}
+
+
+}
+
+
+
 if (ZF_USEOPML == 'yes') {
-    require_once($zf_path . 'includes/opml.php');
+    require_once($zf_path . 'includes/subscriptionstorage.php');
 }
 require_once($zf_path . 'includes/common.php');
 require_once($zf_path . 'includes/classes.php');
@@ -65,14 +86,14 @@ define('ZF_VER', '2.0');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
 
 define("ZF_DATADIR", $zf_path.'data');
-define("ZF_OPMLBASEDIR", 'categories');
-define("ZF_OPMLDIR", $zf_path.ZF_OPMLBASEDIR);
+define("ZF_OPMLFILE", $zf_path.'zebrafeeds.opml');
 define("ZF_TEMPLATESDIR", $zf_path.'templates');
 define("ZF_HISTORYDIR", ZF_DATADIR.'/history');
 
 // full path
 define("ZF_CACHEDIR", ZF_DATADIR.'/cache');
-//define("ZF_RSSPARSER", "magpie");
+
+// only simplepie supported;
 define("ZF_RSSPARSER", "simplepie");
 
 
@@ -101,24 +122,8 @@ defaultConfig('ZF_ENCODING', 'UTF-8');
 defaultConfig('ZF_DISPLAYERROR', 'no');
 defaultConfig('ZF_TEMPLATE', 'newsflow');
 defaultConfig('ZF_HOMELIST', 'sample');
+defaultConfig('ZF_VIEWMODE', 'feed');
+defaultConfig('ZF_TRIMTYPE', 'auto');
+defaultConfig('ZF_TRIMSIZE', '5');
 
-
-//error_reporting(E_ERROR | E_WARNING | E_PARSE);
-//error_reporting (E_ALL ^ E_NOTICE);
-if (ZF_DEBUG) {
-	ini_set('display_errors', ZF_DEBUG_CONSOLE==0?'On':'Off');
-	ini_set('html_errors', ZF_DEBUG_HTML==1?'On':'Off');
-	error_reporting (E_ALL| E_STRICT);
-
-	// preparation of performance monitoring
-	global $zf_debugData;
-	$zf_debugData['clock'][] = microtime();
-	if (function_exists('getrusage')) {
-		$dat = getrusage();
-		$zf_debugData['utime_before'] = $dat["ru_utime.tv_sec"].$dat["ru_utime.tv_usec"];
-		$zf_debugData['stime_before'] = $dat["ru_stime.tv_sec"].$dat["ru_stime.tv_usec"];
-	}
-
-
-}
 

@@ -153,6 +153,7 @@ else
 <div class="frame">
 <h2>General display options</h2>
 
+<?php //TODO: config for viewmode, trimsize/type ?>
 	<div class="twocols">
 		<div class="col1">
 			<label for="template">Template used to display news: </label>

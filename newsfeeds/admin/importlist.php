@@ -90,6 +90,7 @@ EOD;
 $opmlurl = $_REQUEST['opmlurl'];
 if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
 
+//TODO: fix store new OPML to storage
     $storage = new SubscriptionStorage($opmlurl);
 
 

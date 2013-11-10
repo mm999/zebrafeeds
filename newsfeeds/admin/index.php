@@ -128,8 +128,7 @@ zfLogin();
 // Standard footer for all admin pages
 ?>
     <div id="bottom">
-          powered by <a href="http://cazalet.org/zebrafeeds">ZebraFeeds <?php echo ZF_VER;?></a>
-          - &copy;2006-2012 by Laurent Cazalet
+          <a href="http://cazalet.org/zebrafeeds">ZebraFeeds <?php echo ZF_VER;?></a>
     </div>
 </body>
 </html>
