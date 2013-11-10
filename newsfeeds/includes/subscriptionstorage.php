@@ -40,7 +40,7 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 		$subscription = new Subscription(html2specialchars($attributes['XMLURL']));
 		$subscription->initFromXMLAttributes($attributes);
 		$zf_opmlItems[$subscription->channel->id] = $subscription;
-		zf_debug('loaded sub: '.$subscription->channel->id.' '.$subscription->channel->title, DBG_OPML);
+		zf_debug('loaded sub: '.$subscription->channel->id.' '.$subscription->channel->title.'| tags: '. implode(',', $subscription->tags), DBG_OPML);
 	}
 
 	if (ZF_DEBUG & DBG_LIST) {
@@ -167,7 +167,7 @@ class SubscriptionStorage {
 									"\" refreshTime=\"" . $sub->refreshTime .
 									"\" shownItems=\"" . $sub->shownItems .
 									"\" tags=\"" . htmlspecialchars(implode(',',$sub->tags), ENT_QUOTES) .
-									"\" isSubscribed=\"" . ($sub->isSubscribed?'yes':'no').
+									"\" isSubscribed=\"" . ($sub->isActive?'yes':'no').
 									"\" />\n");
 			}
 
@@ -229,8 +229,10 @@ class SubscriptionStorage {
 	}*/
 
 	public function storeSubscription($sub) {
-		$newpos = $this->getNextPosition();
-		$sub->position = $newpos;
+		if ($sub->position == -1) {
+			$newpos = $this->getNextPosition();
+			$sub->position = $newpos;
+		}
 		if (isset($this->subscriptions[$sub->channel->id])) {
 			unset($this->subscriptions[$sub->channel->id]);
 		}
@@ -249,24 +251,29 @@ class SubscriptionStorage {
 	//return an array of subscriptions indexed by id, matching tag
 	public function getSubscriptions($tag='', $onlySubscribed = false) {
 		$result = array();
+		//zf_debug("getting subscriptions for tag='$tag', subscribed only? $onlySubscribed");
 		foreach ($this->subscriptions as $sub) {
 			// we want only those matching tag if relevant, and subscribed if requested
-			if ( (($tag=='')?true:isset($sub->tags[$tag])) && ($onlySubscribed?$sub->isSubscribed:true) ) {
+			if ( (($tag=='')?true:array_search($tag, $sub->tags)>-1) && ($onlySubscribed?$sub->isActive:true) ) {
+				//zf_debug('found subscription '. $sub->channel->title);
 				$result[$sub->channel->id] = $sub;
 			}
-			// TODO: make tags unique
 		}
 		return $result;
+	}
+
+	//return an array of subscriptions indexed by id, matching tag
+	public function getActiveSubscriptions($tag='') {
+		return $this->getSubscriptions($tag, true);
 	}
 
 	public function getTags() {
 		$tags = array();
 		foreach ($this->subscriptions as $sub) {
-			//TODO: fix, correct append
-			array_append($tags, $subs->tags);
+			// return tags only from active subscriptions
+			if ($sub->isActive) $tags = array_merge($tags, $sub->tags);
 		}
-		//TODO: make tags unique in array
-		return $tags;
+		return array_values(array_unique($tags));
 	}
 
 	/* make sure we have correct data, particularly position

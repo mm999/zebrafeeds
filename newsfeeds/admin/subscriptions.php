@@ -76,7 +76,7 @@ function displayChannelList($subs) {
 	<span id="title{i}" class="{class} link" onclick="showEditForm('{i}'); return false;">{chantitle}</span>&nbsp;
 	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" alt="website"/></a>
 	<div class="listctrl">
-		<input type="button" name="delete" value="Delete" onclick="deleteChannel('{i}'); return false;"/>&nbsp;
+		<input type="button" name="remove" value="Remove" onclick="removeChannel('{i}'); return false;"/>&nbsp;
 	</div>
 	<div class="editfeed" id="editform{i}" style="display:none;">
 		<form action="#">
@@ -91,8 +91,8 @@ function displayChannelList($subs) {
 				<textarea rows="2" cols="30" id="description{i}" name="description">{description}</textarea><br/><br/>
 			</div>
 			<div class="twocols">
-				<div class="col1"><label for="issubscribed{i}">Subscribed</label> </div>
-				<div class="col2"><input type="checkbox" id="issubscribed{i}" name="issubscribed" {issubscribed} value="Subscribed" title="Subscribed to this feed"/></div>
+				<div class="col1"><label for="isactive{i}">Active</label> </div>
+				<div class="col2"><input type="checkbox" id="isactive{i}" name="isactive" {isactive} value="isactive" title="Active"/></div>
 				<div class="col1"><label for="tags{i}">Tag(s):</label> </div>
 				<div class="col2"><input name="tags" id="tags{i}" type="text" size="20" value="{tags}"/></div>
 				<div class="col1"><label for="position{i}">Position:</label> </div>
@@ -120,7 +120,7 @@ EOD;
 			/* first let's do the name line */
 			$tempdata = str_replace("{i}", $sub->channel->id, $namehtmldata);
 			//$sub->channel->title;
-			$class = $sub->isSubscribed?'subscribed':'unsubscribed';
+			$class = $sub->isActive?'subscribed':'unsubscribed';
 			$tempdata = str_replace("{zfurl}", ZF_URL, $tempdata);
 			$tempdata = str_replace("{class}", $class, $tempdata);
 			$tempdata = str_replace("{chantitle}", $sub->channel->title, $tempdata);
@@ -132,10 +132,10 @@ EOD;
 			$tempdata = str_replace("{refreshtime}", $sub->refreshTime, $tempdata);
 			$tempdata = str_replace("{shownitems}", $sub->shownItems, $tempdata);
 			$tempdata = str_replace("{tags}", implode(',', $sub->tags), $tempdata);
-			if ($sub->isSubscribed) {
-				$tempdata = str_replace('{issubscribed}', 'checked="checked"', $tempdata);
+			if ($sub->isActive) {
+				$tempdata = str_replace('{isactive}', 'checked="checked"', $tempdata);
 			} else {
-				$tempdata = str_replace('{issubscribed}', '', $tempdata);
+				$tempdata = str_replace('{isactive}', '', $tempdata);
 			}
 
 
@@ -217,10 +217,10 @@ $storage = new SubscriptionStorage();
 				var description = encodeURIComponent(aform.elements["description"].value);
 
 				var position = aform.elements["position"].value;
-				if (aform.elements["issubscribed"].checked) {
-					var issubscribed = 'yes';
+				if (aform.elements["isactive"].checked) {
+					var isactive = 'yes';
 				} else {
-					var issubscribed = 'no';
+					var isactive = 'no';
 				}
 				var shownitems = aform.elements["shownitems"].value;
 				var refreshtime = aform.elements["refreshtime"].value;
@@ -237,7 +237,7 @@ $storage = new SubscriptionStorage();
 				// flawed if we have a fast updater user
 				channeldata[0] = id;
 				channeldata[1] = aform.elements["chantitle"].value;
-				channeldata[2] = issubscribed;
+				channeldata[2] = isactive;
 
 				http.open('POST', 'cmd.php', true);
 				http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
@@ -248,7 +248,7 @@ $storage = new SubscriptionStorage();
 								+ "&xmlurl=" + xmlurl
 								+ "&description=" + description
 								+ "&position=" + position
-								+ "&issubscribed=" + issubscribed
+								+ "&isactive=" + isactive
 								+ "&shownitems=" + shownitems
 								+ "&refreshtime=" + refreshtime
 								+ "&tags=" + tags;
@@ -274,19 +274,19 @@ $storage = new SubscriptionStorage();
 				}
 			}
 
-			function deleteChannel(id) {
-				if (!confirm('Are you sure you want to cancel this subscription?')) {
+			function removeChannel(id) {
+				if (!confirm('Are you sure you want to remove this subscription?')) {
 					return false;
 				}
 				http.open('POST', 'cmd.php', true);
 				http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
 				channeldata[0] = id;
-				http.onreadystatechange = onDeleteCallback;
-				var query= "action=delete&id=" + id;
+				http.onreadystatechange = onRemoveCallback;
+				var query= "action=remove&id=" + id;
 				http.send(query);
 			}
-			function onDeleteCallback() {
+			function onRemoveCallback() {
 				if (http.readyState == 4) { // Complete
 					if (http.status == 200) { // OK response
 						// TODO: handle error

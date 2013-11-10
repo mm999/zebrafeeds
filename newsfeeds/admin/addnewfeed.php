@@ -182,9 +182,9 @@ $htmldata = <<<EOD
 	<div class="col2">
         	<input name="shownnews" type="text" id="shownnews" size="4" value="{shownitems}"/>&nbsp;news.
 	</div>
-	<div class="col1"><label for="issubscribed">Enabled :</label></div>
+	<div class="col1"><label for="isactive">Enabled :</label></div>
 	<div class="col2">
-        <select name="issubscribed" id="issubscribed">
+        <select name="isactive" id="isactive">
           <option value="yes" selected>yes</option>
           <option value="no">no</option>
         </select>
@@ -218,7 +218,7 @@ echo '<div id="core">';
 		$sub->channel->description = stripslashes($_POST['chandesc']);
 		$sub->refreshTime = $_POST['refreshtime'];
 		$sub->shownItems = $_POST['shownnews'];
-		$sub->isSubscribed = ($_POST['issubscribed']=='yes');
+		$sub->isActive = ($_POST['isactive']=='yes');
 		$sub->tags = explode(',',$_POST['tags']);
 
 		// TODO error handling

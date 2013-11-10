@@ -57,7 +57,7 @@ class Subscription {
 
 	public $refreshTime = ZF_DEFAULT_REFRESH_TIME;
 	public $position = -1;
-	public $isSubscribed = true;
+	public $isActive = true;
 
 	//array of strings, one entry per tag
 	public $tags = array();
@@ -90,10 +90,11 @@ class Subscription {
 		}
 
 		if ( ($attributes['TAGS'] != '') ) {
-			$this->tags = explode(',',html2specialchars($attributes['TAGS']));
+			$this->tags = array_unique(explode(',',html2specialchars($attributes['TAGS'])));
+			//print_r($this->tags);
 		}
 
-		$this->isSubscribed = ($attributes['ISSUBSCRIBED'] == 'yes');
+		$this->isActive = ($attributes['ISSUBSCRIBED'] == 'yes');
 
 	}
 

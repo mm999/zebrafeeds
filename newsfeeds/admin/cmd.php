@@ -46,7 +46,7 @@ switch ($action) {
 			$sub->position = $_POST['position'];
 			$sub->shownItems = $_POST['shownitems'];
 			$sub->refreshTime = $_POST['refreshtime'];
-			$sub->isSubscribed = ($_POST['issubscribed'] =='yes');
+			$sub->isActive = ($_POST['isactive'] =='yes');
 			$sub->tags = explode(',', $_POST['tags']);
 
 			if ($storage->storeSubscription($sub)) {
