@@ -174,6 +174,7 @@ class aggregator {
 		if (count($this->subscriptions) > 0) {
 			zf_debug('Viewmode:'. $this->_mainViewMode, DBG_RENDER);
 
+			$this->view->renderHeader();
 
 			// by date if not explicitly by feed
 			if ($this->_mainViewMode != 'feed') {
@@ -181,6 +182,7 @@ class aggregator {
 			} else {
 				$this->_printFeedsByChannel();
 			}
+			$this->view->renderFooter();
 
 		} else {
 			$this->printStatus('No feeds');

@@ -31,7 +31,10 @@ abstract class AbstractFeedView {
 		$this->feed = $feed;
 	}
 
+	abstract public function renderHeader();
 	abstract public function renderFeed();
+	abstract public function renderFooter();
+
 
 	public function renderArticle($itemid) {
 		$item = $this->feed->lookupItem($itemid);
@@ -71,6 +74,12 @@ class JSONView extends AbstractFeedView {
 
 	public $summaryInFeed = false;
 
+
+
+	public function renderHeader() {
+	}
+	public function renderFooter() {
+	}
 	public function renderFeed() {
 
 		$out = array();
@@ -125,13 +134,17 @@ class TemplateView extends AbstractFeedView{
 		$this->template = new template($templateName);
 	}
 
+	public function renderHeader() {
+		zf_debug('Calling header');
+		$this->template->printHeader();
+	}
+
 	/* render the view,
 	  made of an unique "feed" if grouped by date"
 	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
 	public function renderFeed() {
 
-		$this->template->printHeader();
 		if ($this->groupByDay ) {
 			$this->template->printListHeader($this->feed);
 		} else {
@@ -144,6 +157,10 @@ class TemplateView extends AbstractFeedView{
 		} else {
 			$this->template->printChannelFooter($this->feed->publisher);
 		}
+	}
+
+	public function renderFooter() {
+		zf_debug('Calling footer');
 		$this->template->printFooter();
 	}
 
