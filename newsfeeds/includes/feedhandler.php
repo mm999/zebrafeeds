@@ -47,7 +47,7 @@ class FeedHandler {
 	}
 
 	public function getAutoFeed() {
-	  return $this->_getFeed($this->_subscription->refreshTime);
+	  return $this->_getFeed(ZF_DEFAULT_REFRESH_TIME);
 	}
 
 	/* refreshtime:

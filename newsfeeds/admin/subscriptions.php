@@ -97,8 +97,6 @@ function displayChannelList($subs) {
 				<div class="col2"><input name="tags" id="tags{i}" type="text" size="20" value="{tags}"/></div>
 				<div class="col1"><label for="position{i}">Position:</label> </div>
 				<div class="col2"><input name="position" id="position{i}" type="text" size="3" value="{position}"/></div>
-				<div class="col1"><label for="refreshtime{i}">Refresh time:</label> </div>
-				<div class="col2"><input name="refreshtime" id="refreshtime{i}" type="text" size="4" value="{refreshtime}"/>&nbsp;minutes</div>
 				<div class="col1"><label for="shownitems{i}">Displayed items:</label></div>
 				<div class="col2"><input name="shownitems" id="shownitems{i}" type="text" size="4" value="{shownitems}"/></div>
 
@@ -129,7 +127,6 @@ EOD;
 			$tempdata = str_replace("{xmlurl}", htmlspecialchars($sub->channel->xmlurl), $tempdata);
 			$tempdata = str_replace("{description}", $sub->channel->description, $tempdata);
 			$tempdata = str_replace("{position}", $sub->position, $tempdata);
-			$tempdata = str_replace("{refreshtime}", $sub->refreshTime, $tempdata);
 			$tempdata = str_replace("{shownitems}", $sub->shownItems, $tempdata);
 			$tempdata = str_replace("{tags}", implode(',', $sub->tags), $tempdata);
 			if ($sub->isActive) {
@@ -223,7 +220,6 @@ $storage = new SubscriptionStorage();
 					var isactive = 'no';
 				}
 				var shownitems = aform.elements["shownitems"].value;
-				var refreshtime = aform.elements["refreshtime"].value;
 				var tags = aform.elements["tags"].value;
 
 				savebutton = aform.elements["save"];
@@ -250,7 +246,6 @@ $storage = new SubscriptionStorage();
 								+ "&position=" + position
 								+ "&isactive=" + isactive
 								+ "&shownitems=" + shownitems
-								+ "&refreshtime=" + refreshtime
 								+ "&tags=" + tags;
 				http.send(query);
 			}

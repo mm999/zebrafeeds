@@ -55,7 +55,6 @@ class Subscription {
 	// number of items to show for this subs
 	public $shownItems = ZF_DEFAULT_NEWS_COUNT;
 
-	public $refreshTime = ZF_DEFAULT_REFRESH_TIME;
 	public $position = -1;
 	public $isActive = true;
 
@@ -79,10 +78,6 @@ class Subscription {
 
 		if ($attributes['DESCRIPTION'] != '') {
 			$this->channel->description = html2specialchars($attributes['DESCRIPTION']);
-		}
-
-		if ( ($attributes['REFRESHTIME'] != '') && (is_numeric($attributes['REFRESHTIME'])) ) {
-			$this->refreshTime = $attributes['REFRESHTIME'];
 		}
 
 		if ( ($attributes['SHOWNITEMS'] != '') && (is_numeric($attributes['SHOWNITEMS'])) ) {

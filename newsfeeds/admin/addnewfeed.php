@@ -73,7 +73,6 @@ function parse_feed($feedurl, $htmldata)
         $htmldata = str_replace("{chandesc}", $feed->publisher->description, $htmldata);
         $htmldata = str_replace("{chanlink}", $feed->publisher->link, $htmldata);
         $htmldata = str_replace("{shownitems}", ZF_DEFAULT_NEWS_COUNT, $htmldata);
-        $htmldata = str_replace("{chanttl}", ZF_DEFAULT_REFRESH_TIME, $htmldata);
 
         return $htmldata;
 
@@ -174,10 +173,6 @@ $htmldata = <<<EOD
 		<input name="chandesc" type="text" id="chandesc" size="60" value="{chandesc}"/>
 	</div>
 
-	<div class="col1"><label for="refreshtime">Refresh time :</label></div>
-	<div class="col2">
-	        <input name="refreshtime" type="text" id="refreshtime" size="4" value="{chanttl}"/>&nbsp;minutes.
-	</div>
 	<div class="col1"><label for="shownnews">Display :</label></div>
 	<div class="col2">
         	<input name="shownnews" type="text" id="shownnews" size="4" value="{shownitems}"/>&nbsp;news.
@@ -216,7 +211,6 @@ echo '<div id="core">';
 		$sub->channel->link = stripslashes($_POST['htmlurl']);
 		$sub->channel->title = stripslashes($_POST['chantitle']);
 		$sub->channel->description = stripslashes($_POST['chandesc']);
-		$sub->refreshTime = $_POST['refreshtime'];
 		$sub->shownItems = $_POST['shownnews'];
 		$sub->isActive = ($_POST['isactive']=='yes');
 		$sub->tags = explode(',',$_POST['tags']);

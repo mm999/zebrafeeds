@@ -164,7 +164,6 @@ class SubscriptionStorage {
 									"\" description=\"" . htmlspecialchars($tempdesc, ENT_QUOTES) .
 									"\" xmlUrl=\"" . htmlspecialchars($tempxmlurl, ENT_QUOTES) .
 									"\" htmlUrl=\"" . htmlspecialchars($temphtmlurl, ENT_QUOTES) .
-									"\" refreshTime=\"" . $sub->refreshTime .
 									"\" shownItems=\"" . $sub->shownItems .
 									"\" tags=\"" . htmlspecialchars(implode(',',$sub->tags), ENT_QUOTES) .
 									"\" isSubscribed=\"" . ($sub->isActive?'yes':'no').

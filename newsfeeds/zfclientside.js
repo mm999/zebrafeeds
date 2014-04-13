@@ -81,7 +81,7 @@ function zf_getArticle(chanid, itemid, outputelementid) {
 }
 
 
-function zf_getAllNews(chanid,refreshtime, outputelementid) {
+function zf_getAllNews(chanid, outputelementid) {
 	requestparams = "q=channel&trim=none&id=" + chanid;
 	requestContent(requestparams);
 	REQELEMENTID = outputelementid;
