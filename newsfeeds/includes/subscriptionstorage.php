@@ -39,8 +39,8 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 	if ($includeIt) {
 		$subscription = new Subscription(html2specialchars($attributes['XMLURL']));
 		$subscription->initFromXMLAttributes($attributes);
-		$zf_opmlItems[$subscription->channel->id] = $subscription;
-		zf_debug('loaded sub: '.$subscription->channel->id.' '.$subscription->channel->title.'| tags('. implode(',', $subscription->tags).')', DBG_OPML);
+		$zf_opmlItems[$subscription->id] = $subscription;
+		zf_debug('loaded sub: '.$subscription->id.' '.$subscription->title.'| tags('. implode(',', $subscription->tags).')', DBG_OPML);
 	}
 
 	if (ZF_DEBUG & DBG_LIST) {
@@ -70,7 +70,16 @@ class SubscriptionStorage {
 	public $lastResult;
 	protected $opmlfilename;
 
-	public function __construct($source='') {
+	private static $instance = NULL;
+	
+	public static function getInstance() {
+		if (self::$instance == NULL) {
+			self::$instance = new SubscriptionStorage();
+		}
+		return self::$instance;
+	}
+
+	private function __construct($source='') {
 		$this->subscriptions = array();
 
 		$this->lastError = '';
@@ -153,10 +162,10 @@ class SubscriptionStorage {
 			fwrite($fp, "\t<body>\n");
 
 			foreach ($this->subscriptions as $sub) {
-				$temptitle = stripslashes($sub->channel->title);
-				$tempdesc = stripslashes($sub->channel->description);
-				$temphtmlurl = stripslashes($sub->channel->link);
-				$tempxmlurl = stripslashes($sub->channel->xmlurl);
+				$temptitle = stripslashes($sub->title);
+				$tempdesc = stripslashes($sub->description);
+				$temphtmlurl = stripslashes($sub->link);
+				$tempxmlurl = stripslashes($sub->xmlurl);
 				fwrite($fp, "\t\t<outline type=\"rss\"" .
 									" position=\"" . $sub->position .
 									"\" text=\"" . htmlspecialchars($temptitle, ENT_QUOTES) .
@@ -202,7 +211,7 @@ class SubscriptionStorage {
 		foreach($this->subscriptions as $id => $sub) {
 			if ($sub->position == $exceptAt) continue;
 			//echo $i.' -- '.$sub->channels;
-			if ($sub->channel->position == $pos) {
+			if ($sub->position == $pos) {
 				return $pos;
 			}
 		}
@@ -232,10 +241,10 @@ class SubscriptionStorage {
 			$newpos = $this->getNextPosition();
 			$sub->position = $newpos;
 		}
-		if (isset($this->subscriptions[$sub->channel->id])) {
-			unset($this->subscriptions[$sub->channel->id]);
+		if (isset($this->subscriptions[$sub->id])) {
+			unset($this->subscriptions[$sub->id]);
 		}
-		$this->subscriptions[$sub->channel->id] = $sub;
+		$this->subscriptions[$sub->id] = $sub;
 		return $this->save();
 	}
 
@@ -254,8 +263,8 @@ class SubscriptionStorage {
 		foreach ($this->subscriptions as $sub) {
 			// we want only those matching tag if relevant, and subscribed if requested
 			if ( (($tag=='')?true:array_search($tag, $sub->tags)>-1) && ($onlySubscribed?$sub->isActive:true) ) {
-				//zf_debug('found subscription '. $sub->channel->title);
-				$result[$sub->channel->id] = $sub;
+				//zf_debug('found subscription '. $sub->title);
+				$result[$sub->id] = $sub;
 			}
 		}
 		return $result;
@@ -281,10 +290,10 @@ class SubscriptionStorage {
 
 		$nextPos = $this->getNextPosition();
 
-		foreach ($this->subscriptions as $i => $subscription) {
-			if (!($subscription->position > 0 && is_numeric($subscription->position))) {
-				zf_debug('fixing position: '.$subscription->channel->title.' ('.$sub->position.') to '.$nextPos, DBG_OPML);
-				$subscription->position = $nextPos;
+		foreach ($this->subscriptions as $i => $sub) {
+			if (!($sub->position > 0 && is_numeric($sub->position))) {
+				zf_debug('fixing position: '.$sub->title.' ('.$sub->position.') to '.$nextPos, DBG_OPML);
+				$sub->position = $nextPos;
 				$nextPos++;
 			}
 		}

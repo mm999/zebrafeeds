@@ -23,6 +23,7 @@
 if (!defined('ZF_VER')) exit;
 
 require_once($zf_path . 'includes/common.php');
+require_once($zf_path . 'includes/subscriptionstorage.php');
 
 class template {
 	/* properties {{{*/
@@ -164,7 +165,7 @@ class template {
 	public function printNews($item) {
 		$this->_buffer = $this->news;
 		$this->_formatCommon();
-		$this->_formatChannel($item->publisher);
+		$this->_formatChannel($item->subscriptionId);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 
@@ -173,7 +174,7 @@ class template {
 	public function printNewsByDate($item) {
 		$this->_buffer = $this->newsByDate;
 		$this->_formatCommon();
-		$this->_formatChannel($item->publisher);
+		$this->_formatChannel($item->subscriptionId);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 	}
@@ -183,7 +184,7 @@ class template {
 	public function printArticle($item) {
 		$this->_buffer = $this->article;
 		$this->_formatCommon();
-		$this->_formatChannel($item->publisher);
+		$this->_formatChannel($item->subscriptionId);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 	}
@@ -211,12 +212,11 @@ class template {
 
 
 	public function printChannel($feed) {
-		$channel = $feed->publisher;
 		$last_fetched = $feed->last_fetched;
 
 		$this->_buffer = $this->channel;
 		$this->_formatCommon();
-		$this->_formatChannel($channel);
+		$this->_formatChannel($feed->subscriptionId);
 
 		/* now, replace the channel header specific tags */
 
@@ -260,35 +260,37 @@ class template {
 
 	/* process channel-related template tags
 	*/
-	protected function _formatChannel($publisher) {
-		$schannel = $publisher;
+	protected function _formatChannel($subId) {
+		$sub = SubscriptionStorage::getInstance()->getSubscription($subId);
+		
 		if ($this->name == 'SYSTEM.rss') {
-			$stitle = htmlspecialchars($publisher->title, ENT_QUOTES);
-			$sdesc = htmlspecialchars($publisher->description, ENT_QUOTES);
+			$stitle = htmlspecialchars($sub->title, ENT_QUOTES);
+			$sdesc = htmlspecialchars($sub->description, ENT_QUOTES);
 		} else {
-			$stitle = $publisher->title;
-			$sdesc = $publisher->description;
+			$stitle = $sub->title;
+			$sdesc = $sub->description;
 		}
 
-		$slink = htmlspecialchars($publisher->link, ENT_QUOTES);
-		$sxmlurl = htmlspecialchars($publisher->xmlurl, ENT_QUOTES);
+		$slink = htmlspecialchars($sub->link, ENT_QUOTES);
+		$sxmlurl = htmlspecialchars($sub->xmlurl, ENT_QUOTES);
 
-		if ($publisher->logo != "") {
-			$slogo = htmlspecialchars($publisher->logo, ENT_QUOTES);
+		/*TODO: logo and favicon
+		if ($sub->logo != "") {
+			$slogo = htmlspecialchars($sub->logo, ENT_QUOTES);
 			$this->_buffer = str_replace('{chanlogo}', "<a href=\"" . $slink. "\"><img src=\"" . $slogo. "\" style=\"border:0;\" alt=\"" . $stitle. "\" title=\"" . $stitle. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanlogo}', '', $this->_buffer);
-		}
+		}*/
 
-		if ($publisher->favicon != "") {
-			$spublisher->favicon = htmlspecialchars($publisher->favicon, ENT_QUOTES);
+		/*if ($sub->favicon != "") {
+			$sub->favicon = htmlspecialchars($sub->favicon, ENT_QUOTES);
 			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $slink. "\"><img src=\"" . $sfavicon. "\" style=\"border:0;\" width=\"16\" height=\"16\" alt=\"-\" title=\"" . $stitle. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanfavicon}', '', $this->_buffer);
-		}
+		}*/
 
-		$this->_buffer = str_replace('{chanlink}', $publisher->link, $this->_buffer);
-		$this->_buffer = str_replace('{chanid}', $publisher->id, $this->_buffer);
+		$this->_buffer = str_replace('{chanlink}', $sub->link, $this->_buffer);
+		$this->_buffer = str_replace('{chanid}', $sub->id, $this->_buffer);
 		$this->_buffer = str_replace('{chandesc}', $sdesc, $this->_buffer);
 
 		$this->_buffer = str_replace('{chantitle}', $stitle, $this->_buffer);
@@ -341,7 +343,7 @@ class template {
 		$hasSummary = strpos($this->_buffer, '{summary}');
 		$this->_buffer = str_replace('{summary}', $ssummary, $this->_buffer);
 
-		$zfarticleurl = ZF_HOMEURL.'?q=article&itemid='.$item->id.'&id='.$item->publisher->id;
+		$zfarticleurl = ZF_HOMEURL.'?q=article&itemid='.$item->id.'&id='.$item->subscriptionId;
 
 		if ($hasSummary && $item->isTruncated)
 			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';

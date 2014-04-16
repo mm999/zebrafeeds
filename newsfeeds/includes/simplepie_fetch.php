@@ -30,14 +30,14 @@ require_once($zf_path . 'includes/feed.php');
 module interface entry point
 returns a feed object
  */
-function zf_xpie_fetch_feed($channel, &$resultString) {
+function zf_xpie_fetch_feed($subscription, &$resultString) {
 
 	$myfeed = null;
 
 
     $SP_feed = new SimplePie();
 
-    $SP_feed->set_feed_url($channel->xmlurl);
+    $SP_feed->set_feed_url($subscription->xmlurl);
     // check here according to refresh time
     $SP_feed->enable_cache(false);
     $SP_feed->enable_order_by_date(false);
@@ -52,18 +52,14 @@ function zf_xpie_fetch_feed($channel, &$resultString) {
 
     if ($SP_feed->data) {
 
-        $myfeed = new PublisherFeed($channel->xmlurl);
+        $myfeed = new PublisherFeed($subscription->id);
 
-        $myfeed->publisher->title = $SP_feed->get_title();
-        $myfeed->publisher->link = $SP_feed->get_link();
-        $myfeed->publisher->description = $SP_feed->get_description();
-        // removed in SP 1.3 $myfeed->channel['favicon'] = $SP_feed->get_favicon();
-        $myfeed->publisher->logo = $SP_feed->get_image_url();
+        // TODO support logo $myfeed->publisher->logo = $SP_feed->get_image_url();
         $index=0;
 
 		$items = $SP_feed->get_items();
         foreach( $items as $item) {
-        	$pubitem = new NewsItem($channel->xmlurl, $item->get_permalink(), $item->get_title(), $item->get_date('U'));
+        	$pubitem = new NewsItem($subscription->id, $item->get_permalink(), $item->get_title(), $item->get_date('U'));
 		    $pubitem->description = $item->get_content();
 
             $encidx = 0;
@@ -84,8 +80,8 @@ function zf_xpie_fetch_feed($channel, &$resultString) {
         $myfeed->last_fetched = time();
     } else {
 		if ($SP_feed->error()) {
-			$resultString = $SP_feed->error() . " on ".$channel->xmlurl;
-		} else $resultString = 'Error fetching or parsing '.$channel->xmlurl;
+			$resultString = $SP_feed->error() . " on ".$subscription->xmlurl;
+		} else $resultString = 'Error fetching or parsing '.$subscription->xmlurl;
 
     }
     // php memory bug, as described in SP documentation

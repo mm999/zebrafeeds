@@ -33,21 +33,14 @@ require_once($zf_path . 'includes/feedhandler.php');
 require_once($zf_path . 'includes/view.php');
 require_once($zf_path . 'includes/template.php');
 require_once($zf_path . 'includes/history.php');
-require_once($zf_path . 'includes/fetch.php');
 
-//TODO: method to get tags from storage
 
 class aggregator {
 
 	// output template of this aggregation
 	public $_template;
 
-	// array of channels we have to get the feeds for
-	// might come from an OPML list, or not
-	public $channels;
-
 	private $subscriptions;
-	public $storage;
 
 	public $errorLog;
 
@@ -73,7 +66,6 @@ class aggregator {
 	public function __construct() {
 		$this->_feedOptions = new FeedOptions();
 		$this->_feedOptions->setTrim('auto', 0);
-		$this->channels = array();
 		$this->subscriptions = array();
 
 		$this->_feed = null;
@@ -87,8 +79,6 @@ class aggregator {
 		$this->_visits['lastsessionend'] = 0;
 		$this->_now = time();
 		if (ZF_USEOPML) {
-			$this->storage = new SubscriptionStorage();
-			zf_debug('loaded subscriptions', DBG_LIST);
 			// get all active subscriptions regardless of tag
 			$this->useTag('');
 		}
@@ -129,8 +119,9 @@ class aggregator {
 
 	public function useTag($tag='') {
 		// true: only subscribed
-		$this->subscriptions = $this->storage->getSubscriptions($tag,true);
+		$this->subscriptions = SubscriptionStorage::getInstance()->getSubscriptions($tag,true);
 		$this->_currentTag = $tag;
+		zf_debug('loaded subscriptions', DBG_LIST);
 	}
 
 
@@ -220,7 +211,7 @@ class aggregator {
 
 		foreach($sortedChannels as $subscription) {
 			if ($subscription->isActive) {
-				if (trim($subscription->channel->xmlurl) != '' && $subscription->shownItems > 0) {
+				if (trim($subscription->xmlurl) != '' && $subscription->shownItems > 0) {
 					//
 					$this->printSingleSubscribedFeed($subscription, 'auto');
 				}
@@ -252,7 +243,7 @@ class aggregator {
 	 */
 	public function printSingleFeed($channelId, $mode, $wantSummary) {
 		/* get sub by pos from list */
-		$sub = $this->subscription[$channelId];
+		$sub = $this->subscriptions[$channelId];
 		if ($sub) {
 			$this->printSingleSubscribedFeed($sub, $mode, $wantSummary);
 		} else {
@@ -281,7 +272,7 @@ class aggregator {
 			case 'cache':
 				$this->_feed = $handler->getFeedFromCache();
 				break;
-			case 'refreh':
+			case 'refresh':
 				$this->_feed = $handler->getRefreshedFeed();
 				break;
 		}
@@ -397,7 +388,7 @@ class aggregator {
 
 		$view->addTags(array('encoding' => ZF_ENCODING,
 			'publisherurl' => ZF_HOMEURL ));
-		$view->renderFeeds();
+		$view->renderFeed();
 	}
 
 
@@ -439,24 +430,36 @@ class aggregator {
 		$subs = $this->subscriptions;
 
 // TODO: here apply parallel cURl fetch
-// find out which of the subscriptions have expired
-// trigger parallel fetch
-// when all complete have simplepie parse them
-// convert to feed object and send to cache
-// merge into aggregated feed
 
+// find out which of the subscriptions have expired
+
+		$feedhandlers = array();
 		foreach($subs as $sub) {
 			if ($sub->isActive) {
 				/* create feedhandler and get feed, auto mode */
 				$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
 				/* assign feed to $this->_feed;*/
-				$feed = $handler->getAutoFeed();
-				if($feed !=null ) {
-					zf_debug('merging into Aggregated feed', DBG_AGGR);
-					$this->_feed->mergeWith($feed);
-				} else
-					zf_debug("feed $sub->channel is null", DBG_AGGR);
+				if ($handler->isFeedCached() ){
+					//add handler to the list of handlers to fetch
+				}
+				$feedhandlers[] = $handler;
 			}
+		}
+
+		// trigger parallel fetch
+
+
+		// merge into aggregated feed
+
+
+		foreach($feedhandlers as $handler) {
+			$feed = $handler->getAutoFeed();
+			if($feed !=null ) {
+				zf_debug('merging into Aggregated feed', DBG_AGGR);
+				$this->_feed->mergeWith($feed);
+			} else
+				zf_debug("feed $sub is null", DBG_AGGR);
+
 		}
 		$this->_feed->postProcess();
 	}

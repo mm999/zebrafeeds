@@ -1,9 +1,11 @@
 <?php
 
+
 /*=======*/
-/*  abstract specification for a channel providing a feed*/
-class ChannelDescriptor {
-	//unique id from url
+/*   a subscription, a channel with metadata
+*/
+class Subscription {
+
 	public $id;
 
 	//feed title
@@ -18,40 +20,6 @@ class ChannelDescriptor {
 	//URL of the subscription file - feed
 	public $xmlurl;
 
-	public function __construct($address){
-		$this->xmlurl = $address;
-		$this->id = zf_makeId($this->xmlurl, '');
-	}
-
-	public function normalize() {
-	}
-
-	public function __toString(){
-		return $this->xmlurl;
-	}
-}
-
-/*=======*/
-/* channel with data obtained from publisher */
-class Publisher extends ChannelDescriptor{
-
-	//URL of favicon
-	public $favicon;
-
-	//URL to channel logo
-	public $logo;
-
-}
-
-
-/*=======*/
-/*   a subscription, a channel with metadata
-*/
-class Subscription {
-
-	// channel Descriptor object
-	public $channel;
-
 	// number of items to show for this subs
 	public $shownItems = ZF_DEFAULT_NEWS_COUNT;
 
@@ -62,22 +30,23 @@ class Subscription {
 	public $tags = array();
 
 	public function __construct($address){
-		$this->channel = new ChannelDescriptor($address);
+		$this->xmlurl = $address;
+		$this->id = zf_makeId($this->xmlurl, '');
 	}
 
 	public function initFromXMLattributes(&$attributes) {
 		$this->position = $attributes['POSITION'];
 
 		if ($attributes['TITLE'] != '') {
-			$this->channel->title = html2specialchars($attributes['TITLE']);
+			$this->title = html2specialchars($attributes['TITLE']);
 		}
 
 		if ($attributes['HTMLURL'] != '') {
-			$this->channel->link = html2specialchars($attributes['HTMLURL']);
+			$this->link = html2specialchars($attributes['HTMLURL']);
 		}
 
 		if ($attributes['DESCRIPTION'] != '') {
-			$this->channel->description = html2specialchars($attributes['DESCRIPTION']);
+			$this->description = html2specialchars($attributes['DESCRIPTION']);
 		}
 
 		if ( ($attributes['SHOWNITEMS'] != '') && (is_numeric($attributes['SHOWNITEMS'])) ) {
@@ -94,7 +63,7 @@ class Subscription {
 	}
 
 	public function __toString(){
-		return $this->channel->__toString();
+		return $this->xmlurl;
 	}
 
 }
@@ -106,8 +75,8 @@ class NewsItem {
 	// unique id from title and desc
 	public $id;
 
-	//Publisher object this item was obtained from
-	public $publisher;
+	//subscription of this item
+	public $subscriptionId;
 
 	// address and title of the news
 	public $link;
@@ -124,7 +93,7 @@ class NewsItem {
 	//array of enclosure objects
 	public $enclosures;
 
-	public function __construct($publisherUrl, $link, $title, $date) {
+	public function __construct($subscriptionId, $link, $title, $date) {
 		$this->enclosures = array();
 		$this->isTruncated = false;
 		$this->isNew = false;
@@ -132,7 +101,8 @@ class NewsItem {
 		$this->link = $link;
 		$this->title = $title;
 		$this->date_timestamp = $date;
-		$this->id = zf_makeId($publisherUrl, $this->link.$this->title);
+		$this->subscriptionId = $subscriptionId;
+		$this->id = zf_makeId($subscriptionId, $this->link.$this->title);
 	}
 
 /*all sorts of processing to the item object
@@ -221,10 +191,7 @@ class SerializableItemHeader {
 	public $summary; //might end up empty;
 	//Publisher this item was obtained from
 	// might end up empty
-	public $publisherId;
-	public $publisherLink;
-	public $publisherTitle;
-	public $publisherIcon;
+	public $subscriptionId;
 
 	// make this object out of a NewsItem object
 	public function __construct($item) {
@@ -236,13 +203,6 @@ class SerializableItemHeader {
 
 	}
 
-	/* assign it a Publisher object */
-	public function setPublisher($publisher) {
-		$this->publisherId = $publisher->id;
-		$this->publisherLink = $publisher->link;
-		$this->publisherTitle = $publisher->title;
-		$this->publisherIcon = $publisher->favicon;
-	}
 }
 
 /*=======*/
@@ -254,7 +214,6 @@ class SerializableItem extends SerializableItemHeader {
 		parent::__construct($item);
 		$this->description = $item->description;
 		$this->enclosures = $item->enclosures;
-		$this->setPublisher($item->publisher);
 
 	}
 

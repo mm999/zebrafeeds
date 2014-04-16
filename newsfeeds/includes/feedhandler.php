@@ -22,72 +22,99 @@ if (!defined('ZF_VER')) exit;
 require_once($zf_path . 'includes/classes.php');
 require_once($zf_path . 'includes/feed.php');
 require_once($zf_path . 'includes/history.php');
-require_once($zf_path . 'includes/fetch.php');
+require_once($zf_path . 'includes/feed_cache.php');
+require_once($zf_path . 'includes/simplepie_fetch.php');
 
 
 class FeedHandler {
 
 	protected $_feed;
-	protected $_subscription;
+	protected $subscription;
 	protected $lastvisit;
 	protected $now;
 
 	public function __construct($subscription, $lastvisit, $now) {
-		$this->_subscription = $subscription;
+		$this->subscription = $subscription;
 		$this->lastvisit = $lastvisit;
 		$this->now = $now;
 	}
 
-	public function getFeedFromCache() {
-	  return $this->_getFeed(-1);
+	public function isFeedCached() {
+		$cache = FeedCache::getInstance();
+		if (!$cache->ERROR) {
+			$status =  $cache->check_cache($this->subscription->xmlurl.ZF_ENCODING);
+			return ($status == 'HIT');
+		} else {
+			return FALSE;
+		}
 	}
 
-	public function getRefreshedFeed() {
-	  return $this->_getFeed(0);
+	/* get forcefully from cache. if not in cache or cache error, get refreshed from network */
+	public function getFeedFromCache() {
+
+		$cache = FeedCache::getInstance();
+		if (!$cache->ERROR) {
+
+			// store parsed XML by desired output encoding
+			// as character munging happens at parse time
+			$cache_key		 = $this->subscription->xmlurl . ZF_ENCODING;
+
+			$feed = $cache->get( $cache_key );
+			if ( isset($feed) and $feed ) {
+				// should be cache age
+				$feed->from_cache = 1;
+				zf_debug("Read from cache", DBG_FEED);
+
+			} else {
+				zf_debug("invalid Cache, force refresh", DBG_FEED);
+				$feed = $this->_getRefreshedFeed();
+			}
+		}
+		return $feed;
 	}
+
+	/* get feed from network */
+	public function getRefreshedFeed() {
+		// if we got there, it means we have to fetch from network
+		zf_debug('fetching remote file '.$this->subscription->xmlurl, DBG_FEED);
+
+		$feed = zf_xpie_fetch_feed($this->subscription, $resultString);
+		if ( $feed ) {
+			zf_debug("Fetch successful", DBG_FEED);
+			/* one shot: add our extra data and do our post processing
+			  (we will here fix missing dates)
+			BEFORE storing to cache */
+			$feed->normalize($feedHistory);
+
+
+			// add object to cache
+			$cache = FeedCache::getInstance();
+			$cache_key = $this->subscription->xmlurl . ZF_ENCODING;
+			$cache->set( $cache_key, $feed );
+			return $feed;
+		} else {
+			zf_debug('failed fetching remote file '.$this->subscription->xmlurl, DBG_FEED);
+			return NULL;
+		}
+	}
+
+	/* if cache stil valid, get from cache, otherwise force refresh */
 
 	public function getAutoFeed() {
-	  return $this->_getFeed(ZF_DEFAULT_REFRESH_TIME);
-	}
+		// if is cached
 
-	/* refreshtime:
-	 -1: force from cache
-	 0: force refresh
-	 >0: use this refreshtime
-	 */
-	protected function _getFeed($requestedRefreshtime) {
-		// TODO implement single global refreshtime
-
-		// Refresh-time decision algorithm
-		/* if provided $refreshtime is default
-		 *	 if global option refresh mode == automatic,
-		 use channel's refreshtime
-		 if global option refresh mode = on request
-			 force use of cache: set refreshtime to -1
-		 else
-			 use provided refreshtime
-		 */
-		$channelDesc = $this->_subscription->channel;
-
-		$usedrefreshtime = $requestedRefreshtime;
-
-		//is auto requested, check against global variable
-		if ($requestedRefreshtime > 0) {
-			zf_debug("requesting default refresh time for ".$channelDesc->xmlurl, DBG_FEED);
-			$usedrefreshtime = (ZF_REFRESHMODE == 'automatic')? $requestedRefreshtime: -1;
-		}
-
-		zf_debug("Refresh mode: ". ZF_REFRESHMODE." ; requested Refreshtime : $requestedRefreshtime ; used refresh time: $usedrefreshtime", DBG_FEED);
-
-
-		// QUICK DEBUG $refreshtime = -1;
-
-		zf_debugRuntime("before fetch ".$channelDesc->xmlurl);
+		zf_debugRuntime("getting auto feed ".$this->subscription->xmlurl);
 		$resultString = '';
-		$history = new history($channelDesc->xmlurl);
+		$history = new history($this->subscription->xmlurl);
 
-		$this->_feed = zf_fetch_rss($channelDesc, $history, $usedrefreshtime, $resultString);
-		zf_debugRuntime("after fetch ".$channelDesc->xmlurl);
+		// GET
+		if ($this->isFeedCached()) {
+			$this->_feed = $this->getFeedFromCache();
+		} else {
+			$this->_feed = $this->getRefreshedFeed();
+		}
+		
+		zf_debugRuntime("after fetch ".$this->subscription->xmlurl);
 
 		if ($this->_feed) {
 			/* detect new yet unseen items

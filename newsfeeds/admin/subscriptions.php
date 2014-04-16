@@ -27,12 +27,12 @@ function sortChannelsByName($subscriptions) {
 	/* sort channels list by setting the array key to the position */
 	$sortedchannels = array();
 	foreach($subscriptions as $i => $sub) {
-		if ($sub->channel->xmlurl != '') {
+		if ($sub->xmlurl != '') {
 			/* tackle duplicate names */
-			if (isset($sortedchannels[$sub->channel->title]) || (strlen($sub->channel->title)) == 0) {
-				$title = $sub->channel->title. ' ('.$sub->position.')';
+			if (isset($sortedchannels[$sub->title]) || (strlen($sub->title)) == 0) {
+				$title = $sub->title. ' ('.$sub->position.')';
 			} else {
-				$title = $sub->channel->title;
+				$title = $sub->title;
 			}
 			/*echo $title.' -- ';*/
 			$sortedchannels[$title] = $sub;
@@ -49,7 +49,7 @@ function sortChannelsByPosition($subscriptions) {
 	/* sort channels list by setting the array key to the position */
 	$sortedChannels = array();
 	foreach($subscriptions as $i => $sub) {
-		if ($sub->channel->xmlurl != '') {
+		if ($sub->xmlurl != '') {
 			$sortedchannels[$sub->position] = $sub;
 			/* but we need to keep the original index to identify the feed, next time we need it in
 			a copy/delete operation */
@@ -116,16 +116,16 @@ EOD;
 			$tempdata = '';
 
 			/* first let's do the name line */
-			$tempdata = str_replace("{i}", $sub->channel->id, $namehtmldata);
-			//$sub->channel->title;
+			$tempdata = str_replace("{i}", $sub->id, $namehtmldata);
+			//$sub->title;
 			$class = $sub->isActive?'subscribed':'unsubscribed';
 			$tempdata = str_replace("{zfurl}", ZF_URL, $tempdata);
 			$tempdata = str_replace("{class}", $class, $tempdata);
-			$tempdata = str_replace("{chantitle}", $sub->channel->title, $tempdata);
-			$tempdata = str_replace("{htmlurl}", htmlentities($sub->channel->link), $tempdata);
+			$tempdata = str_replace("{chantitle}", $sub->title, $tempdata);
+			$tempdata = str_replace("{htmlurl}", htmlentities($sub->link), $tempdata);
 
-			$tempdata = str_replace("{xmlurl}", htmlspecialchars($sub->channel->xmlurl), $tempdata);
-			$tempdata = str_replace("{description}", $sub->channel->description, $tempdata);
+			$tempdata = str_replace("{xmlurl}", htmlspecialchars($sub->xmlurl), $tempdata);
+			$tempdata = str_replace("{description}", $sub->description, $tempdata);
 			$tempdata = str_replace("{position}", $sub->position, $tempdata);
 			$tempdata = str_replace("{shownitems}", $sub->shownItems, $tempdata);
 			$tempdata = str_replace("{tags}", implode(',', $sub->tags), $tempdata);
@@ -150,7 +150,7 @@ EOD;
 	$_POST['zflist'] = $_GET['zflist'];
 }*/
 
-$storage = new SubscriptionStorage();
+$storage = SubscriptionStorage::getInstance();
 
 //----------------------------------------------------------------------------
 /* display channels list, with list control form on top */

@@ -30,15 +30,13 @@ abstract class AbstractFeed {
 	// aggregated, normalized items
 	// if we aggregate several feeds, index is numeric position in the array
 	public $items;
-	public $publisher;
 	public $last_fetched = 0;
 
 	// merging/filter options
 	protected $_feedOptions = null;
 
-	public function __construct($address) {
+	public function __construct() {
 		$this->items = array();
-		$this->publisher = new Publisher($address);
 	}
 
 	public function addItem($item) {
@@ -102,40 +100,23 @@ can be trimmed to "shownitems" */
 class PublisherFeed extends AbstractFeed {
 
 	public $from_cache;
+	public $subscriptionId;
 
-	public function __construct($address) {
-		parent::__construct($address);
-
+	public function __construct($subId) {
+		parent::__construct();
+		$this->subscriptionId = $subId;
 	}
-	/* adapt the publisher data from data set externally, or with default values */
-	public function customizePublisher($channeldata) {
 
-		$this->publisher->title = $channeldata->title;
-		$this->publisher->description = $channeldata->description;
-	}
 
 	/* make sure our channel array has all what we need
 	 this data will get cached, so this function is called only once,
 	 right after the feed is fetched over http */
 	public function normalize($history){
 
-		/* for this it's okay to store in cache
-		does nothing for the moment*/
-		$this->publisher->normalize();
-
 		foreach ($this->items as $item) {
 			$item->normalize($history);
 		}
 
-	}
-
-
-	/* for non virtual feeds, we need to link items to their original publisher
-	 * we'll need it for the template */
-	public function bindItemsToChannel() {
-		foreach($this->items as $item) {
-		   $item->publisher = $this->publisher;
-		}
 	}
 
 
@@ -146,78 +127,27 @@ can be trimmed to last X [news|days|hours] */
 class AggregatedFeed extends AbstractFeed {
 
 
-	public $matchExpression = '';
-
 	// timestamp before which we don't want news
 	private $_earliest;
 
 	// when the feed is virtual, this is the name of the list
 	private $tag;
-	private $subscription;
-
-	public $shownItems;
-
 	/* this feed is an aggregation of feeds from a list
 	   this method initializes this
 	 */
 	public function __construct($tag) {
 
-		parent::__construct(ZF_URL.'?f=rss&tag='.urlencode($tag));
+		parent::__construct();
 		$this->tag = $tag;
 
 		$this->_earliest = 0;
 
-		$this->publisher->title = (ZF_OWNERNAME ==""?"":ZF_OWNERNAME." - ").$this->tag;
-		//TODO: make RSS address prettier
-		$this->publisher->link = ZF_HOMEURL.'?zflist='.urlencode($this->tag);
-		$this->publisher->id = zf_makeId($this->publisher->xmlurl,'');
-
-
-		$description = "Aggregated feed";
-
-		$this->publisher->description = $description;
-
 
 	}
 
-
-
-	public function setMatchExpression($expr) {
-		$this->matchExpression = $expr;
-	}
 
 	public function setTrim($opt) {
 		parent::setTrim($opt);
-
-
-		// fill/update the description
-		$description = "Viewing ";
-		if ($this->_feedOptions->trimType == 'today') {
-			$description .= 'today\'s news ';
-			$this->publisher->link .= '&zftrim=today';
-		} else if ($this->_feedOptions->trimType == 'yesterday') {
-			$description .= 'yesterday\'s news ';
-			$this->publisher->link .= '&zftrim=yesterday';
-		} else if ($this->_feedOptions->trimType == 'onlynew') {
-			$description .= 'only new news items ';
-			$this->publisher->link .= '&zftrim=onlynew';
-		} else if ($this->_feedOptions->trimType == 'hours') {
-			$description .= 'news of the last '.$this->_feedOptions->trimSize.' hours ';
-			$this->publisher->link .= '&zftrim='.$this->_feedOptions->trimSize.$this->_feedOptions->trimType;
-		} else if ($this->_feedOptions->trimType == 'days') {
-			$description .= 'news in the last '.$this->_feedOptions->trimSize.' days ';
-			$this->publisher->link .= '&zftrim='.$this->_feedOptions->trimSize.$this->_feedOptions->trimType;
-		} else if ($this->_feedOptions->trimType == 'news') {
-			$description .= 'latest '.$this->_feedOptions->trimSize.' news ';
-			$this->publisher->link .= '&zftrim='.$this->_feedOptions->trimSize.$this->_feedOptions->trimType;
-		} else if ($this->_feedOptions->trimType == 'none') {
-			$description .= "all news";
-			$this->publisher->link .= '&zfviewmode=date';
-		}
-		if (!empty($this->matchExpression) ){
-			$description .= ' matching keyword \"'.$this->matchExpression.'\"';
-		}
-		$this->publisher->description = $description;
 
 
 
@@ -273,7 +203,7 @@ class AggregatedFeed extends AbstractFeed {
 		 */
 	protected function mergeItems($feed) {
 
-		zf_debug( 'Merging feed '.$feed->publisher->title, DBG_AGGR);
+		zf_debug( 'Merging aggregated feed of sub '.$feed->subscriptionId, DBG_AGGR);
 		$itemcount = 0;
 		foreach ($feed->items as $item) {
 
@@ -322,16 +252,6 @@ class AggregatedFeed extends AbstractFeed {
 				}
 				zf_debug( 'Item passes timeframe check', DBG_AGGR);
 			}
-			// last check: do we need to match, and does this news match
-			if ( strlen($this->matchExpression) > 0) {
-
-				if (!$this->itemMatches($item)) {
-					zf_debug( 'Item DOES NOT match expr. rejected', DBG_AGGR);
-					continue;
-				} else {
-					zf_debug( 'Item matches exp', DBG_AGGR);
-				}
-			}
 
 			// finally add our item to the news array
 			zf_debug('Item merged', DBG_AGGR);
@@ -342,7 +262,7 @@ class AggregatedFeed extends AbstractFeed {
 			$itemcount++;
 
 		}// foreach item of feed
-		zf_debug("Merged $itemcount item(s) from ".$feed->publisher->title, DBG_AGGR);
+		zf_debug("Merged $itemcount item(s) from ".$feed->subscriptionId, DBG_AGGR);
 
 	}
 
