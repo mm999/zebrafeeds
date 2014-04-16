@@ -17,16 +17,17 @@ require_once($zf_path . 'includes/common.php');
 
 class FeedCache {
 	private $BASE_CACHE = './cache';	// where the cache files are stored
-	private $MAX_AGE	= 3600;			// when are files stale, default one hour
 	public $ERROR	   = "";		   // accumulate error messages
+	private $MAX_AGE;
 
-	public function __construct($base='', $age='') {
+	static private $instance = NULL;
+
+	private function __construct($base='') {
 		if ( $base ) {
 			$this->BASE_CACHE = $base;
 		}
-		if ( $age ) {
-			$this->MAX_AGE = $age;
-		}
+
+		$this->MAX_AGE = ZF_DEFAULT_REFRESH_TIME * 60;
 
 		// attempt to make the cache directory
 		if ( ! file_exists( $this->BASE_CACHE ) ) {
@@ -37,6 +38,14 @@ class FeedCache {
 				zf_error("Cache couldn't make dir '" . $this->BASE_CACHE . "'.");
 			}
 		}
+
+	}
+
+	static public function getInstance() {
+		if (self::$instance == NULL){
+            self::$instance = new FeedCache(ZF_CACHEDIR);
+        }
+		return self::$instance;
 	}
 
 /*=======================================================================*\
@@ -101,16 +110,14 @@ class FeedCache {
 	Purpose:	check a url for membership in the cache
 				and whether the object is older then MAX_AGE (ie. STALE)
 	Input:		url from wich the rss file was fetched
-	Output:		cached object on HIT, false on MISS
+	            MAX_AGE to check against
+	Output:		HIT, STALE or MISS
 \*=======================================================================*/
 	public function check_cache ( $url ) {
-		$filename = $this->file_name( $url );
 
-		if ( file_exists( $filename ) ) {
-			// find how long ago the file was added to the cache
-			// and whether that is longer then MAX_AGE
-			$mtime = filemtime( $filename );
-			$age = time() - $mtime;
+		$age = $this->cache_age($url);
+
+		if ( $age > -1 ) {
 			if ( $this->MAX_AGE > $age ) {
 				// object exists and is current
 				return 'HIT';
