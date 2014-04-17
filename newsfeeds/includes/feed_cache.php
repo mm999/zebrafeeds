@@ -14,6 +14,8 @@
 if (!defined('ZF_VER')) exit;
 
 require_once($zf_path . 'includes/common.php');
+require_once($zf_path . 'includes/simplepie_fetch.php');
+
 
 class FeedCache {
 	private $BASE_CACHE = './cache';	// where the cache files are stored
@@ -48,6 +50,9 @@ class FeedCache {
 		return self::$instance;
 	}
 
+	private function key($url) {
+		return $url . ZF_ENCODING;
+	}
 /*=======================================================================*\
 	Function:	set
 	Purpose:	add an item to the cache, keyed on url
@@ -55,7 +60,7 @@ class FeedCache {
 	Output:		true on sucess
 \*=======================================================================*/
 	public function set ($url, $rss) {
-		$cache_file = $this->file_name( $url );
+		$cache_file = $this->file_name( $this->key($url) );
 		$fp = @fopen( $cache_file, 'w' );
 
 		if ( ! $fp ) {
@@ -80,7 +85,7 @@ class FeedCache {
 	Output:		cached object on HIT, false on MISS
 \*=======================================================================*/
 	public function get ($url) {
-		$cache_file = $this->file_name( $url );
+		$cache_file = $this->file_name( $this->key($url) );
 
 		if ( ! file_exists( $cache_file ) ) {
 			zf_debug("Cache doesn't contain: $url (cache file: $cache_file)", DBG_FEED);
@@ -134,7 +139,7 @@ class FeedCache {
 	}
 
 	public function cache_age( $url ) {
-		$filename = $this->file_name( $url );
+		$filename = $this->file_name( $this->key($url) );
 		if ( file_exists( $filename ) ) {
 			$mtime = filemtime( $filename );
 			$age = time() - $mtime;
@@ -148,14 +153,14 @@ class FeedCache {
 /*=======================================================================*\
 	Function:	serialize
 \*=======================================================================*/
-	public function serialize ( $feed ) {
+	private function serialize ( $feed ) {
 		return serialize( $feed );
 	}
 
 /*=======================================================================*\
 	Function:	unserialize
 \*=======================================================================*/
-	public function unserialize ( $data ) {
+	private function unserialize ( $data ) {
 		return unserialize( $data );
 	}
 
@@ -165,11 +170,45 @@ class FeedCache {
 	Input:		url from wich the rss file was fetched
 	Output:		a file name
 \*=======================================================================*/
-	public function file_name ($url) {
+	private function file_name ($url) {
 		$filename = md5( $url );
 		return join( DIRECTORY_SEPARATOR, array( $this->BASE_CACHE, $filename ) );
 	}
 
+
+
+	/* update the cache for the array of subscriptions provided */
+	public function update($subscriptions, $forceUpdate = false) {
+		// TODO: use parallel fetch
+		foreach ($subscriptions as $sub) {
+
+			zf_debug("Checking cache for $sub->title", DBG_FEED);
+			$status = $this->check_cache($sub->xmlurl);
+			zf_debug("status: $status", DBG_FEED);
+			$needsRefresh = ($status == 'STALE') || ($status == 'MISS');
+
+			if ($forceUpdate || $needsRefresh ) {
+				zf_debug('fetching remote file '.$sub->title, DBG_FEED);
+				$feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
+				if ( $feed ) {
+					zf_debug("Fetch successful", DBG_FEED);
+					/* one shot: add our extra data and do our post processing
+					  (we will here fix missing dates)
+					BEFORE storing to cache */
+					$feed->normalize($feedHistory);
+
+					// add object to cache
+					$this->set( $sub->xmlurl, $feed );
+				} else {
+					zf_debug('failed fetching remote file '.$sub->xmlurl, DBG_FEED);
+					return NULL;
+				}
+			}
+
+		}
+
+
+	}
 
 }
 
