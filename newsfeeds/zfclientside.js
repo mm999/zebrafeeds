@@ -33,7 +33,7 @@ function getHTTPObject() {
 }
 
 function requestContent(requestparams) {
-	scripturl = ZFURL + "/async.php";
+	scripturl = ZFURL + "/zebrafeeds.php";
 
 	//http.onload = null;
 	http.open("GET", scripturl + '?zftemplate='+ ZFTEMPLATE + '&f=html&' + requestparams, true);

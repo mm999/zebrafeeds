@@ -25,19 +25,14 @@
  */
 
 abstract class AbstractFeedView {
-	protected $feed;
-
-	public function useFeed($feed) {
-		$this->feed = $feed;
-	}
 
 	abstract public function renderHeader();
-	abstract public function renderFeed();
+	abstract public function renderFeed($feed);
 	abstract public function renderFooter();
 
 
-	public function renderArticle($itemid) {
-		$item = $this->feed->lookupItem($itemid);
+	public function renderArticle($feed, $itemid) {
+		$item = $feed->lookupItem($itemid);
 		if ($item) {
 			if (function_exists('zf_itemfilter')) {
 				zf_debug('Calling filter');
@@ -49,8 +44,8 @@ abstract class AbstractFeedView {
 		}
 	}
 
-	public function renderSummary($itemid) {
-		$item = $this->feed->lookupItem($itemid);
+	public function renderSummary($feed, $itemid) {
+		$item = $feed->lookupItem($itemid);
 		if ($item) {
 			if (function_exists('zf_itemfilter')) {
 				zf_debug('Calling filter');
@@ -80,14 +75,14 @@ class JSONView extends AbstractFeedView {
 	}
 	public function renderFooter() {
 	}
-	public function renderFeed() {
+	public function renderFeed($feed) {
 
 		$out = array();
 		// foreach item of the feed
-		$items = $this->feed->getItems();
+		$items = $feed->getItems();
 		foreach ($items as $item) {
 			//   add JSON friendly object to array
-			$classname = get_class($this->feed);
+			$classname = get_class($feed);
 			switch ($classname) {
 				case 'PublisherFeed':
 					// get short header without publisher
@@ -143,19 +138,19 @@ class TemplateView extends AbstractFeedView{
 	  made of an unique "feed" if grouped by date"
 	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
-	public function renderFeed() {
+	public function renderFeed($feed) {
 
 		if ($this->groupByDay ) {
-			$this->template->printListHeader($this->feed);
+			$this->template->printListHeader($feed);
 		} else {
-			$this->template->printChannel($this->feed);
+			$this->template->printChannel($feed);
 		}
-		$this->renderNewsItems();
+		$this->renderNewsItems($feed);
 
 		if ($this->groupByDay ) {
-			$this->template->printListFooter($this->feed->publisher);
+			$this->template->printListFooter();
 		} else {
-			$this->template->printChannelFooter($this->feed->publisher);
+			$this->template->printChannelFooter();
 		}
 	}
 
@@ -165,26 +160,26 @@ class TemplateView extends AbstractFeedView{
 	}
 
 	/* print only news items, no header */
-	protected function renderNewsItems() {
+	protected function renderNewsItems($feed) {
 
 		$doNewOnes = true;
 
 		if ((defined('ZF_NEWONTOP') && ZF_NEWONTOP == 'yes') ) {
 			if ($this->groupByDay ) {
-				$this->renderUnseenNewsitems();
+				$this->renderUnseenNewsitems($feed);
 				$doNewOnes = false;
 			}
 		}
-		$this->renderRemainingNewsitems($doNewOnes);
+		$this->renderRemainingNewsitems($feed, $doNewOnes);
 
 	}
 
-	private function renderUnseenNewsitems() {
+	private function renderUnseenNewsitems($feed) {
 
 		$titleToShow = '';
 
 		//foreach item
-		foreach ($this->feed->items as $item) {
+		foreach ($feed->items as $item) {
 
 			if (!$item->isNew ) continue;
 
@@ -202,14 +197,14 @@ class TemplateView extends AbstractFeedView{
 
 	}
 
-	private function renderRemainingNewsitems($doNewOnes) {
+	private function renderRemainingNewsitems($feed, $doNewOnes) {
 
 		$currentDay = '';
 		//$today = date('m.d.Y');
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
 
 		//foreach item
-		foreach ($this->feed->items as $item) {
+		foreach ($feed->items as $item) {
 
 			if (!$doNewOnes && $item->isNew ) continue;
 			/* two ways of rendering:

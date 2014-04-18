@@ -21,102 +21,139 @@
 
 if (!defined('ZF_VER')) exit;
 
+require_once($zf_path . 'includes/aggregator.php');
 
-/* manual adding feeds to avoid using opml */
-function zf_addFeed($feedUrl, $showedItems, $refreshTime) {
-//TODO: adapt to new classes
-    global $zf_aggregator;
-    $i = count($zf_aggregator->channels);
-    $zf_aggregator->channels[$i]['xmlurl'] = $feedUrl;
-    $zf_aggregator->channels[$i]['showeditems'] = $showedItems;
-    $zf_aggregator->channels[$i]['refreshtime'] = $refreshTime;
-    // make sure it is taken when looping to find out which feeds to display
-    $zf_aggregator->channels[$i]['issubscribed'] = "yes";
-    $zf_aggregator->channels[$i]['position'] = $i;
 
-}
-
-/* init=restart page */
-function zf_init() {
-    zf_reset();
-}
-
-/* restart page */
-function zf_reset() {
-    global $zf_aggregator;
-    unset($zf_aggregator);
-    $zf_aggregator = new aggregator();
-}
-
-/* pick our template */
-function zf_useTemplate($templateName) {
-    global $zf_aggregator;
-    $zf_aggregator->useTemplate($templateName);
-
-}
-
-function zf_groupByDate() {
-    global $zf_aggregator;
-    $zf_aggregator->setViewMode('date');
-}
-
-function zf_trim($size=12, $mode='hours') {
-    global $zf_aggregator;
-    //automatic now $zf_aggregator->setViewMode('trim');
-    $zf_aggregator->setTrimOptions($mode, $size);
+/* 4 functions borrowed from PicoFarad - by F. Guillot (author of Miniflux) */
+function param($name, $default_value = null)
+{
+	return isset($_GET[$name]) ? $_GET[$name] : $default_value;
 }
 
 
-function zf_useList($listName) {
-    global $zf_aggregator;
-	$zf_aggregator->useList($listName);
-}
-
-/* filter output according to a keyword */
-function zf_match($expression) {
-    global $zf_aggregator;
-    $zf_aggregator->matchNews($expression);
-
-}
-
-/* Main function: display the page
-called in either case: automatic or not
-at this point, all parameters are supposed to be present in
-the zf_aggregator object. otherwise, take configured defaults
-*/
-function zf_renderView() {
-    global $zf_aggregator;
-
-    // if we still don't have a template, get one.
-    //TODO: add check function in aggregator
-    if ($zf_aggregator->_template == null) {
-        $zf_aggregator->useTemplate(zf_getDisplayTemplateName());
-    }
-
-
-	//TODO: move this to aggregator "handleOnlineParameters"
-    /* for viewmode, trim, match, HTTP parameters take precedence over what
-    is configured, either in admin page or by script*/
-
-    // if HTTP parameter requires a special 'group by' mode
-    if (!empty($_GET['zfviewmode'])) {
-        $zf_aggregator->setViewMode($_GET['zfviewmode']);
-    }
-
-    // what do we match?
-    if (isset($_GET['zfmatch']) && (strlen($_GET['zfmatch']) > 0)) {
-        $zf_aggregator->matchNews($_GET['zfmatch']);
-    }
-    // what do we trim to?
-    if (!empty($_GET['zftrim'])) {
-		$zf_aggregator->setTrimString($_GET['zftrim']);
-    }
-
-
-    $zf_aggregator->printMainView();
-
-
+function int_param($name, $default_value = 0)
+{
+	return isset($_GET[$name]) && ctype_digit($_GET[$name]) ? (int) $_GET[$name] : $default_value;
 }
 
 
-?>
+function value($name)
+{
+	$values = values();
+	return isset($values[$name]) ? $values[$name] : null;
+}
+
+
+function values()
+{
+	if (! empty($_POST)) {
+
+		return $_POST;
+	}
+
+	$result = json_decode(body(), true);
+
+	if ($result) {
+		return $result;
+	}
+
+	return array();
+}
+
+function content_type($mimetype)
+{
+	header('Content-Type: '.$mimetype);
+}
+
+
+/* main routing function */
+function handleRequest() {
+
+	global $zf_aggregator;
+
+	$type = param('q', 'tag');
+	$channelId = param('id');
+	$itemId = param('itemid');
+	$sum = int_param('sum');
+	$tag = param('tag','');
+	$trim = param('trim', 'auto');
+	$outputType = param('f','html');
+	$template = param('zftemplate', ZF_TEMPLATE);
+
+
+
+	$zf_aggregator = new Aggregator();
+	zf_debug("Aggregator loaded");
+
+	// record the time of the visit, server side mode. WHY???
+	$zf_aggregator->recordServerVisit();
+
+	if ($outputType =='html') {
+		$zf_aggregator->useTemplate($template);
+		header('Content-Type: text/html; charset='.ZF_ENCODING);
+	} else {
+		$zf_aggregator->useJSON();
+		header('Content-Type: application/json; charset='.ZF_ENCODING);
+	}
+
+
+	switch ($type) {
+
+		case 'article':
+		case 'item':
+			//refresh: from cache always
+			$zf_aggregator->useSubscription($channelId, 'cache');
+			$zf_aggregator->printArticle($channelId, $itemId);
+			break;
+
+
+		case 'channel':
+			//refresh: user defined
+			if ($trim != 'auto') $zf_aggregator->setTrimString($trim);
+
+			$mode = param('mode', 'auto');
+
+			$zf_aggregator->useSubscription($channelId, $mode);
+			// channel with header and items, auto cache/refresh
+			$zf_aggregator->printSingleFeed($sum==1);
+			break;
+
+		case 'tag':
+			//refresh: auto refresh always
+			if ($trim!='auto') $zf_aggregator->setTrimString($trim);
+			$zf_aggregator->printTaggedFeeds($tag);
+			break;
+
+		case 'summary':
+			//refresh: from cache always
+			$zf_aggregator->printSummary($channelId, $itemId);
+			break;
+
+		case 'subs':
+			$sortedchannels = array();
+			$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
+			foreach( $subs as $i => $subscription) {
+				if ($subscription->isActive) {
+					$sortedchannels[$subscription->position] = $subscription;
+					//Why this??? $subscription->opmlindex = $i;
+				}
+			}
+			ksort($sortedchannels);
+			echo json_encode($sortedchannels);
+			break;
+
+		case 'tags':
+
+			$tags = SubscriptionStorage::getInstance()->getTags();
+			echo json_encode($tags);
+			break;
+
+
+
+	}
+
+
+
+}
+
+

@@ -29,7 +29,7 @@ if (!defined('ZF_VER')) exit;
 
 require_once($zf_path . 'includes/classes.php');
 require_once($zf_path . 'includes/feed.php');
-require_once($zf_path . 'includes/feedhandler.php');
+require_once($zf_path . 'includes/feed_cache.php');
 require_once($zf_path . 'includes/view.php');
 require_once($zf_path . 'includes/template.php');
 require_once($zf_path . 'includes/history.php');
@@ -48,7 +48,7 @@ class aggregator {
 	private $_mainViewMode;
 
 	// feed options: how to trim for the Feed object
-	private $_feedOptions;
+	private $_ViewOptions;
 	private $_view;
 	private $_currentTag;
 
@@ -64,8 +64,8 @@ class aggregator {
 	private $_now;
 
 	public function __construct() {
-		$this->_feedOptions = new FeedOptions();
-		$this->_feedOptions->setTrim('auto', 0);
+		$this->_ViewOptions = new ViewOptions();
+		$this->_ViewOptions->setTrim('auto', 0);
 		$this->subscriptions = array();
 
 		$this->_feed = null;
@@ -78,17 +78,14 @@ class aggregator {
 		/* lastsessionend= the time of end of previous session */
 		$this->_visits['lastsessionend'] = 0;
 		$this->_now = time();
-		if (ZF_USEOPML) {
-			// get all active subscriptions regardless of tag
-			$this->useTag('');
-		}
+
 		/* sets the default options
 		Only used for printMainView
 		can be date, feed or trim */
 		$this->_mainViewMode = ZF_VIEWMODE;
 
 		/* trimType will be news or days or hours */
-		$this->_feedOptions->setTrim(ZF_TRIMTYPE, ZF_TRIMSIZE);
+		$this->_ViewOptions->setTrim(ZF_TRIMTYPE, ZF_TRIMSIZE);
 	}
 
 	/* AGGREGATOR CONFIGURATION ---------------------  */
@@ -118,12 +115,41 @@ class aggregator {
 
 
 	public function useTag($tag='') {
-		// true: only subscribed
-		$this->subscriptions = SubscriptionStorage::getInstance()->getSubscriptions($tag,true);
+		// true: only active
+		$this->subscriptions = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag,true);
 		$this->_currentTag = $tag;
 		zf_debug('loaded subscriptions', DBG_LIST);
+		$cache = FeedCache::getInstance();
+		$cache->update($this->subscriptions);
 	}
 
+	public function useSubscription($subId, $mode) {
+
+		$sub = SubscriptionStorage::getInstance()->getSubscription($subId);
+		$this->subscriptions[$sub->id]=$sub;
+		
+		$cache = FeedCache::getInstance();
+
+		/* assign feed to $this->_feed;*/
+		switch ($mode) {
+			case 'auto':
+				$cache->update(array($sub));
+				break;
+			case 'cache':
+				break;
+			case 'refresh':
+				$cache->update(array($sub), true);
+				break;
+		}
+
+		$this->_feed = $cache->get($sub->xmlurl);
+
+	} 
+
+	public function prepareFeed() {
+		$this->_buildAggregatedFeed();
+
+	}
 
 	/* tells which ordering mode to use when viewing a list
 	can override the list settings
@@ -137,25 +163,20 @@ class aggregator {
 	overruling the setting saved in the OPML list */
 	public function setTrim($trimtype, $trimsize) {
 		$this->_mainViewMode = 'trim';
-		$this->_feedOptions->setTrim($trimsize, $trimtype);
+		$this->_ViewOptions->setTrim($trimsize, $trimtype);
 	}
 
 	/* changes the trimming options. Also forces the view mode to trim */
 	public function setTrimString($str) {
 		zf_debug('trim set to:'. $str, DBG_AGGR);
 		$this->setViewMode('trim');
-		$this->_feedOptions->setTrimStr($str);
-	}
-
-
-	public function matchNews($expression) {
-		$this->_mainViewMode = 'trim';
-		$this->_feedOptions->matchExpression = $expression;
+		$this->_ViewOptions->setTrimStr($str);
 	}
 
 
 	/* AGGREGATOR OPERATION & RENDERING ---------------------  */
 
+	
 	/* main function, display the aggregator view
 	   show and aggregated channels view, or a regular per-channel view
 	   according to viewmode and if matching a keyword has been requested
@@ -190,6 +211,8 @@ class aggregator {
 	renders the feed by date */
 	public function printTaggedFeeds($tag) {
 		$this->useTag($tag);
+		$this->_buildAggregatedFeed();
+
 		$this->_printFeedsByDate();
 	}
 
@@ -210,11 +233,10 @@ class aggregator {
 		//print_r($sortedChannels);
 
 		foreach($sortedChannels as $subscription) {
-			if ($subscription->isActive) {
-				if (trim($subscription->xmlurl) != '' && $subscription->shownItems > 0) {
-					//
-					$this->printSingleSubscribedFeed($subscription, 'auto');
-				}
+			zf_debug('printing feed'. $subscription->title, DBG_RENDER);
+			if (trim($subscription->xmlurl) != '' && $subscription->shownItems > 0) {
+				$feed = FeedCache::getInstance()->get($subscription->xmlurl);
+				$this->printSingleSubscribedFeed($feed);
 			}
 		}
 	}
@@ -224,14 +246,12 @@ class aggregator {
 	renders the feed by date */
 	private function _printFeedsByDate() {
 
-		$this->_buildAggregatedFeed();
 		$this->view->addTags(array( 'tag' => $this->_currentTag));
 
 		$this->view->addTags(array( 'publisherurl' => ZF_HOMEURL));
 		$this->view->groupByDay = true;
 		zf_debugRuntime("after aggregated view created");
-		$this->view->useFeed($this->_feed);
-		$this->view->renderFeed();
+		$this->view->renderFeed($this->_feed);
 	}
 
 	/* output a single channel, obtained by position
@@ -241,15 +261,11 @@ class aggregator {
 	 	0: auto from subscription list
 	 	-1 is all
 	 */
-	public function printSingleFeed($channelId, $mode, $wantSummary) {
+	public function printSingleFeed($channelId, $wantSummary) {
 		/* get sub by pos from list */
 		$sub = $this->subscriptions[$channelId];
-		if ($sub) {
-			$this->printSingleSubscribedFeed($sub, $mode, $wantSummary);
-		} else {
-			zf_debug('print: id not found:'. $channelId);
-
-		}
+		$feed = FeedCache::getInstance()->get($sub->xmlurl);
+		$this->printSingleSubscribedFeed($feed, $wantSummary);
 	}
 
 	/* output a single channel, obtained by position
@@ -258,35 +274,19 @@ class aggregator {
 	 $wantSummary: do we want summary included? default false
 
 	 */
-	public function printSingleSubscribedFeed($sub, $mode, $wantSummary=false) {
+	public function printSingleSubscribedFeed($feed, $wantSummary=false) {
 
-		//print $sub->__toString();
-		/* create feedhandler and get feed, auto mode */
-		$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
 
-		/* assign feed to $this->_feed;*/
-		switch ($mode) {
-			case 'auto':
-				$this->_feed = $handler->getAutoFeed();
-				break;
-			case 'cache':
-				$this->_feed = $handler->getFeedFromCache();
-				break;
-			case 'refresh':
-				$this->_feed = $handler->getRefreshedFeed();
-				break;
-		}
-
-		zf_debug("viewing channel ".$sub->__toString(), DBG_RENDER);
+		//zf_debug("viewing channel ".$sub->__toString(), DBG_RENDER);
 
 /*
 	 if we get here, it's either
 	 - async request: viewMode does not matter (feed or trim),
 	                  trimType can be auto (if default) or news
 	                -> if trimType is auto, trim feed to "$sub->shownItems" items
-	                -> otherwise, trim feed to "$this->feedOptions" items
+	                -> otherwise, trim feed to "$this->ViewOptions" items
 	 - printMainView: viewMode is feed then trimType is auto
-	                -> trim feed to "$this->feedOptions" items
+	                -> trim feed to "$this->ViewOptions" items
 
 
 		(trimType,trimSize) is either
@@ -295,17 +295,19 @@ class aggregator {
 		 ('news', <N>) => trim to trimSize
 
 */
-		if ($this->_feed) {
+		if ($feed) {
 
-			zf_debug('Trimming type '.$this->_feedOptions->trimType, DBG_RENDER);
-			switch ($this->_feedOptions->trimType) {
+			zf_debug('Trimming type '.$this->_ViewOptions->trimType, DBG_RENDER);
+			//TODO fix this
+			$this->_ViewOptions->trimType = 'none';
+			switch ($this->_ViewOptions->trimType) {
 				case 'auto':
 					zf_debug('Trimming to subscription shownItems: '.$sub->shownItems, DBG_RENDER);
 					$this->_feed->trimItems($sub->shownItems);
 					break;
 				case 'news':
-					zf_debug('Trimming to requested nr of items: '.$this->_feedOptions->trimSize, DBG_RENDER);
-					$this->_feed->trimItems($this->_feedOptions->trimSize);
+					zf_debug('Trimming to requested nr of items: '.$this->_ViewOptions->trimSize, DBG_RENDER);
+					$this->_feed->trimItems($this->_ViewOptions->trimSize);
 					break;
 				case 'none':
 					zf_debug('No trimming', DBG_RENDER);
@@ -316,15 +318,13 @@ class aggregator {
 			//TODO: use tag
 			$this->view->addTags(array( 'list' => ''));
 
-			$this->view->useFeed($this->_feed);
-
 			// could become true if we wanted date grouping for every channel
 			// will only be useful for TemplateView
 			$this->view->groupByDay = false;
 
 			//render with no channel header if requested and applicable
 			$this->view->summaryInFeed = $wantSummary;
-			$this->view->renderFeed();
+			$this->view->renderFeed($feed);
 		} else {
 			zf_debug('Internal error. no feed loaded.', DBG_AGGR);
 		}
@@ -342,13 +342,9 @@ class aggregator {
 		/* get sub by pos from list */
 		$sub = $this->subscriptions[$channelId];
 		if ($sub) {
-			zf_debug("printing articles for ".$sub->__toString());
+			zf_debug("printing article for ".$sub->__toString());
 			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
-			/* assign feed to $this->_feed;*/
-			$this->_feed = $handler->getFeedFromCache();
-			$this->view->useFeed($this->_feed);
-			$this->view->renderArticle($itemid);
+			$this->view->renderArticle($this->_feed, $itemid);
 		}
 	}
 
@@ -363,11 +359,6 @@ class aggregator {
 		$sub = $this->subscriptions[$channelId];
 		if ($sub) {
 			zf_debug("printing articles for ".$sub->__toString());
-			/* create feedhandler and get feed, auto mode */
-			$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
-			/* assign feed to $this->_feed;*/
-			$this->_feed = $handler->getFeedFromCache();
-			$this->view->useFeed($this->_feed);
 			$this->view->renderSummary($itemid);
 		}
 	}
@@ -379,8 +370,8 @@ class aggregator {
 	doesn't set content type*/
 	function printRSSFeed() {
 
-		$this->_feedOptions->trimType = "news";
-		$this->_feedOptions->trimSize = ZF_RSSEXPORTSIZE;
+		$this->_ViewOptions->trimType = "news";
+		$this->_ViewOptions->trimSize = ZF_RSSEXPORTSIZE;
 
 		$this->_buildAggregatedFeed();
 		$view = new TemplateView("System.RSS");
@@ -425,7 +416,7 @@ class aggregator {
 		// create an empty, meant to be virtual, feed object
 		// we'll merge all feeds containing actual data into it
 		$this->_feed = new AggregatedFeed($this->_currentTag);
-		$this->_feed->setTrim($this->_feedOptions);
+		$this->_feed->setTrim($this->_ViewOptions);
 
 		$subs = $this->subscriptions;
 
@@ -435,25 +426,8 @@ class aggregator {
 
 		$feedhandlers = array();
 		foreach($subs as $sub) {
-			if ($sub->isActive) {
-				/* create feedhandler and get feed, auto mode */
-				$handler = new FeedHandler($sub, $this->_visits['lastsessionend'], $this->_now);
-				/* assign feed to $this->_feed;*/
-				if ($handler->isFeedCached() ){
-					//add handler to the list of handlers to fetch
-				}
-				$feedhandlers[] = $handler;
-			}
-		}
 
-		// trigger parallel fetch
-
-
-		// merge into aggregated feed
-
-
-		foreach($feedhandlers as $handler) {
-			$feed = $handler->getAutoFeed();
+			$feed = FeedCache::getInstance()->get($sub->xmlurl);
 			if($feed !=null ) {
 				zf_debug('merging into Aggregated feed', DBG_AGGR);
 				$this->_feed->mergeWith($feed);

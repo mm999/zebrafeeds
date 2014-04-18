@@ -22,7 +22,6 @@
 
 
 require_once('init.php');
-require_once($zf_path . 'includes/aggregator.php');
 require_once($zf_path . 'includes/controller.php');
 
 if (strlen(ZF_URL) == 0) {
@@ -30,44 +29,6 @@ if (strlen(ZF_URL) == 0) {
 	exit;
 }
 
-global $zf_aggregator;
-if (!isset($zf_aggregator)) {
-	$zf_aggregator = new aggregator();
-}
 
-
-zf_debug("Aggregator loaded");
-
-// record the time of the visit, server side mode. WHY???
-$zf_aggregator->recordServerVisit();
-
-
-/* === 2: find out query type and main parameters =====*/
-if (isset($_GET['q'])) {
-	$q = $_GET['q'];
-
-	if ($q=='article') {
-		$channelId = isset($_GET['id']) ? $_GET['id'] : -1;
-		$itemId = isset($_GET['itemid']) ? $_GET['itemid'] : -1;
-
-		$zf_aggregator->useDefaultTemplate();
-		$zf_aggregator->printArticle($channelId, $itemId);
-
-		exit;
-	}
-
-}
-
-if (ZF_RENDERMODE == 'automatic') {
-	zf_debug("Using automatic mode");
-	$zf_aggregator->useDefaultTemplate();
-	$zf_aggregator->useDefaultTag();
-	$zf_aggregator->printMainView();
-
-
-} else {
-	// ZF_MODE set to manual: output will be configured by whoever is integrating
-	//the script on their site
-	zf_debug("Using manual mode");
-}
+handleRequest();
 

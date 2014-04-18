@@ -242,7 +242,7 @@ class Enclosure {
 
 
 /*=======*/
-class FeedOptions {
+class ViewOptions {
 	// how to shorten the list of items
 	public $trimType = 'none';
 	// freshness number in days, hours or news
