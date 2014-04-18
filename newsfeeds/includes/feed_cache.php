@@ -194,6 +194,7 @@ class FeedCache {
 					/* one shot: add our extra data and do our post processing
 					  (we will here fix missing dates)
 					BEFORE storing to cache */
+					//TODO fix this
 					$feed->normalize($feedHistory);
 					$feeds[$sub->id] = $feed;
 
@@ -202,6 +203,9 @@ class FeedCache {
 				} else {
 					zf_debug('failed fetching remote file '.$sub->xmlurl, DBG_FEED);
 				}
+			}
+			else {
+				$feeds[$sub->id] = $this->get($sub->id);
 			}
 
 		}
