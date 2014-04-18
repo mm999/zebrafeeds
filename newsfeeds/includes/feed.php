@@ -29,7 +29,7 @@ require_once($zf_path . 'includes/history.php');
 abstract class AbstractFeed {
 	// aggregated, normalized items
 	// if we aggregate several feeds, index is numeric position in the array
-	public $items;
+	protected $items;
 	public $last_fetched = 0;
 
 	// merging/filter options
@@ -45,10 +45,10 @@ abstract class AbstractFeed {
 			if (!$keepit) {
 				// finally add our item to the news array
 				zf_debug('Item discarded by user function: \"'.$item->title.'\"', DBG_AGGR);
-				continue;
+				return;
 			}
 		}
-		array_push($this->items, $item);
+		$this->items[$item->id]= $item;
 	}
 
 	public function setTrim($opt) {
@@ -69,7 +69,7 @@ abstract class AbstractFeed {
 		$this->items = array();
 		foreach ($currentitems as $item) {
 			if ($item->isNew) {
-				$this->items[] = $item;
+				$this->items[$item->id] = $item;
 			}
 		}
 	}
@@ -78,19 +78,13 @@ abstract class AbstractFeed {
 		return $this->items;
 	}
 
-	public function lookupItem($itemid) {
+	public function getItem($itemid) {
 
-		foreach ($this->items as $item) {
-			zf_debug('checking item with id '.$item->id);
-			if ( $item->id == $itemid ) {
-
-				zf_debug('Item Matches');
-				// HERE, we could/should use channel title/description
-
-				return $item;
-			}
-		}
-		return null;
+		if (isset($this->items[$itemid])) {
+			return $this->items[$itemid];
+		} else {
+			return NULL;
+		} 
 	}
 
 }
@@ -130,18 +124,20 @@ class AggregatedFeed extends AbstractFeed {
 	// timestamp before which we don't want news
 	private $_earliest;
 
-	// when the feed is virtual, this is the name of the list
-	private $tag;
 	/* this feed is an aggregation of feeds from a list
 	   this method initializes this
 	 */
-	public function __construct($tag) {
+	public function __construct($feeds) {
 
 		parent::__construct();
-		$this->tag = $tag;
 
 		$this->_earliest = 0;
 
+
+		foreach($feeds as $pubfeed) {
+			$this->mergeItems($pubfeed);
+		}
+		$this->postProcess();
 
 	}
 
@@ -175,26 +171,20 @@ class AggregatedFeed extends AbstractFeed {
 
 	/* function to call after all RSS have been merged
 	in order to finalize processing, like sorting and trimming */
-	public function postProcess($sort = true) {
-		zf_debug("Post processing aggregated feed: sort=$sort, trimType =".
-			$this->_feedOptions->trimType, DBG_AGGR);
+	protected function postProcess($sort = true) {
+		/*zf_debug("Post processing aggregated feed: sort=$sort, trimType =".
+				, area$this->_feedOptions->trimType, DBG_AGGR);*/
 		if ($sort) {
 			$this->sortItems();
 		}
-		if ($this->_feedOptions->trimType == 'news')
+		/*if ($this->_feedOptions->trimType == 'news')
 			$this->trimItems($this->_feedOptions->trimSize);
-
+*/
 		if ((defined('ZF_ONLYNEW') && ZF_ONLYNEW == 'yes') ) {
 			$this->filterNonNew();
 		}
 	}
 
-	public function mergeWith($feed) {
-		$this->isVirtual = true;
-
-		$this->touch($feed);
-		$this->mergeItems($feed);
-	}
 
 		/* merge the news items from the RSS object into our list of items
 		but before, do some stuff, like
@@ -266,14 +256,6 @@ class AggregatedFeed extends AbstractFeed {
 
 	}
 
-	// retain the most recent fetch date of all feeds integrated in this one
-	public function touch($feedToMerge) {
-
-		// if the feed we are merging into is more recent, the date of this feed is touched
-		if ($this->last_fetched < $feedToMerge->last_fetched) {
-			$this->last_fetched = $feedToMerge->last_fetched;
-		}
-	}
 
 	/* matching function. check an expression against
 		title and description of an item

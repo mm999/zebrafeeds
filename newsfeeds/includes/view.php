@@ -23,6 +23,11 @@
  it expresses the fact that channel feeds and virtual
  feeds render the same way. The only option here, is to group by day or not
  */
+if (!defined('ZF_VER')) exit;
+
+require_once($zf_path . 'includes/common.php');
+require_once($zf_path . 'includes/template.php');
+
 
 abstract class AbstractFeedView {
 
@@ -31,30 +36,21 @@ abstract class AbstractFeedView {
 	abstract public function renderFooter();
 
 
-	public function renderArticle($feed, $itemid) {
-		$item = $feed->lookupItem($itemid);
-		if ($item) {
-			if (function_exists('zf_itemfilter')) {
-				zf_debug('Calling filter');
-				zf_itemfilter($item);
-			}
-			$this->_doPrintArticle($item);
-		} else {
-			echo  "Content not available";
+	public function renderArticle($item) {
+
+		if (function_exists('zf_itemfilter')) {
+			zf_debug('Calling filter');
+			zf_itemfilter($item);
 		}
+		$this->_doPrintArticle($item);
 	}
 
-	public function renderSummary($feed, $itemid) {
-		$item = $feed->lookupItem($itemid);
-		if ($item) {
-			if (function_exists('zf_itemfilter')) {
-				zf_debug('Calling filter');
-				zf_itemfilter($item);
-			}
-			$this->_doPrintSummary($item);
-		} else {
-			echo  "Content not available";
+	public function renderSummary($item) {
+		if (function_exists('zf_itemfilter')) {
+			zf_debug('Calling filter');
+			zf_itemfilter($item);
 		}
+		$this->_doPrintSummary($item);
 
 	}
 
@@ -130,7 +126,7 @@ class TemplateView extends AbstractFeedView{
 	}
 
 	public function renderHeader() {
-		zf_debug('Calling header');
+		zf_debug('Rendering header of TemplateView', DBG_RENDER);
 		$this->template->printHeader();
 	}
 
@@ -139,6 +135,7 @@ class TemplateView extends AbstractFeedView{
 	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
 	public function renderFeed($feed) {
+		zf_debug('Rendering feed in TemplateView', DBG_RENDER);
 
 		if ($this->groupByDay ) {
 			$this->template->printListHeader($feed);
@@ -155,58 +152,23 @@ class TemplateView extends AbstractFeedView{
 	}
 
 	public function renderFooter() {
-		zf_debug('Calling footer');
+		zf_debug('Rendering footer of TemplateView', DBG_RENDER);
 		$this->template->printFooter();
 	}
 
 	/* print only news items, no header */
 	protected function renderNewsItems($feed) {
 
-		$doNewOnes = true;
-
-		if ((defined('ZF_NEWONTOP') && ZF_NEWONTOP == 'yes') ) {
-			if ($this->groupByDay ) {
-				$this->renderUnseenNewsitems($feed);
-				$doNewOnes = false;
-			}
-		}
-		$this->renderRemainingNewsitems($feed, $doNewOnes);
-
-	}
-
-	private function renderUnseenNewsitems($feed) {
-
-		$titleToShow = '';
-
-		//foreach item
-		foreach ($feed->items as $item) {
-
-			if (!$item->isNew ) continue;
-
-			if ($titleToShow == '') {
-				$titleToShow = "Recent news";
-				$this->template->printDay($titleToShow);
-			}
-			$this->template->printNewsByDate($item);
-		} // end foreach
-
-		// print day footer
-		if ($titleToShow != '') {
-			$this->template->printDayFooter($currentDay);
-		}
-
-	}
-
-	private function renderRemainingNewsitems($feed, $doNewOnes) {
-
+		zf_debug('Rendering Newsitems in TemplateView', DBG_RENDER);
 		$currentDay = '';
 		//$today = date('m.d.Y');
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
 
 		//foreach item
-		foreach ($feed->items as $item) {
+		$itemsList = $feed->getItems();
+		zf_debug(sizeof($itemsList).' to render', DBG_RENDER);
+		foreach ($itemsList as $item) {
 
-			if (!$doNewOnes && $item->isNew ) continue;
 			/* two ways of rendering:
 			- group by day, we use a special template part, and separate each day
 			- normal, use the regular news template
@@ -252,6 +214,7 @@ class TemplateView extends AbstractFeedView{
 		}
 
 	}
+
 
 	protected function _doPrintArticle($item) {
 		$this->template->printArticle($item);

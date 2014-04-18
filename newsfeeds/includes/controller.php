@@ -22,6 +22,10 @@
 if (!defined('ZF_VER')) exit;
 
 require_once($zf_path . 'includes/aggregator.php');
+require_once($zf_path . 'includes/feed_cache.php');
+require_once($zf_path . 'includes/classes.php');
+require_once($zf_path . 'includes/subscriptionstorage.php');
+require_once($zf_path . 'includes/view.php');
 
 
 /* 4 functions borrowed from PicoFarad - by F. Guillot (author of Miniflux) */
@@ -79,7 +83,13 @@ function handleRequest() {
 	$trim = param('trim', 'auto');
 	$outputType = param('f','html');
 	$template = param('zftemplate', ZF_TEMPLATE);
+	
+	//refresh mode
+	$mode = param('mode', 'auto');
 
+	// TODO: view mode for tag request : by feed or by date
+	// trim = auto -> use default config
+	// trim = sth else -> always by date, trimmed
 
 
 	$zf_aggregator = new Aggregator();
@@ -89,21 +99,34 @@ function handleRequest() {
 	$zf_aggregator->recordServerVisit();
 
 	if ($outputType =='html') {
-		$zf_aggregator->useTemplate($template);
-		header('Content-Type: text/html; charset='.ZF_ENCODING);
+		//$zf_aggregator->useTemplate($template);
+		@header('Content-Type: text/html; charset='.ZF_ENCODING);
+		$view = new TemplateView($template);
 	} else {
-		$zf_aggregator->useJSON();
 		header('Content-Type: application/json; charset='.ZF_ENCODING);
+		$view = new JSONView();
 	}
 
+	$storage = SubscriptionStorage::getInstance();
+	$cache = FeedCache::getInstance();
 
 	switch ($type) {
 
-		case 'article':
 		case 'item':
 			//refresh: from cache always
-			$zf_aggregator->useSubscription($channelId, 'cache');
-			$zf_aggregator->printArticle($channelId, $itemId);
+			// can be done in one step if moved to FeedCache
+			$feed = $cache->get($channelId);
+			$item = $feed->getItem($itemId);
+			$view->renderArticle($item);
+			break;
+
+		case 'summary':
+			//refresh: from cache always
+
+			// can be done in one step if moved to FeedCache
+			$feed = $cache->get($channelId);
+			$item = $feed->getItem($itemId);
+			$view->renderSummary($item);
 			break;
 
 
@@ -111,32 +134,56 @@ function handleRequest() {
 			//refresh: user defined
 			if ($trim != 'auto') $zf_aggregator->setTrimString($trim);
 
-			$mode = param('mode', 'auto');
+			$sub = $storage->getSubscription($channelId);
+			$feeds = $cache->update(array($sub->id => $sub) );
+			$feed = array_pop($feeds);
 
-			$zf_aggregator->useSubscription($channelId, $mode);
-			// channel with header and items, auto cache/refresh
-			$zf_aggregator->printSingleFeed($sum==1);
+			// could become true if we wanted date grouping for every channel
+			// will only be useful for TemplateView
+			// TODO use ZF_VIEWMODE;
+			$view->groupByDay = false;
+			//render with no channel header if requested and applicable
+			$view->summaryInFeed = ($sum==1);
+			$view->renderFeed($feed);
 			break;
 
 		case 'tag':
 			//refresh: auto refresh always
-			if ($trim!='auto') $zf_aggregator->setTrimString($trim);
-			$zf_aggregator->printTaggedFeeds($tag);
-			break;
+			//if ($trim!='auto') $zf_aggregator->setTrimString($trim);
 
-		case 'summary':
-			//refresh: from cache always
-			$zf_aggregator->printSummary($channelId, $itemId);
+			$subs = $storage->getActiveSubscriptions($tag);
+			zf_debugRuntime("before feeds update");
+			$feeds = $cache->update($subs);
+
+			zf_debugRuntime("before aggregation");
+			/* TODO: + mergeoptions*/ 
+			$aggrfeed = new AggregatedFeed($feeds);
+
+			$view->addTags(array( 'tag' => $tag));
+			$view->groupByDay = true;
+			zf_debugRuntime("before rendering");
+			$view->renderFeed($aggrfeed);
+
+/* TODO= implement mode of cache update according to request
+		switch ($mode) {
+			case 'auto':
+				$cache->update(array($sub));
+				break;
+			case 'cache':
+				break;
+			case 'refresh':
+				$cache->update(array($sub), true);
+				break;
+		} */
+
 			break;
 
 		case 'subs':
+			//only JSON
 			$sortedchannels = array();
 			$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
 			foreach( $subs as $i => $subscription) {
-				if ($subscription->isActive) {
-					$sortedchannels[$subscription->position] = $subscription;
-					//Why this??? $subscription->opmlindex = $i;
-				}
+				$sortedchannels[$subscription->position] = $subscription;
 			}
 			ksort($sortedchannels);
 			echo json_encode($sortedchannels);
@@ -144,11 +191,14 @@ function handleRequest() {
 
 		case 'tags':
 
-			$tags = SubscriptionStorage::getInstance()->getTags();
+			$tags = $storage->getTags();
 			echo json_encode($tags);
 			break;
 
-
+		case 'refresh':
+			// TODO: check API key
+			$cache->update($channelId, true);
+			break;
 
 	}
 
