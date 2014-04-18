@@ -50,17 +50,15 @@ class FeedCache {
 		return self::$instance;
 	}
 
-	private function key($url) {
-		return $url . ZF_ENCODING;
-	}
+
 /*=======================================================================*\
 	Function:	set
 	Purpose:	add an item to the cache, keyed on url
 	Input:		url from wich the rss file was fetched
 	Output:		true on sucess
 \*=======================================================================*/
-	public function set ($url, $rss) {
-		$cache_file = $this->file_name( $this->key($url) );
+	public function set ($key, $rss) {
+		$cache_file = $this->file_name( $key );
 		$fp = @fopen( $cache_file, 'w' );
 
 		if ( ! $fp ) {
@@ -84,11 +82,11 @@ class FeedCache {
 	Input:		url from wich the rss file was fetched
 	Output:		cached object on HIT, false on MISS
 \*=======================================================================*/
-	public function get ($url) {
-		$cache_file = $this->file_name( $this->key($url) );
+	public function get ($key) {
+		$cache_file = $this->file_name( $key );
 
 		if ( ! file_exists( $cache_file ) ) {
-			zf_debug("Cache doesn't contain: $url (cache file: $cache_file)", DBG_FEED);
+			zf_debug("Cache doesn't contain: $key (cache file: $cache_file)", DBG_FEED);
 			return 0;
 		}
 
@@ -118,9 +116,9 @@ class FeedCache {
 	            MAX_AGE to check against
 	Output:		HIT, STALE or MISS
 \*=======================================================================*/
-	public function check_cache ( $url ) {
+	public function check_cache ( $key ) {
 
-		$age = $this->cache_age($url);
+		$age = $this->cache_age($key);
 
 		if ( $age > -1 ) {
 			if ( $this->MAX_AGE > $age ) {
@@ -138,8 +136,8 @@ class FeedCache {
 		}
 	}
 
-	public function cache_age( $url ) {
-		$filename = $this->file_name( $this->key($url) );
+	public function cache_age( $key ) {
+		$filename = $this->file_name($key);
 		if ( file_exists( $filename ) ) {
 			$mtime = filemtime( $filename );
 			$age = time() - $mtime;
@@ -170,8 +168,8 @@ class FeedCache {
 	Input:		url from wich the rss file was fetched
 	Output:		a file name
 \*=======================================================================*/
-	private function file_name ($url) {
-		$filename = md5( $url );
+	private function file_name ($key) {
+		$filename = $key;
 		return join( DIRECTORY_SEPARATOR, array( $this->BASE_CACHE, $filename ) );
 	}
 
@@ -180,10 +178,11 @@ class FeedCache {
 	/* update the cache for the array of subscriptions provided */
 	public function update($subscriptions, $forceUpdate = false) {
 		// TODO: use parallel fetch
+		$feeds = array();
 		foreach ($subscriptions as $sub) {
 
 			zf_debug("Checking cache for $sub->title", DBG_FEED);
-			$status = $this->check_cache($sub->xmlurl);
+			$status = $this->check_cache($sub->id);
 			zf_debug("status: $status", DBG_FEED);
 			$needsRefresh = ($status == 'STALE') || ($status == 'MISS');
 
@@ -196,17 +195,17 @@ class FeedCache {
 					  (we will here fix missing dates)
 					BEFORE storing to cache */
 					$feed->normalize($feedHistory);
+					$feeds[$sub->id] = $feed;
 
 					// add object to cache
-					$this->set( $sub->xmlurl, $feed );
+					$this->set( $sub->id, $feed );
 				} else {
 					zf_debug('failed fetching remote file '.$sub->xmlurl, DBG_FEED);
-					return NULL;
 				}
 			}
 
 		}
-
+		return $feeds;
 
 	}
 
