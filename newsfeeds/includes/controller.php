@@ -63,7 +63,7 @@ sum: if 1 then summary included in news item header, 0 no summary (default)
 trim: how to shorten the number of items when getting feeds with tag, to get only news
 	  or the last hour, since 4 days...
 	  when q=tag. Allowed values override default settings and are:
-			  <N>days, <N>hours, <N>news, 
+			  <N>days, <N>hours, <N>news,
 	  when q=channel allowed values are:
 			   none (show all), auto (default, use subscription setting), <N>news
 
@@ -133,14 +133,9 @@ function handleRequest() {
 	$template = param('zftemplate', ZF_TEMPLATE);
 	$onlyNew = int_param('onlynew',0);
 	$sort = param('sort', ZF_VIEWMODE);
-	
+
 	//refresh mode
 	$updateMode = param('mode', 'auto');
-
-	// TODO: view mode for tag request : by feed or by date
-	// trim = auto -> use default config
-	// trim = sth else -> always by date, trimmed
-
 
 	$zf_aggregator = new Aggregator();
 	zf_debug("Aggregator loaded");
@@ -166,8 +161,7 @@ function handleRequest() {
 		case 'item':
 			//refresh: always from cache for newsitems
 			// can be done in one step if getItem moved to FeedCache
-			$feed = $cache->get($channelId);
-			$item = $feed->getItem($itemId);
+			$item = $cache->getItem($channelId, $itemId);
 			$view->renderArticle($item);
 			break;
 
@@ -175,8 +169,7 @@ function handleRequest() {
 			//refresh: always from cache for news items
 
 			// can be done in one step if moved to FeedCache
-			$feed = $cache->get($channelId);
-			$item = $feed->getItem($itemId);
+			$item = $cache->getItem($channelId, $itemId);
 			$view->renderSummary($item);
 			break;
 
@@ -199,7 +192,7 @@ function handleRequest() {
 			// could become true if we wanted date grouping for every channel
 			// will only be useful for TemplateView
 			$view->renderFeed($feed, array(
-				'groupbyday' => false, 
+				'groupbyday' => false,
 				'summary' => ($sum==1)));
 			break;
 
@@ -211,7 +204,6 @@ function handleRequest() {
 			$feeds = $cache->update($subs, 'auto');
 
 			zf_debugRuntime("before aggregation");
-			/* TODO: + mergeoptions*/ 
 			zf_debugRuntime("before rendering");
 			if ($sort == 'feed' && $outputType == 'html') {
 
@@ -225,12 +217,12 @@ function handleRequest() {
 					$feed->postProcess($feedParams);
 				}
 
-				$view->renderFeedlist($feeds, array( 
+				$view->renderFeedlist($feeds, array(
 					'groupbyday' => false,
-					'summary' => ($sum==1), 
+					'summary' => ($sum==1),
 					'tag' => $tag));
 
-			} else { 
+			} else {
 				$feedParams = new FeedParams();
 				if ($trim != 'auto') {
 					$feedParams->setTrimStr($trim);
@@ -238,8 +230,8 @@ function handleRequest() {
 				$feedParams->onlyNew = $onlyNew;
 				$aggrfeed = new AggregatedFeed($feeds, $feedParams);
 				$view->renderFeed($aggrfeed, array(
-					'groupbyday' => true, 
-					'summary' => ($sum==1), 
+					'groupbyday' => true,
+					'summary' => ($sum==1),
 					'tag' => $tag));
 			}
 
@@ -248,6 +240,7 @@ function handleRequest() {
 		case 'subs':
 			//only JSON
 			$sortedchannels = array();
+			// TODO move this to  storage class
 			$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
 			foreach( $subs as $i => $subscription) {
 				$sortedchannels[$subscription->position] = $subscription;

@@ -175,8 +175,9 @@ class FeedCache {
 
 
 
-	/* update the cache for the array of subscriptions provided 
+	/* update the cache for the array of subscriptions provided
 		updateMode: force, none, auto
+		ZebraFeeds addition
 	*/
 	public function update($subscriptions, $updateMode = 'auto') {
 		// TODO: use parallel fetch
@@ -215,6 +216,12 @@ class FeedCache {
 		return $feeds;
 
 	}
+
+	public function getItem($key, $itemId) {
+		$feed = $this->get($key);
+		return $feed->getItem($itemId);
+	}
+
 
 }
 
