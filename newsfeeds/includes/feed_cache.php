@@ -175,8 +175,10 @@ class FeedCache {
 
 
 
-	/* update the cache for the array of subscriptions provided */
-	public function update($subscriptions, $forceUpdate = false) {
+	/* update the cache for the array of subscriptions provided 
+		updateMode: force, none, auto
+	*/
+	public function update($subscriptions, $updateMode = 'auto') {
 		// TODO: use parallel fetch
 		$feeds = array();
 		foreach ($subscriptions as $sub) {
@@ -186,7 +188,7 @@ class FeedCache {
 			zf_debug("status: $status", DBG_FEED);
 			$needsRefresh = ($status == 'STALE') || ($status == 'MISS');
 
-			if ($forceUpdate || $needsRefresh ) {
+			if ($updateMode == 'force' || ($needsRefresh && $updateMode == 'auto') ) {
 				zf_debug('fetching remote file '.$sub->title, DBG_FEED);
 				$feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
 				if ( $feed ) {
@@ -205,6 +207,7 @@ class FeedCache {
 				}
 			}
 			else {
+				// get from cache
 				$feeds[$sub->id] = $this->get($sub->id);
 			}
 

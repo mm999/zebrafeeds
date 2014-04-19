@@ -31,9 +31,8 @@ require_once($zf_path . 'includes/template.php');
 
 abstract class AbstractFeedView {
 
-	abstract public function renderHeader();
-	abstract public function renderFeed($feed);
-	abstract public function renderFooter();
+	abstract public function renderFeed($feed, $params);
+	abstract public function renderFeedlist($feeds, $params);
 
 
 	public function renderArticle($item) {
@@ -57,21 +56,13 @@ abstract class AbstractFeedView {
 	abstract protected function _doPrintArticle($item);
 	abstract protected function _doPrintSummary($item);
 
-	abstract public function addTags($tags);
 }
 
 
 class JSONView extends AbstractFeedView {
 
-	public $summaryInFeed = false;
 
-
-
-	public function renderHeader() {
-	}
-	public function renderFooter() {
-	}
-	public function renderFeed($feed) {
+	public function renderFeed($feed, $params) {
 
 		$out = array();
 		// foreach item of the feed
@@ -82,15 +73,20 @@ class JSONView extends AbstractFeedView {
 			switch ($classname) {
 				case 'PublisherFeed':
 					// get short header without publisher
-					$out[] = $item->getSerializableHeader($this->summaryInFeed);
+					$out[] = $item->getSerializableHeader($params['summary']);
 					break;
 				case 'AggregatedFeed':
 					// get full header with publisher info
-					$out[] = $item->getFullSerializableHeader($this->summaryInFeed);
+					$out[] = $item->getFullSerializableHeader($params['summary']);
 			}
 		}
 
 		echo json_encode($out);
+
+	}
+
+	public function renderFeedlist($feeds, $params) {
+
 
 	}
 
@@ -102,8 +98,6 @@ class JSONView extends AbstractFeedView {
 		echo json_encode($item->summary);
 	}
 
-	public function addTags($tags) {
-	}
 
 }
 
@@ -112,52 +106,52 @@ class JSONView extends AbstractFeedView {
 class TemplateView extends AbstractFeedView{
 
 
-	// optional: separate each news day
-	public $groupByDay;
-
 	/* this property is used when currently rendering a particular feed
 	it's a Feed object	  */
 
 	protected $template;
 
 	public function __construct($templateName) {
-		$this->groupByDay = false;
 		$this->template = new template($templateName);
 	}
 
-	public function renderHeader() {
-		zf_debug('Rendering header of TemplateView', DBG_RENDER);
-		$this->template->printHeader();
-	}
 
 	/* render the view,
 	  made of an unique "feed" if grouped by date"
 	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
-	public function renderFeed($feed) {
+	public function renderFeed($feed, $params) {
+		$this->template->printHeader();
 		zf_debug('Rendering feed in TemplateView', DBG_RENDER);
 
-		if ($this->groupByDay ) {
-			$this->template->printListHeader($feed);
-		} else {
+		if (!$params['groupbyday'] ) {
 			$this->template->printChannel($feed);
 		}
-		$this->renderNewsItems($feed);
+		$this->renderNewsItems($feed, $params);
 
-		if ($this->groupByDay ) {
-			$this->template->printListFooter();
-		} else {
+		if (!$params['groupbyday'] ) {
 			$this->template->printChannelFooter();
 		}
-	}
-
-	public function renderFooter() {
-		zf_debug('Rendering footer of TemplateView', DBG_RENDER);
 		$this->template->printFooter();
 	}
 
+	public function renderFeedlist($feeds, $params) {
+		$this->template->printHeader();
+		foreach($feeds as $feed) {
+			$this->template->printChannel($feed);
+			$this->renderNewsItems($feed, $params);
+			$this->template->printChannelFooter();
+		}
+
+		$this->template->printFooter();
+		$this->template->printErrors();
+		$this->template->printCredits();
+
+
+	}
+
 	/* print only news items, no header */
-	protected function renderNewsItems($feed) {
+	protected function renderNewsItems($feed, $params) {
 
 		zf_debug('Rendering Newsitems in TemplateView', DBG_RENDER);
 		$currentDay = '';
@@ -178,7 +172,7 @@ class TemplateView extends AbstractFeedView{
 				$renderIt = zf_itemfilter($item);
 			}
 
-			if ($this->groupByDay ) {
+			if ($params['groupbyday'] ) {
 				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item->date_timestamp)));
 				/*
 				 * non locale-friendly way...
@@ -208,7 +202,7 @@ class TemplateView extends AbstractFeedView{
 
 		} // end foreach
 
-		if ($this->groupByDay && ZF_GROUP_BY_DAY == 'yes') {
+		if ($params['groupbyday'] && ZF_GROUP_BY_DAY == 'yes') {
 			// terminate the last day we used
 			$this->template->printDayFooter($currentDay);
 		}
@@ -223,9 +217,5 @@ class TemplateView extends AbstractFeedView{
 	protected function _doPrintSummary($item) {
 	}
 
-
-	public function addTags($tags) {
-		$this->template->addTags($tags);
-	}
 }
 

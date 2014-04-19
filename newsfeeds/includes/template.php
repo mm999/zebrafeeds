@@ -244,6 +244,21 @@ class template {
 
 	}
 
+	/* generate bottom line NOT USED IF JSON*/
+	public function printCredits() {
+		if ((!defined("ZF_SHOWCREDITS")) || (ZF_SHOWCREDITS!='no')) {
+			echo ' <div id="generator">aggregated by <a href="http://www.cazalet.org/zebrafeeds">ZebraFeeds</a></div>';
+		}
+
+		zf_debugRuntime("after credits");
+	}
+
+	
+	public function printErrors() {
+		if ((ZF_DISPLAYERROR =="yes")  && (!empty($this->errorLog)) ) {
+			// TODO fix $this->printStatus($this->errorLog);
+		}
+	}
 
 	/* process tags that can be in any part of the template
 	*/

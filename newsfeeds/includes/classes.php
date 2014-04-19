@@ -62,6 +62,13 @@ class Subscription {
 
 	}
 
+	public function getFeedParams(){
+		$p = new FeedParams();
+		$p->trimSize = $this->shownItems;
+		$p->trimType = 'news';
+		return $p;
+	}
+
 	public function __toString(){
 		return $this->xmlurl;
 	}
@@ -242,41 +249,44 @@ class Enclosure {
 
 
 /*=======*/
-class ViewOptions {
+class FeedParams {
 	// how to shorten the list of items
 	public $trimType = 'none';
 	// freshness number in days, hours or news
 	public $trimSize = 0;
-	public $matchExpression = "";
+	public $onlyNew = false;
+	public $sort = true;
 
-	public function setTrim($type, $size) {
-		zf_debug("FeedOption trim to: $size $type");
-		$this->trimType = $type;
-		$this->trimSize = $size;
-	}
 
 	//allowed values: Xdays, Ynews,  Zhours, today,  yesterday, onlynew, auto
 	public function setTrimStr($trimString) {
 		if (preg_match("/([0-9]+)(.*)/",$trimString, $matches)) {
-            $this->setTrim($matches[2],$matches[1]);
-        }
-		if ($trimString == 'today') {
-            $this->setTrim('today', 0);
-        }
-		if ($trimString == 'yesterday') {
-            $this->setTrim('yesterday', 0);
-        }
-		if ($trimString == 'onlynew') {
-            $this->setTrim('onlynew', 0);
-        }
-
-        // 'auto' is supported, but Feed object won't do anything with it
-        // trimItems must be called explicitely with right value to be of any
-        // use
-		if ($trimString == 'auto') {
-            $this->setTrim('auto', 0);
+            $this->trimType = $matches[2];
+            $this->trimSize = $matches[1];
         }
 	}
 
+	public function getEarliestDate() {
+		
+		$earliest = 0;
+
+		// get timestamp we don't want to go further
+		if ($this->trimType == 'hours') {
+			// earliest is the timestamp before which we should ignore news
+			$earliest = time() - (3600 * $this->trimSize);
+		}
+		if ($this->trimType =='days') {
+			// earliest is the timestamp before which we should ignore news
+
+			// get timestamp of today at 0h00
+			$todayts = strtotime(date("F j, Y"));
+
+			// substract x-1 times 3600*24 seconds from that
+			// x-1 because the current day counts, in the last x days
+			$earliest = $todayts -  (3600*24*($this->trimSize-1));
+		}
+
+		return $earliest;
+	}
 }
 

@@ -32,9 +32,6 @@ abstract class AbstractFeed {
 	protected $items;
 	public $last_fetched = 0;
 
-	// merging/filter options
-	protected $_feedOptions = null;
-
 	public function __construct() {
 		$this->items = array();
 	}
@@ -51,11 +48,6 @@ abstract class AbstractFeed {
 		$this->items[$item->id]= $item;
 	}
 
-	public function setTrim($opt) {
-		$this->_feedOptions = $opt;
-	}
-
-
 	/* get rid of superfluous items exceeding our limit, removing the bottom
 	of the array, only by numbers (trimSize)*/
 	public function trimItems($trimsize) {
@@ -65,7 +57,7 @@ abstract class AbstractFeed {
 
 /* TODO: all this trimming functions in one, applying to any kind of feed */
 	public function filterNonNew() {
-		$currentitems = clone($this->items);
+		$currentitems = $this->items;
 		$this->items = array();
 		foreach ($currentitems as $item) {
 			if ($item->isNew) {
@@ -86,6 +78,33 @@ abstract class AbstractFeed {
 			return NULL;
 		} 
 	}
+
+	/* function to call after all RSS have been merged
+	in order to finalize processing, like sorting and trimming */
+	public function postProcess($feedParams) {
+		//print_r($feedParams);
+		/*zf_debug("Post processing aggregated feed: sort=$sort, trimType =".
+				, area$feedParams->trimType, DBG_AGGR);*/
+		if ($feedParams->sort) {
+			$this->sortItems();
+		}
+		if ($feedParams->trimType == 'news')
+			$this->trimItems($feedParams->trimSize);
+
+		if ((defined('ZF_ONLYNEW') && ZF_ONLYNEW == 'yes') || $feedParams->onlyNew) {
+			$this->filterNonNew();
+		}
+	}
+
+	/* sort our items */
+	public function sortItems() {
+		zf_debug('sorting items', DBG_AGGR);
+
+		/* sort by timestamp */
+		usort($this->items, 'zf_compareItemsDate');
+
+	}
+
 
 }
 
@@ -127,7 +146,7 @@ class AggregatedFeed extends AbstractFeed {
 	/* this feed is an aggregation of feeds from a list
 	   this method initializes this
 	 */
-	public function __construct($feeds) {
+	public function __construct($feeds, $params) {
 
 		parent::__construct();
 
@@ -135,54 +154,10 @@ class AggregatedFeed extends AbstractFeed {
 
 
 		foreach($feeds as $pubfeed) {
-			$this->mergeItems($pubfeed);
+			$this->mergeItems($pubfeed,$params);
 		}
-		$this->postProcess();
+		$this->postProcess($params);
 
-	}
-
-
-	public function setTrim($opt) {
-		parent::setTrim($opt);
-
-
-
-		zf_debug("AggregatedFeed, trim set to ". $this->_feedOptions->trimType.', '.
-		$this->_feedOptions->trimSize, DBG_AGGR);
-
-		// get timestamp we don't want to go further
-		if ($this->_feedOptions->trimType == 'hours') {
-			// earliest is the timestamp before which we should ignore news
-			$this->_earliest = time() - (3600 * $this->_feedOptions->trimSize);
-		}
-		if ($this->_feedOptions->trimType =='days') {
-			// earliest is the timestamp before which we should ignore news
-
-			// get timestamp of today at 0h00
-			$todayts = strtotime(date("F j, Y"));
-
-			// substract x-1 times 3600*24 seconds from that
-			// x-1 because the current day counts, in the last x days
-			$this->_earliest = $todayts -  (3600*24*($this->_feedOptions->trimSize-1));
-		}
-	}
-
-
-
-	/* function to call after all RSS have been merged
-	in order to finalize processing, like sorting and trimming */
-	protected function postProcess($sort = true) {
-		/*zf_debug("Post processing aggregated feed: sort=$sort, trimType =".
-				, area$this->_feedOptions->trimType, DBG_AGGR);*/
-		if ($sort) {
-			$this->sortItems();
-		}
-		/*if ($this->_feedOptions->trimType == 'news')
-			$this->trimItems($this->_feedOptions->trimSize);
-*/
-		if ((defined('ZF_ONLYNEW') && ZF_ONLYNEW == 'yes') ) {
-			$this->filterNonNew();
-		}
 	}
 
 
@@ -191,18 +166,19 @@ class AggregatedFeed extends AbstractFeed {
 		- keep only the ones we want on a timeframe basis
 		- add additional data to items
 		 */
-	protected function mergeItems($feed) {
+	protected function mergeItems($feed, $feedParams) {
 
 		zf_debug( 'Merging aggregated feed of sub '.$feed->subscriptionId, DBG_AGGR);
 		$itemcount = 0;
+		$earliest = $feedParams->getEarliestDate();
 		foreach ($feed->items as $item) {
 
 			$itemts = (isset($item->date_timestamp)) ? $item->date_timestamp: 0;
 			$basetime = time();
 
 			// get timestamp of today at 0h00
-			$todayts = strtotime(date("F j, Y"));
-			$yesterdayts = $todayts - (3600*24);
+			//$todayts = strtotime(date("F j, Y"));
+			//$yesterdayts = $todayts - (3600*24);
 
 			zf_debug( 'Merging item "'.$item->title.'"', DBG_AGGR);
 			// optionally exclude news with date in future
@@ -213,30 +189,15 @@ class AggregatedFeed extends AbstractFeed {
 				}
 			}
 
-			if ($this->_feedOptions->trimType !== 'none') {
-				if ($this->_feedOptions->trimType == 'hours' || $this->_feedOptions->trimType =='days') {
+			if ($feedParams->trimType !== 'none') {
+				if ($feedParams->trimType == 'hours' || $feedParams->trimType =='days') {
 					// consider onlyrecent items
-					zf_debug( "comparing item date ".date("F j, Y, g:i a",$itemts)."(".$itemts.") to earliest wanted ". $this->_earliest ." : ".date("F j, Y, g:i a",$this->_earliest), DBG_AGGR);
+					zf_debug( "comparing item date ".date("F j, Y, g:i a",$itemts)."(".$itemts.") to earliest wanted ". $earliest ." : ".date("F j, Y, g:i a",$this->_earliest), DBG_AGGR);
 
-					if ( $itemts >= $this->_earliest) {
+					if ( $itemts >= $earliest) {
 						zf_debug( 'Item within time frame', DBG_AGGR);
 					} else {
 						zf_debug( 'Item outside time frame', DBG_AGGR);
-						continue;
-					}
-				} else if($this->_feedOptions->trimType == 'today') {
-					if ($itemts < $todayts ) {
-						zf_debug('Item is not from today. Skipped.'.$itemts.' lower than '.$todayts, DBG_AGGR);
-						continue;
-					}
-				} else if($this->_feedOptions->trimType == 'yesterday') {
-					if ($itemts >= $todayts || $itemts < $yesterdayts) {
-						zf_debug('Item is not from yesterday. Skipped.', DBG_AGGR);
-						continue;
-					}
-				} else if($this->_feedOptions->trimType == 'onlynew') {
-					if ( ! $item->isnew ) {
-						zf_debug('Item is not new/unseen. Skipped.', DBG_AGGR);
 						continue;
 					}
 				}
@@ -256,30 +217,12 @@ class AggregatedFeed extends AbstractFeed {
 
 	}
 
+	protected function filterOldNews($feedParams) {
+		zf_debug("AggregatedFeed, trim set to ". $feedParams->trimType.', '.
+		$feedParams->trimSize, DBG_AGGR);
 
-	/* matching function. check an expression against
-		title and description of an item
-		defaut: case insensitive keyword match
-		could be regexp
-		return true if match
-		*/
-	public function itemMatches($item) {
-		$subject = strip_tags($item->title) . ' ' .strip_tags($item->description);
-		//echo "checking ".$item->title']." for ". $exp.":".strpos(strtolower($subject), strtolower($exp))."<br/>";
-		return !(strpos(strtolower($subject), strtolower($this->matchExpression))===false);
-	}
-
-
-
-	/* sort our aggregated items */
-	public function sortItems() {
-		zf_debug('sorting items', DBG_AGGR);
-
-		/* sort by timestamp */
-		usort($this->items, 'zf_compareItemsDate');
 
 	}
-
 
 }
 /* end of Feed classes */

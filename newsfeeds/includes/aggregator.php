@@ -39,7 +39,7 @@ class aggregator {
 	private $_now;
 
 	public function __construct() {
-		//$this->_ViewOptions->setTrim('auto', 0);
+
 		/* lastvisit= absolute last time seen here */
 		$this->_visits['lastvisit'] = 0;
 		/* lastsessionend= the time of end of previous session */
@@ -47,114 +47,6 @@ class aggregator {
 		$this->_now = time();
 
 
-		/* trimType will be news or days or hours */
-		//$this->_ViewOptions->setTrim(ZF_TRIMTYPE, ZF_TRIMSIZE);
-	}
-
-	/* AGGREGATOR CONFIGURATION ---------------------  */
-
-
-	/* changes the trimming options. Also forces the view mode to trim,
-	overruling the setting saved in the OPML list */
-	public function setTrim($trimtype, $trimsize) {
-		$this->_mainViewMode = 'trim';
-		$this->_ViewOptions->setTrim($trimsize, $trimtype);
-	}
-
-	/* changes the trimming options. Also forces the view mode to trim */
-	public function setTrimString($str) {
-		zf_debug('trim set to:'. $str, DBG_AGGR);
-		$this->setViewMode('trim');
-		$this->_ViewOptions->setTrimStr($str);
-	}
-
-
-
-	/* output a single channel, obtained by position
-	 pos : position in the list
-	 $mode: 'auto', 'refresh', 'cache'
-	 $wantSummary: do we want summary included? default false
-
-	 */
-	public function printSingleSubscribedFeed($feed, $wantSummary=false) {
-
-
-		//zf_debug("viewing channel ".$sub->__toString(), DBG_RENDER);
-
-/*
-	 if we get here, it's either
-	 - async request: viewMode does not matter (feed or trim),
-	                  trimType can be auto (if default) or news
-	                -> if trimType is auto, trim feed to "$sub->shownItems" items
-	                -> otherwise, trim feed to "$this->ViewOptions" items
-	 - printMainView: viewMode is feed then trimType is auto
-	                -> trim feed to "$this->ViewOptions" items
-
-
-		(trimType,trimSize) is either
-		 ('auto',0) => use subscription value for trimSize
-			 OR
-		 ('news', <N>) => trim to trimSize
-
-*/
-		if ($feed) {
-
-			zf_debug('Trimming type '.$this->_ViewOptions->trimType, DBG_RENDER);
-			//TODO fix this
-			$this->_ViewOptions->trimType = 'none';
-			switch ($this->_ViewOptions->trimType) {
-				case 'auto':
-					zf_debug('Trimming to subscription shownItems: '.$sub->shownItems, DBG_RENDER);
-					$this->_feed->trimItems($sub->shownItems);
-					break;
-				case 'news':
-					zf_debug('Trimming to requested nr of items: '.$this->_ViewOptions->trimSize, DBG_RENDER);
-					$this->_feed->trimItems($this->_ViewOptions->trimSize);
-					break;
-				case 'none':
-					zf_debug('No trimming', DBG_RENDER);
-					break;
-
-			}
-
-			//TODO: use tag
-			$this->view->addTags(array( 'list' => ''));
-
-			// could become true if we wanted date grouping for every channel
-			// will only be useful for TemplateView
-			$this->view->groupByDay = false;
-
-			//render with no channel header if requested and applicable
-			$this->view->summaryInFeed = $wantSummary;
-			$this->view->renderFeed($feed);
-		} else {
-			zf_debug('Internal error. no feed loaded.', DBG_AGGR);
-		}
-
-	}
-
-
-
-
-
-	/* generate bottom line NOT USED IF JSON*/
-	private function printCredits() {
-		if ((!defined("ZF_SHOWCREDITS")) || (ZF_SHOWCREDITS!='no')) {
-			echo ' <div id="generator">aggregated by <a href="http://www.cazalet.org/zebrafeeds">ZebraFeeds</a></div>';
-		}
-
-		zf_debugRuntime("after credits");
-	}
-
-	/*public function printStatus($message) {
-	//TODO: handle JSON output -> NOT USED IF JSON
-		echo '<div class="zfchannelstatus">'.$message.'</div>';
-	}*/
-
-	public function printErrors() {
-		if ((ZF_DISPLAYERROR =="yes")  && (!empty($this->errorLog)) ) {
-			$this->printStatus($this->errorLog);
-		}
 	}
 
 
