@@ -26,6 +26,8 @@ require_once($zf_path . 'includes/feed_cache.php');
 require_once($zf_path . 'includes/classes.php');
 require_once($zf_path . 'includes/subscriptionstorage.php');
 require_once($zf_path . 'includes/view.php');
+require_once($zf_path . 'includes/itemtracker.php');
+require_once($zf_path . 'includes/visittracker.php');
 
 
 /*
@@ -141,7 +143,7 @@ function handleRequest() {
 	zf_debug("Aggregator loaded");
 
 	// record the time of the visit, server side mode. WHY???
-	$zf_aggregator->recordServerVisit();
+	VisitTracker::getInstance()->recordVisit();
 
 	if ($outputType =='html') {
 		//$zf_aggregator->useTemplate($template);
@@ -178,7 +180,7 @@ function handleRequest() {
 			//refresh: user defined
 
 			$sub = $storage->getSubscription($channelId);
-			$feeds = $cache->update(array($sub->id => $sub), $updateMode );
+			$feeds = $cache->update(array($sub->id => $sub), $updateMode);
 			$feed = array_pop($feeds);
 
 			if ($trim == 'auto') {
@@ -204,7 +206,6 @@ function handleRequest() {
 			$feeds = $cache->update($subs, 'auto');
 
 			zf_debugRuntime("before aggregation");
-			zf_debugRuntime("before rendering");
 			if ($sort == 'feed' && $outputType == 'html') {
 
 				foreach($feeds as $feed) {
@@ -217,7 +218,9 @@ function handleRequest() {
 					$feed->postProcess($feedParams);
 				}
 
-				$view->renderFeedlist($feeds, array(
+				zf_debugRuntime("before rendering");
+
+				$view->renderFeedList($feeds, array(
 					'groupbyday' => false,
 					'summary' => ($sum==1),
 					'tag' => $tag));
@@ -229,7 +232,7 @@ function handleRequest() {
 				}
 				$feedParams->onlyNew = $onlyNew;
 				$aggrfeed = new AggregatedFeed($feeds, $feedParams);
-				$view->renderFeed($aggrfeed, array(
+				$view->renderFeedList(array($aggrfeed), array(
 					'groupbyday' => true,
 					'summary' => ($sum==1),
 					'tag' => $tag));

@@ -32,7 +32,7 @@ require_once($zf_path . 'includes/template.php');
 abstract class AbstractFeedView {
 
 	abstract public function renderFeed($feed, $params);
-	abstract public function renderFeedlist($feeds, $params);
+	abstract public function renderFeedList($feeds, $params);
 
 
 	public function renderArticle($item) {
@@ -85,7 +85,7 @@ class JSONView extends AbstractFeedView {
 
 	}
 
-	public function renderFeedlist($feeds, $params) {
+	public function renderFeedList($feeds, $params) {
 
 
 	}
@@ -135,7 +135,7 @@ class TemplateView extends AbstractFeedView{
 		$this->template->printFooter();
 	}
 
-	public function renderFeedlist($feeds, $params) {
+	public function renderFeedList($feeds, $params) {
 		$this->template->printHeader();
 		foreach($feeds as $feed) {
 			$this->template->printChannel($feed);

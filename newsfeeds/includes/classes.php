@@ -120,7 +120,7 @@ class NewsItem {
 
  publisher
 */
-	public function normalize($history) {
+	public function normalize() {
 		/* build our id, used as CSS element id. add timestamp to make it unique  */
 
 		if ( $this->date_timestamp == 0) {
@@ -129,13 +129,14 @@ class NewsItem {
 			// history management system decide
 			//$item['date_timestamp'] = 0;
 			//print_r($channel);
-			$firstseen = $history->getDateFirstSeen($this->id);
+			$tracker = ItemTracker::getInstance();
+			$firstseen = $tracker->getDateFirstSeen($this->subscriptionId, $this->id);
 			if ($firstseen == 0) {
 				$firstseen = time();
 			}
 			$this->date_timestamp = $firstseen;
 			if (ZF_DEBUG & DBG_AGGR) {
-				zf_debug('-- using history time '. $this->date_timestamp);
+				zf_debug('-- using tracker time '. $this->date_timestamp);
 			}
 
 		}
@@ -267,7 +268,7 @@ class FeedParams {
 	}
 
 	public function getEarliestDate() {
-		
+
 		$earliest = 0;
 
 		// get timestamp we don't want to go further

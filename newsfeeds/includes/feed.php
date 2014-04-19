@@ -24,7 +24,6 @@
 
 if (!defined('ZF_VER')) exit;
 
-require_once($zf_path . 'includes/history.php');
 
 abstract class AbstractFeed {
 	// aggregated, normalized items
@@ -76,7 +75,7 @@ abstract class AbstractFeed {
 			return $this->items[$itemid];
 		} else {
 			return NULL;
-		} 
+		}
 	}
 
 	/* function to call after all RSS have been merged
@@ -124,10 +123,10 @@ class PublisherFeed extends AbstractFeed {
 	/* make sure our channel array has all what we need
 	 this data will get cached, so this function is called only once,
 	 right after the feed is fetched over http */
-	public function normalize($history){
+	public function normalize(){
 
 		foreach ($this->items as $item) {
-			$item->normalize($history);
+			$item->normalize();
 		}
 
 	}

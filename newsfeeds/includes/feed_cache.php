@@ -198,7 +198,7 @@ class FeedCache {
 					  (we will here fix missing dates)
 					BEFORE storing to cache */
 					//TODO fix this
-					$feed->normalize($feedHistory);
+					$feed->normalize();
 					$feeds[$sub->id] = $feed;
 
 					// add object to cache
