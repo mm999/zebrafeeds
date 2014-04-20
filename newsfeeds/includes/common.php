@@ -25,24 +25,47 @@
  could be found
 */
 
-//TODO: a class with static functions
-
-
-/* sanity check on the template
-and set the global var containing the template name to use*/
-function zf_getDisplayTemplateName() {
-
-	if (isset($_GET['zftemplate']) && $_GET['zftemplate'] != '') {
-		$templateName = $_GET['zftemplate'];
-	} else /*if (zf_templateExists(ZF_TEMPLATE))*/ {
-		$templateName = ZF_TEMPLATE;
-	}
-/*	  if ( !zf_templateExists($templateName)) {
-		echo '<strong>Error: template file could not be read.<br />Make sure template exist and is readable and define it in the script ...</strong>';
-		//exit;
-	}*/
-	return $templateName;
+/* 4 functions borrowed from PicoFarad - by F. Guillot (author of Miniflux) */
+function param($name, $default_value = null)
+{
+	return isset($_GET[$name]) ? $_GET[$name] : $default_value;
 }
+
+
+function int_param($name, $default_value = 0)
+{
+	return isset($_GET[$name]) && ctype_digit($_GET[$name]) ? (int) $_GET[$name] : $default_value;
+}
+
+
+function value($name)
+{
+	$values = values();
+	return isset($values[$name]) ? $values[$name] : null;
+}
+
+
+function values()
+{
+	if (! empty($_POST)) {
+
+		return $_POST;
+	}
+
+	$result = json_decode(body(), true);
+
+	if ($result) {
+		return $result;
+	}
+
+	return array();
+}
+
+function content_type($mimetype)
+{
+	header('Content-Type: '.$mimetype);
+}
+
 
 
 /* returns an array of available user templates

@@ -80,46 +80,6 @@ decoration: for q=channel and f=html only
  */
 
 
-/* 4 functions borrowed from PicoFarad - by F. Guillot (author of Miniflux) */
-function param($name, $default_value = null)
-{
-	return isset($_GET[$name]) ? $_GET[$name] : $default_value;
-}
-
-
-function int_param($name, $default_value = 0)
-{
-	return isset($_GET[$name]) && ctype_digit($_GET[$name]) ? (int) $_GET[$name] : $default_value;
-}
-
-
-function value($name)
-{
-	$values = values();
-	return isset($values[$name]) ? $values[$name] : null;
-}
-
-
-function values()
-{
-	if (! empty($_POST)) {
-
-		return $_POST;
-	}
-
-	$result = json_decode(body(), true);
-
-	if ($result) {
-		return $result;
-	}
-
-	return array();
-}
-
-function content_type($mimetype)
-{
-	header('Content-Type: '.$mimetype);
-}
 
 
 /* main routing function */
