@@ -22,9 +22,6 @@
 
 if (!defined('ZF_VER')) exit;
 
-require_once($zf_path . 'includes/common.php');
-require_once($zf_path . 'includes/subscriptionstorage.php');
-
 class template {
 	/* properties {{{*/
 	public $name;
@@ -100,6 +97,7 @@ class template {
 		$this->newsDayFooter  = $this->_extractSection('newsDayFooter', 'channelFooter', true);
 		$this->article	  	  = $this->_extractSection('article');
 
+		zf_debug("template loaded", DBG_RENDER);
 		// unset to free memory
 		unset($this->_html);
 	}
@@ -133,7 +131,7 @@ class template {
 		echo "document.write('".str_replace(array("\r","\n","'"), array("", "", "\\'"), $output)."');\n";
 	}
 
-	public function printPageHeader($feed) {
+	public function printPageHeader() {
 		$this->_buffer = $this->pageHeader;
 		$this->_formatCommon();
 		$this->_printBuffer();
@@ -424,8 +422,7 @@ class template {
 	}
 
 	public function _getFileName(){
-		global $zf_path;
-		return $zf_path .'templates/'.$this->name.'.html';
+		return ZF_TEMPLATESDIR.'/'.$this->name.'.html';
 	}
 
 	protected function _loadFile() {

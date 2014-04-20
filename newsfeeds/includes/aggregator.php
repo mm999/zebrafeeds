@@ -27,9 +27,6 @@ this is the main facade class
 
 if (!defined('ZF_VER')) exit;
 
-require_once($zf_path . 'includes/classes.php');
-require_once($zf_path . 'includes/history.php');
-
 
 class aggregator {
 

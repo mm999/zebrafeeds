@@ -96,7 +96,7 @@ class SubscriptionStorage {
 	/* loads a list. returns true if success
 	puts error in lastError if failure */
 	protected function load() {
-		global $zf_path,$zf_opmlItems, $zf_opmlMode;
+		global $zf_opmlItems, $zf_opmlMode;
 
 
 		/* default values for parsing this opml file */

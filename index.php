@@ -30,7 +30,7 @@ Other demos: <a href="demo_rssfeed.php">RSS feed</a> - <a href="demo_js.html">Ja
 <div style="	vertical-align: top;
 	margin-left: 15px;
 	margin-right: 15px;">
-	<?php require ('newsfeeds/zebrafeeds.php'); ?>
+	<?php require ('newsfeeds/index.php'); ?>
 </div>
 
 </body>

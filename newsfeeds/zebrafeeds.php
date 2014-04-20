@@ -21,8 +21,7 @@
 // ZebraFeeds main
 
 
-require_once('init.php');
-require_once($zf_path . 'includes/controller.php');
+require_once __DIR__.'/init.php';
 
 if (strlen(ZF_URL) == 0) {
 	echo "ZebraFeeds is not properly configured!<br/>";

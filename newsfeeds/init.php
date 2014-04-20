@@ -12,7 +12,7 @@ include_once($zf_path . 'config.php');
 
 // hidden settings, no GUI for these
 define('ZF_DEFAULT_NEWS_COUNT', 5);
-define('ZF_DEFAULT_REFRESH_TIME', 120);
+define('ZF_DEFAULT_REFRESH_TIME', 1440);
 define('ZF_SESSION_DURATION', 900); // 15 minutes before unmarking items as new
 define('ZF_VISITOR_COOKIE_EXPIRATION',60*60*24*30); //30 days life-expectancy for client-side cookies to mark items as new
 define('ZF_FORCE_ENCODED_CONTENT', 'yes'); // ONLY FOR MAGPIE. stored in cache. if this is changed, it will be active only after cache is refreshed

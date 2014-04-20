@@ -19,8 +19,7 @@
 
 // this script is meant to be included in the HEAD section of the page that
 // embeds ZebraFeeds
-require_once('init.php');
-require_once($zf_path . 'includes/template.php');
+require_once('newsfeeds/init.php');
 
 // get template
 

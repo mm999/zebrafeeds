@@ -173,7 +173,7 @@ class NewsItem {
 	including the publisher and without enclosures */
 	public function getFullSerializableHeader($summary = false) {
 		$header = new SerializableItemHeader($this);
-		$header->setPublisher($this->publisher);
+		$header->subscriptionId = $this->subscriptionId;
 		if ($summary) $header->summary = $this->summary;
 		return $header;
 	}

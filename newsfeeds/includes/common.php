@@ -71,7 +71,6 @@ function content_type($mimetype)
 /* returns an array of available user templates
 filters out the SYSTEM.* */
 function zf_getTemplateNames() {
-	global $zf_path;
 	$result = array();
 	$handle = opendir(ZF_TEMPLATESDIR);
 	while($dirfile = readdir($handle)) {

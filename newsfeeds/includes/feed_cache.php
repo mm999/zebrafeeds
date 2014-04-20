@@ -13,8 +13,7 @@
 
 if (!defined('ZF_VER')) exit;
 
-require_once($zf_path . 'includes/common.php');
-require_once($zf_path . 'includes/simplepie_fetch.php');
+require_once __DIR__ . '/simplepie_fetch.php';
 
 
 class FeedCache {

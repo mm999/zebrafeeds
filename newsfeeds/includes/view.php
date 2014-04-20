@@ -25,9 +25,6 @@
  */
 if (!defined('ZF_VER')) exit;
 
-require_once($zf_path . 'includes/common.php');
-require_once($zf_path . 'includes/template.php');
-
 
 abstract class AbstractFeedView {
 
@@ -171,6 +168,8 @@ class TemplateView extends AbstractFeedView{
 			}
 
 			if ($params['groupbyday'] ) {
+				zf_debug("group by day is set", DBG_RENDER);
+
 				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item->date_timestamp)));
 				/*
 				 * non locale-friendly way...
@@ -195,6 +194,7 @@ class TemplateView extends AbstractFeedView{
 				if ($renderIt) $this->template->printNewsByDate($item);
 
 			} else {
+				zf_debug("calling print news", DBG_RENDER);
 				if ($renderIt) $this->template->printNews($item);
 			}
 

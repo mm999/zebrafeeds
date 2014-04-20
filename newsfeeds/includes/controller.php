@@ -21,14 +21,6 @@
 
 if (!defined('ZF_VER')) exit;
 
-require_once($zf_path . 'includes/aggregator.php');
-require_once($zf_path . 'includes/feed_cache.php');
-require_once($zf_path . 'includes/classes.php');
-require_once($zf_path . 'includes/subscriptionstorage.php');
-require_once($zf_path . 'includes/view.php');
-require_once($zf_path . 'includes/itemtracker.php');
-require_once($zf_path . 'includes/visittracker.php');
-
 
 /*
 parameters dictionary
@@ -85,8 +77,6 @@ decoration: for q=channel and f=html only
 /* main routing function */
 function handleRequest() {
 
-	global $zf_aggregator;
-
 	$type = param('q', 'tag');
 	$channelId = param('id');
 	$itemId = param('itemid');
@@ -100,9 +90,6 @@ function handleRequest() {
 
 	//refresh mode
 	$updateMode = param('mode', 'auto');
-
-	$zf_aggregator = new Aggregator();
-	zf_debug("Aggregator loaded");
 
 	// record the time of the visit, server side mode. WHY???
 	VisitTracker::getInstance()->recordVisit();
@@ -139,6 +126,8 @@ function handleRequest() {
 			//refresh: user defined
 			$sub = $storage->getSubscription($channelId);
 			$feeds = $cache->update(array($sub->id => $sub), $updateMode);
+			$zf_aggregator = new Aggregator();
+			zf_debug("Aggregator loaded");
 
 			$feeds = $zf_aggregator->processFeeds($feeds, $trim, false, $onlyNew);
 			$feed = array_pop($feeds);
@@ -161,6 +150,9 @@ function handleRequest() {
 			$feeds = $cache->update($subs, 'auto');
 
 			zf_debugRuntime("before aggregation");
+			$zf_aggregator = new Aggregator();
+			zf_debug("Aggregator loaded");
+
 
 			// if html output & sorted by feed, trim every single item
 			// according to subcription's settings
