@@ -75,6 +75,8 @@ sort: feed or date. only for q=tag
       if trim is set, ignored and forced to date
       only valid for html output
 
+decoration: for q=channel and f=html only
+            default to 0. if 1, will output channel header
  */
 
 
@@ -146,7 +148,6 @@ function handleRequest() {
 	VisitTracker::getInstance()->recordVisit();
 
 	if ($outputType =='html') {
-		//$zf_aggregator->useTemplate($template);
 		$contenttype = 'text/html';
 		$view = new TemplateView($template);
 	} else {
@@ -161,42 +162,36 @@ function handleRequest() {
 	switch ($type) {
 
 		case 'item':
-			//refresh: always from cache for newsitems
-			// can be done in one step if getItem moved to FeedCache
+			//refresh: always from cache
 			$item = $cache->getItem($channelId, $itemId);
 			$view->renderArticle($item);
 			break;
 
 		case 'summary':
-			//refresh: always from cache for news items
-
-			// can be done in one step if moved to FeedCache
+			//refresh: always from cache
 			$item = $cache->getItem($channelId, $itemId);
 			$view->renderSummary($item);
 			break;
 
 
+
 		case 'channel':
 			//refresh: user defined
-
 			$sub = $storage->getSubscription($channelId);
 			$feeds = $cache->update(array($sub->id => $sub), $updateMode);
-			$feed = array_pop($feeds);
 
-			if ($trim == 'auto') {
-				$feedParams = $sub->getFeedParams();
-			} else {
-				$feedParams = new FeedParams();
-			}
-			$feedParams->onlyNew = $onlyNew;
-			$feed->postProcess($feedParams);
+			$feeds = $zf_aggregator->processFeeds($feeds, $trim, false, $onlyNew);
+			$feed = array_pop($feeds);
 
 			// could become true if we wanted date grouping for every channel
 			// will only be useful for TemplateView
 			$view->renderFeed($feed, array(
 				'groupbyday' => false,
+				'decoration' => int_param('decoration'),
 				'summary' => ($sum==1)));
 			break;
+
+
 
 		case 'tag':
 			//refresh: always auto refresh for tag view
@@ -206,57 +201,44 @@ function handleRequest() {
 			$feeds = $cache->update($subs, 'auto');
 
 			zf_debugRuntime("before aggregation");
+
+			// if html output & sorted by feed, trim every single item
+			// according to subcription's settings
 			if ($sort == 'feed' && $outputType == 'html') {
 
-				foreach($feeds as $feed) {
-					if ($trim == 'auto') {
-						$feedParams = $storage->getSubscription($feed->subscriptionId)->getFeedParams();
-					} else {
-						$feedParams = new FeedParams();
-					}
-					$feedParams->onlyNew = $onlyNew;
-					$feed->postProcess($feedParams);
-				}
-
-				zf_debugRuntime("before rendering");
-
-				$view->renderFeedList($feeds, array(
-					'groupbyday' => false,
-					'summary' => ($sum==1),
-					'tag' => $tag));
+				$feeds = $zf_aggregator->processFeeds($feeds, $trim, false, $onlyNew);
+				$groupbyday = false;
 
 			} else {
-				$feedParams = new FeedParams();
-				if ($trim != 'auto') {
-					$feedParams->setTrimStr($trim);
-				}
-				$feedParams->onlyNew = $onlyNew;
-				$aggrfeed = new AggregatedFeed($feeds, $feedParams);
-				$view->renderFeedList(array($aggrfeed), array(
-					'groupbyday' => true,
-					'summary' => ($sum==1),
-					'tag' => $tag));
+				// otherwise just aggregate in a single feed
+				$feed = $zf_aggregator->processFeeds($feeds, $trim, true, $onlyNew);
+				$feeds = array($feed);
+				$groupbyday = true;
 			}
 
+			zf_debugRuntime("before rendering");
+
+			$view->renderFeedList($feeds, array(
+				'groupbyday' => $groupbyday,
+				'summary' => ($sum==1),
+				'tag' => $tag));
 			break;
+
+
 
 		case 'subs':
 			//only JSON
-			$sortedchannels = array();
-			// TODO move this to  storage class
-			$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
-			foreach( $subs as $i => $subscription) {
-				$sortedchannels[$subscription->position] = $subscription;
-			}
-			ksort($sortedchannels);
-			echo json_encode($sortedchannels);
+			$subs = SubscriptionStorage::getInstance()->getSortedActiveSubscriptions($tag);
+			echo json_encode($subs);
 			break;
+
 
 		case 'tags':
 
 			$tags = $storage->getTags();
 			echo json_encode($tags);
 			break;
+
 
 		case 'refresh':
 			// TODO: check API key
@@ -265,9 +247,8 @@ function handleRequest() {
 			if (array_pop($feeds) != null) echo $sub->title. ' DONE. ';
 			break;
 
+
 	}
-
-
 
 }
 

@@ -32,29 +32,41 @@ require_once($zf_path . 'includes/history.php');
 
 
 class aggregator {
-	/* array to help to track when the user came before */
-	private $_visits;
-
-	// timestamp of start of processing
-	private $_now;
 
 	public function __construct() {
 
-		/* lastvisit= absolute last time seen here */
-		$this->_visits['lastvisit'] = 0;
-		/* lastsessionend= the time of end of previous session */
-		$this->_visits['lastsessionend'] = 0;
-		$this->_now = time();
-
-
 	}
 
-/*
-TODO: in post process
 
-					$tracker->markNewFeedItems($sub->id, $feed->items, $params['lastvisit'], time());
-					$tracker->purge($sub->id);
-*/
+	/*
+	feeds: array of feeds to handle
+	trim: trim parameters on request
+	aggregate: if true, must aggregate all feeds in one
+	onlyNew: if true, will keep only new items
+
+	$result: feed or array of feeds, in function of aggregate
+	 */
+	public function processFeeds($feeds, $trim, $aggregate, $onlyNew) {
+
+		if ($aggregate) {
+			$feedParams = new FeedParams($trim);
+			$feedParams->onlyNew = $onlyNew;
+			$aggrfeed = new AggregatedFeed($feeds, $feedParams);
+			//post process of aggregated feed took place during aggregation
+			return $aggrfeed;
+
+		} else {
+
+			foreach($feeds as $feed) {
+				$feedParams = SubscriptionStorage::getInstance()->getSubscription($feed->subscriptionId)->getFeedParams();
+				$feedParams->setTrimStr($trim);
+				$feedParams->onlyNew = $onlyNew;
+				$feed->postProcess($feedParams);
+			}
+			return $feeds;
+		}
+	}
+
 
 }
 

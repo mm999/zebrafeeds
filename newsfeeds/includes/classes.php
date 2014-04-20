@@ -258,13 +258,26 @@ class FeedParams {
 	public $onlyNew = false;
 	public $sort = true;
 
+	public function __construct($trimString = 'none') {
+		$this->setTrimStr($trimString);
+	}
 
 	//allowed values: Xdays, Ynews,  Zhours, today,  yesterday, onlynew, auto
 	public function setTrimStr($trimString) {
-		if (preg_match("/([0-9]+)(.*)/",$trimString, $matches)) {
-            $this->trimType = $matches[2];
-            $this->trimSize = $matches[1];
-        }
+		switch ($trimString) {
+			// auto: no change, use what was previously set
+			case 'auto':
+				break;
+			case 'none':
+				$this->trimSize = 0;
+				$this->trimType = 'none';
+			default:
+				if (preg_match("/([0-9]+)(.*)/",$trimString, $matches)) {
+		            $this->trimType = $matches[2];
+		            $this->trimSize = $matches[1];
+		        }
+		        break;
+	    }
 	}
 
 	public function getEarliestDate() {
