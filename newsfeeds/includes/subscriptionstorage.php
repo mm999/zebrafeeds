@@ -71,7 +71,7 @@ class SubscriptionStorage {
 	protected $opmlfilename;
 
 	private static $instance = NULL;
-	
+
 	public static function getInstance() {
 		if (self::$instance == NULL) {
 			self::$instance = new SubscriptionStorage();
@@ -274,6 +274,18 @@ class SubscriptionStorage {
 	public function getActiveSubscriptions($tag='') {
 		return $this->getSubscriptions($tag, true);
 	}
+
+	public function getSortedActiveSubscriptions($tag='') {
+		$sortedchannels = array();
+		$subs = $this->getActiveSubscriptions($tag);
+		foreach( $subs as $i => $subscription) {
+			$sortedchannels[$subscription->position] = $subscription;
+		}
+		ksort($sortedchannels);
+		return $sortedchannels;
+
+	}
+
 
 	public function getTags() {
 		$tags = array();
