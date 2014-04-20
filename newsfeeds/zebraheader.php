@@ -18,21 +18,13 @@
 // ZebraFeeds header block
 
 // this script is meant to be included in the HEAD section of the page that
-// embeds ZebraFeeds 
+// embeds ZebraFeeds
 require_once('init.php');
 require_once($zf_path . 'includes/template.php');
 
 // get template
 
-$templateName = zf_getDisplayTemplateName();
+$templateName = param('zftemplate',ZF_TEMPLATE);
 $template = new template($templateName);
+$template->printPageHeader();
 
-/* display the template header section
-echo '<!-- ZebraFeeds headers using template '.$template->name.' -->';
-if ($template->hasButtons)
-    echo '<script type="text/javascript" src="'.ZF_URL.'/zfcontrol.js"></script>';
-echo '<script type="text/javascript">var ZFURL="'.ZF_URL.'";</script>';
-*/
-echo str_replace('{dynamicnews}', '<script type="text/javascript" src="'.ZF_URL.'/zfclientside.js"></script>', $template->pageHeader);
-
-?>
