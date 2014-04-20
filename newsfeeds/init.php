@@ -3,20 +3,20 @@
 // http://www.cazalet.org/zebrafeeds
 //
 
-global $zf_path;
-$zf_path = str_replace("\\", "/", dirname(__FILE__)) . "/";
-include_once($zf_path . 'config.php');
+include_once __DIR__.'/config.php';
+
+
 
 
 /* initialization for both admin and user areas */
 
 // hidden settings, no GUI for these
 define('ZF_DEFAULT_NEWS_COUNT', 5);
-define('ZF_DEFAULT_REFRESH_TIME', 1440);
+define('ZF_DEFAULT_REFRESH_TIME', 120);
 define('ZF_SESSION_DURATION', 900); // 15 minutes before unmarking items as new
 define('ZF_VISITOR_COOKIE_EXPIRATION',60*60*24*30); //30 days life-expectancy for client-side cookies to mark items as new
 define('ZF_FORCE_ENCODED_CONTENT', 'yes'); // ONLY FOR MAGPIE. stored in cache. if this is changed, it will be active only after cache is refreshed
-define('ZF_GROUP_BY_DAY', 'yes'); // if yes, items are grouped by day in non-per-channel views
+define('ZF_GROUP_BY_DAY', 'yes'); // if yes, items are grouped by day when multiple channels sorted by date
 define('ZF_MAX_SUMMARY_LENGTH', 1200); // if description is longer (tags-stripped), let's truncate to make the summary
 define('ZF_SUMMARY_TRUNCATED_LENGTH', 500); // if truncate to summary, here's the remaining length
 define('ZF_SHOWCREDITS', 'no');
@@ -39,7 +39,7 @@ define('DBG_RENDER', 128); // view and template rendering
 define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
-define('ZF_DEBUG', DBG_RENDER | DBG_OPML | DBG_LIST );
+define('ZF_DEBUG', 0 );
 
 // debug output 1=console otherwise stdout
 define('ZF_DEBUG_CONSOLE', 1);
@@ -74,20 +74,13 @@ if (ZF_DEBUG) {
 
 
 
-if (ZF_USEOPML == 'yes') {
-    require_once($zf_path . 'includes/subscriptionstorage.php');
-}
-require_once($zf_path . 'includes/common.php');
-require_once($zf_path . 'includes/classes.php');
-require_once($zf_path . 'feedfilter.php');
-
 setlocale(LC_ALL, ZF_LOCALE);
 define('ZF_VER', '2.0');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
 
-define("ZF_DATADIR", $zf_path.'data');
-define("ZF_OPMLFILE", $zf_path.'zebrafeeds.opml');
-define("ZF_TEMPLATESDIR", $zf_path.'templates');
+define("ZF_DATADIR", __DIR__.'/data');
+define("ZF_OPMLFILE", __DIR__.'/zebrafeeds.opml');
+define("ZF_TEMPLATESDIR", __DIR__.'/templates');
 define("ZF_HISTORYDIR", ZF_DATADIR.'/history');
 
 // full path
@@ -106,7 +99,7 @@ function defaultConfig($name,$value) {
 }
 
 //default values for parameters with a UI
-defaultConfig('ZF_LOGINTYPE', 'server');
+defaultConfig('ZF_LOGINTYPE', 'session');
 defaultConfig('ZF_LOCALE', 'english');
 defaultConfig('ZF_OWNEREMAIL', '');
 defaultConfig('ZF_OWNERNAME', '');
@@ -125,5 +118,18 @@ defaultConfig('ZF_HOMELIST', 'sample');
 defaultConfig('ZF_VIEWMODE', 'feed');
 defaultConfig('ZF_TRIMTYPE', 'auto');
 defaultConfig('ZF_TRIMSIZE', '5');
+
+
+require_once __DIR__.'/includes/controller.php';
+require_once __DIR__.'/includes/classes.php';
+require_once __DIR__.'/includes/aggregator.php';
+require_once __DIR__.'/includes/feed_cache.php';
+require_once __DIR__.'/includes/feed.php';
+require_once __DIR__.'/includes/view.php';
+require_once __DIR__.'/includes/subscriptionstorage.php';
+require_once __DIR__.'/includes/itemtracker.php';
+require_once __DIR__.'/includes/visittracker.php';
+require_once __DIR__.'/includes/template.php';
+require_once __DIR__.'/includes/common.php';
 
 
