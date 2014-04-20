@@ -58,8 +58,6 @@ class template {
 		$this->footer = '';
 		$this->channel = '';
 		$this->channelFooter = '';
-		$this->listHeader = '';
-		$this->listFooter = '';
 		$this->newsDay = '';
 		$this->newsDayFooter = '';
 		$this->news = '';
@@ -94,8 +92,6 @@ class template {
 		$this->pageHeader	  = $this->_extractSection('templateHeader');
 		$this->header		  = $this->_extractSection('header','',true);
 		$this->footer		  = $this->_extractSection('footer','',true);
-		$this->listHeader     = $this->_extractSection('listHeader','',true);
-		$this->listFooter     = $this->_extractSection('listFooter','',true);
 		$this->channel		  = $this->_extractSection('channel');
 		$this->channelFooter  = $this->_extractSection('channelFooter', '', true);
 		$this->news			  = $this->_extractSection('news');
@@ -152,15 +148,6 @@ class template {
 		$this->_printBuffer();
 	}
 
-	public function printListHeader($feed) {
-		$this->_buffer = $this->listHeader;
-		$this->_formatCommon();
-		// allow options in this sections, for RSS feed generation
-		$this->_formatOptions();
-		$this->_printBuffer();
-	}
-
-
 
 	public function printNews($item) {
 		$this->_buffer = $this->news;
@@ -191,12 +178,6 @@ class template {
 
 	public function printFooter() {
 		$this->_buffer = $this->footer;
-		$this->_formatCommon();
-		$this->_printBuffer();
-
-	}
-	public function printListFooter() {
-		$this->_buffer = $this->listFooter;
 		$this->_formatCommon();
 		$this->_printBuffer();
 
@@ -253,7 +234,7 @@ class template {
 		zf_debugRuntime("after credits");
 	}
 
-	
+
 	public function printErrors() {
 		if ((ZF_DISPLAYERROR =="yes")  && (!empty($this->errorLog)) ) {
 			// TODO fix $this->printStatus($this->errorLog);
@@ -277,7 +258,7 @@ class template {
 	*/
 	protected function _formatChannel($subId) {
 		$sub = SubscriptionStorage::getInstance()->getSubscription($subId);
-		
+
 		if ($this->name == 'SYSTEM.rss') {
 			$stitle = htmlspecialchars($sub->title, ENT_QUOTES);
 			$sdesc = htmlspecialchars($sub->description, ENT_QUOTES);
