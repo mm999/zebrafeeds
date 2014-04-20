@@ -17,8 +17,8 @@ define('ZF_SESSION_DURATION', 900); // 15 minutes before unmarking items as new
 define('ZF_VISITOR_COOKIE_EXPIRATION',60*60*24*30); //30 days life-expectancy for client-side cookies to mark items as new
 define('ZF_FORCE_ENCODED_CONTENT', 'yes'); // ONLY FOR MAGPIE. stored in cache. if this is changed, it will be active only after cache is refreshed
 define('ZF_GROUP_BY_DAY', 'yes'); // if yes, items are grouped by day when multiple channels sorted by date
-define('ZF_MAX_SUMMARY_LENGTH', 1200); // if description is longer (tags-stripped), let's truncate to make the summary
-define('ZF_SUMMARY_TRUNCATED_LENGTH', 500); // if truncate to summary, here's the remaining length
+define('ZF_MAX_SUMMARY_LENGTH', 300); // if description is longer (tags-stripped), let's truncate to make the summary
+define('ZF_SUMMARY_TRUNCATED_LENGTH', 300); // if truncate to summary, here's the remaining length
 define('ZF_SHOWCREDITS', 'no');
 define('ZF_RSSEXPORTSIZE', 25); //25 news exported in RSS,  max
 define('ZF_ONLYNEW', 'no'); // if yes, show only never seen news
@@ -115,10 +115,9 @@ defaultConfig('ZF_ENCODING', 'UTF-8');
 defaultConfig('ZF_DISPLAYERROR', 'no');
 defaultConfig('ZF_TEMPLATE', 'newsflow');
 defaultConfig('ZF_HOMELIST', 'sample');
-defaultConfig('ZF_VIEWMODE', 'feed');
-defaultConfig('ZF_TRIMTYPE', 'auto');
-defaultConfig('ZF_TRIMSIZE', '5');
-
+defaultConfig('ZF_SORT', 'date');
+defaultConfig('ZF_TRIMTYPE', 'days');
+defaultConfig('ZF_TRIMSIZE', 3);
 
 require_once __DIR__.'/includes/controller.php';
 require_once __DIR__.'/includes/classes.php';
@@ -131,5 +130,8 @@ require_once __DIR__.'/includes/itemtracker.php';
 require_once __DIR__.'/includes/visittracker.php';
 require_once __DIR__.'/includes/template.php';
 require_once __DIR__.'/includes/common.php';
+/*require_once __DIR__ . '/includes/SimplePie/SimplePieAutoLoader.php';
+require_once __DIR__ . '/includes/SimplePie/SimplePie.php';*/
+require_once __DIR__ . '/includes/simplepie.php';
 
 

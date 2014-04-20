@@ -86,7 +86,7 @@ function handleRequest() {
 	$outputType = param('f','html');
 	$template = param('zftemplate', ZF_TEMPLATE);
 	$onlyNew = int_param('onlynew',0);
-	$sort = param('sort', ZF_VIEWMODE);
+	$sort = param('sort', ZF_SORT);
 
 	//refresh mode
 	$updateMode = param('mode', 'auto');
@@ -163,6 +163,9 @@ function handleRequest() {
 
 			} else {
 				// otherwise just aggregate in a single feed
+				if ($trim=='auto') {
+					$trim = ZF_TRIMSIZE.ZF_TRIMTYPE;
+				}
 				$feed = $zf_aggregator->processFeeds($feeds, $trim, true, $onlyNew);
 				$feeds = array($feed);
 				$groupbyday = true;
