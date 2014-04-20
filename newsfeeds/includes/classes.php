@@ -141,14 +141,22 @@ class NewsItem {
 
 		}
 
-		if (!isset($this->summary) || (strlen($this->summary) == 0) ) {
+		if ((strlen($this->summary) == 0) ) {
 			  $this->summary = $this->description;
 		}
 
 		$strsum = strip_tags($this->summary);
+
+        //strip out inline css and simplify style tags
+        $search = array('#<(strong|b)[^>]*>(.*?)</(strong|b)>#isu', '#<(em|i)[^>]*>(.*?)</(em|i)>#isu', '#<u[^>]*>(.*?)</u>#isu');
+        $replace = array('<b>$2</b>', '<i>$2</i>', '<u>$1</u>');
+        $strsum = preg_replace($search, $replace, $strsum);
+
 		$this->isTruncated = false;
 		if (strlen($strsum) > ZF_MAX_SUMMARY_LENGTH ) {
-			$this->summary = substr($strsum, 0, ZF_SUMMARY_TRUNCATED_LENGTH).'...';
+			$this->summary = substr($strsum, 0, ZF_SUMMARY_TRUNCATED_LENGTH);
+			$lastspace = strrpos($this->summary, ' ');
+			$this->summary = substr($this->summary, 0, $lastspace).'...';
 			$this->isTruncated = true;
 		}
 
