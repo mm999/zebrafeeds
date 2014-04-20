@@ -54,7 +54,6 @@ abstract class AbstractFeed {
 		$this->items = array_slice($this->items, 0, $trimsize);
 	}
 
-/* TODO: all this trimming functions in one, applying to any kind of feed */
 	public function filterNonNew() {
 		$currentitems = $this->items;
 		$this->items = array();
@@ -64,6 +63,7 @@ abstract class AbstractFeed {
 			}
 		}
 	}
+
 
 	public function getItems() {
 		return $this->items;
@@ -131,7 +131,20 @@ class PublisherFeed extends AbstractFeed {
 
 	}
 
+	public function postProcess($feedParams) {
 
+		$this->markNewItems();
+		parent::postProcess($feedParams);
+	}
+
+	public function markNewItems() {
+		$tracker = ItemTracker::getInstance();
+		$tracker->markNewFeedItems($this->subscriptionId,
+							$this->items,
+							VisitTracker::getInstance()->getLastSessionEnd());
+		$tracker->purge($this->subscriptionId);
+
+	}
 }
 
 /* AggregatedFeed is made of publisher feeds, er... aggregated
@@ -168,7 +181,10 @@ class AggregatedFeed extends AbstractFeed {
 	protected function mergeItems($feed, $feedParams) {
 
 		zf_debug( 'Merging aggregated feed of sub '.$feed->subscriptionId, DBG_AGGR);
-		$itemcount = 0;
+
+		$feed->markNewItems();
+
+  		$itemcount = 0;
 		$earliest = $feedParams->getEarliestDate();
 		foreach ($feed->items as $item) {
 
@@ -207,7 +223,7 @@ class AggregatedFeed extends AbstractFeed {
 			zf_debug('Item merged', DBG_AGGR);
 
 			// dont use addItem not to call the filter callback again
-			array_push($this->items, $item);
+			$this->items[$item->id] = $item;
 
 			$itemcount++;
 

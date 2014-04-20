@@ -35,7 +35,7 @@ class ItemTracker {
     private $_timestamps;
 
     // id of subscription for which tracker is loaded
-    private $loadedId = 0;
+    private $loadedId = '';
 
     private static $instance = null;
     public static function getInstance() {
@@ -77,7 +77,10 @@ class ItemTracker {
 
     protected function load($subId){
 
-        if ($this->loadedId == $subId) return;
+        if ($this->loadedId == $subId) {
+            zf_debug( "Tracker file already loaded for $subId", DBG_SESSION);
+            return;
+        }
 
         $this->loadedId = 0;
         $filename = $this->fileName($subId);
@@ -86,7 +89,7 @@ class ItemTracker {
             return 0;
         }
 
-        $fp = @fopen(fileName, 'r');
+        $fp = @fopen($filename, 'r');
         if ( ! $fp ) {
             zf_debug( "Failed to open tracker file for reading: $filename", DBG_SESSION);
             return 0;
@@ -96,6 +99,7 @@ class ItemTracker {
         	$data = fread( $fp, filesize($filename) );
         	$this->_timestamps = unserialize( $data );
             $this->loadedId = $subId;
+            zf_debug( "Tracker file loaded $filename", DBG_SESSION);
         	return 1;
     	}
         zf_debug( "Failed to open tracker file: $filename", DBG_SESSION);
@@ -145,7 +149,7 @@ class ItemTracker {
     public function markNewFeedItems($subId, $items, $since) {
         $this->load($subId);
 
-
+        $now = time();
 		zf_debug($subId .': marking items newer than: '.date('dS F Y h:i:s A', $since), DBG_SESSION);
 		zf_debug('now it\'s '.date('dS F Y h:i:s A', $now), DBG_SESSION);
         // for each item
@@ -183,7 +187,7 @@ class ItemTracker {
             } else {
                 /* should happen only if items have date */
                 zf_debug('Dated item marked as new: '.$item->title, DBG_SESSION);
-                $this->_timestamps[$id]['ts'] = time();
+                $this->_timestamps[$id]['ts'] = $now;
                 $item->isNew= true;
 
             }
