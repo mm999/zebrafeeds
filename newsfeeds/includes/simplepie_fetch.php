@@ -20,8 +20,6 @@
 
 if (!defined('ZF_VER')) exit;
 
-require_once __DIR__ . '/SimplePie/SimplePieAutoLoader.php';
-require_once __DIR__ . '/SimplePie/SimplePie.php';
 
 
 /*

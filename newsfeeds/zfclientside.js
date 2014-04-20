@@ -5,7 +5,7 @@ client side functions - ajax stuff, included only if the template
 has {dynamiclength} in "template header" area
 */
 
-var ZFURL="newsfeeds";
+//var ZFURL="newsfeeds";
 var REQELEMENTID = 0;
 
 function getHTTPObject() {
