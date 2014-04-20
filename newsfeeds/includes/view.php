@@ -86,8 +86,8 @@ class JSONView extends AbstractFeedView {
 	}
 
 	public function renderFeedList($feeds, $params) {
-
-
+		$feed = array_pop($feeds);
+		$this->renderFeed($feed, $params);
 	}
 
 	protected function _doPrintArticle($item) {
@@ -121,26 +121,24 @@ class TemplateView extends AbstractFeedView{
 	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
 	public function renderFeed($feed, $params) {
-		$this->template->printHeader();
 		zf_debug('Rendering feed in TemplateView', DBG_RENDER);
 
-		if (!$params['groupbyday'] ) {
+		if ($params['decoration'] == 1 ) {
 			$this->template->printChannel($feed);
 		}
 		$this->renderNewsItems($feed, $params);
 
-		if (!$params['groupbyday'] ) {
+		if ($params['decoration'] == 1 ) {
 			$this->template->printChannelFooter();
 		}
-		$this->template->printFooter();
 	}
 
 	public function renderFeedList($feeds, $params) {
 		$this->template->printHeader();
+		// if only one item: no header or footer to print
+		$params['decoration'] = (sizeof($feeds)>1)?1:0;
 		foreach($feeds as $feed) {
-			$this->template->printChannel($feed);
-			$this->renderNewsItems($feed, $params);
-			$this->template->printChannelFooter();
+			$this->renderFeed($feed, $params);
 		}
 
 		$this->template->printFooter();
