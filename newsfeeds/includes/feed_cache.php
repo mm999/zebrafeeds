@@ -205,6 +205,13 @@ class FeedCache {
 					$this->set( $sub->id, $feed );
 				} else {
 					zf_debug('failed fetching remote file '.$sub->xmlurl, DBG_FEED);
+					if ($status == 'STALE') {
+						zf_debug('attempt to return cached version', DBG_FEED);
+						$feeds[$sub->id] = $this->get($sub->id);
+					} else {
+						zf_debug('empty feed returned', DBG_FEED);
+						$feeds[$sub->id] = new PublisherFeed($sub->id);
+					}
 				}
 			}
 			else {
