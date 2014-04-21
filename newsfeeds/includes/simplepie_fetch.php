@@ -26,7 +26,7 @@ if (!defined('ZF_VER')) exit;
 module interface entry point
 returns a feed object
  */
-function zf_xpie_fetch_feed($subid, $url, &$resultString) {
+function zf_xpie_fetch_feed($subId, $url, &$resultString) {
 
 	$myfeed = null;
 
@@ -48,14 +48,14 @@ function zf_xpie_fetch_feed($subid, $url, &$resultString) {
 
     if ($SP_feed->data) {
 
-        $myfeed = new PublisherFeed($subid);
+        $myfeed = new PublisherFeed($subId);
+        $myfeed->xmlurl = $url;
 
         // TODO support logo $myfeed->publisher->logo = $SP_feed->get_image_url();
-        $index=0;
 
 		$items = $SP_feed->get_items();
         foreach( $items as $item) {
-        	$pubitem = new NewsItem($subid, $item->get_permalink(), $item->get_title(), $item->get_date('U'));
+        	$pubitem = new NewsItem($myfeed, $item->get_permalink(), $item->get_title(), $item->get_date('U'));
 		    $pubitem->description = $item->get_content();
 
             $encidx = 0;

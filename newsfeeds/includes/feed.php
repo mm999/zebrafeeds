@@ -80,10 +80,8 @@ abstract class AbstractFeed {
 
 	/* function to call after all RSS have been merged
 	in order to finalize processing, like sorting and trimming */
-	public function postProcess($feedParams) {
-		//print_r($feedParams);
-		/*zf_debug("Post processing aggregated feed: sort=$sort, trimType =".
-				, area$feedParams->trimType, DBG_AGGR);*/
+	public function prepareRendering($feedParams) {
+
 		if ($feedParams->sort) {
 			$this->sortItems();
 		}
@@ -113,6 +111,10 @@ class PublisherFeed extends AbstractFeed {
 
 	public $from_cache;
 	public $subscriptionId;
+	public $title;
+	public $xmlurl;
+	public $link;
+	public $description;
 
 	public function __construct($subId) {
 		parent::__construct();
@@ -123,18 +125,22 @@ class PublisherFeed extends AbstractFeed {
 	/* make sure our channel array has all what we need
 	 this data will get cached, so this function is called only once,
 	 right after the feed is fetched over http */
-	public function normalize(){
+	public function normalize($title, $link, $xmlurl, $description){
+		$this->title = $title;
+		$this->description = $description;
+		$this->xmlurl = $xmlurl;
+		$this->link = $link;
 
 		foreach ($this->items as $item) {
-			$item->normalize();
+			$item->normalize($this->subscriptionId);
 		}
 
 	}
 
-	public function postProcess($feedParams) {
+	public function prepareRendering($feedParams) {
 
 		$this->markNewItems();
-		parent::postProcess($feedParams);
+		parent::prepareRendering($feedParams);
 	}
 
 	public function markNewItems() {
@@ -168,7 +174,7 @@ class AggregatedFeed extends AbstractFeed {
 		foreach($feeds as $pubfeed) {
 			$this->mergeItems($pubfeed,$params);
 		}
-		$this->postProcess($params);
+		$this->prepareRendering($params);
 
 	}
 
@@ -177,6 +183,7 @@ class AggregatedFeed extends AbstractFeed {
 		but before, do some stuff, like
 		- keep only the ones we want on a timeframe basis
 		- add additional data to items
+		feed must be a publisherfeed
 		 */
 	protected function mergeItems($feed, $feedParams) {
 

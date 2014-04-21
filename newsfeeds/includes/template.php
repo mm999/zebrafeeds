@@ -151,7 +151,7 @@ class template {
 	public function printNews($item) {
 		$this->_buffer = $this->news;
 		$this->_formatCommon();
-		$this->_formatChannel($item->subscriptionId);
+		$this->_formatChannel($item->feed);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 
@@ -160,7 +160,7 @@ class template {
 	public function printNewsByDate($item) {
 		$this->_buffer = $this->newsByDate;
 		$this->_formatCommon();
-		$this->_formatChannel($item->subscriptionId);
+		$this->_formatChannel($item->feed);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 	}
@@ -170,7 +170,7 @@ class template {
 	public function printArticle($item) {
 		$this->_buffer = $this->article;
 		$this->_formatCommon();
-		$this->_formatChannel($item->subscriptionId);
+		$this->_formatChannel($item->feed);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 	}
@@ -196,7 +196,7 @@ class template {
 
 		$this->_buffer = $this->channel;
 		$this->_formatCommon();
-		$this->_formatChannel($feed->subscriptionId);
+		$this->_formatChannel($feed);
 
 		/* now, replace the channel header specific tags */
 
@@ -255,37 +255,36 @@ class template {
 
 	/* process channel-related template tags
 	*/
-	protected function _formatChannel($subId) {
-		$sub = SubscriptionStorage::getInstance()->getSubscription($subId);
+	protected function _formatChannel($feed) {
 
 		if ($this->name == 'SYSTEM.rss') {
-			$stitle = htmlspecialchars($sub->title, ENT_QUOTES);
-			$sdesc = htmlspecialchars($sub->description, ENT_QUOTES);
+			$stitle = htmlspecialchars($feed->title, ENT_QUOTES);
+			$sdesc = htmlspecialchars($feed->description, ENT_QUOTES);
 		} else {
-			$stitle = $sub->title;
-			$sdesc = $sub->description;
+			$stitle = $feed->title;
+			$sdesc = $feed->description;
 		}
 
-		$slink = htmlspecialchars($sub->link, ENT_QUOTES);
-		$sxmlurl = htmlspecialchars($sub->xmlurl, ENT_QUOTES);
+		$slink = htmlspecialchars($feed->link, ENT_QUOTES);
+		$sxmlurl = htmlspecialchars($feed->xmlurl, ENT_QUOTES);
 
 		/*TODO: logo and favicon
-		if ($sub->logo != "") {
-			$slogo = htmlspecialchars($sub->logo, ENT_QUOTES);
+		if ($feed->logo != "") {
+			$slogo = htmlspecialchars($feed->logo, ENT_QUOTES);
 			$this->_buffer = str_replace('{chanlogo}', "<a href=\"" . $slink. "\"><img src=\"" . $slogo. "\" style=\"border:0;\" alt=\"" . $stitle. "\" title=\"" . $stitle. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanlogo}', '', $this->_buffer);
 		}*/
 
-		/*if ($sub->favicon != "") {
-			$sub->favicon = htmlspecialchars($sub->favicon, ENT_QUOTES);
+		/*if ($feed->favicon != "") {
+			$feed->favicon = htmlspecialchars($feed->favicon, ENT_QUOTES);
 			$this->_buffer = str_replace('{chanfavicon}', "<a href=\"" . $slink. "\"><img src=\"" . $sfavicon. "\" style=\"border:0;\" width=\"16\" height=\"16\" alt=\"-\" title=\"" . $stitle. "\" /></a>", $this->_buffer);
 		} else {
 			$this->_buffer = str_replace('{chanfavicon}', '', $this->_buffer);
 		}*/
 
-		$this->_buffer = str_replace('{chanlink}', $sub->link, $this->_buffer);
-		$this->_buffer = str_replace('{chanid}', $sub->id, $this->_buffer);
+		$this->_buffer = str_replace('{chanlink}', $feed->link, $this->_buffer);
+		$this->_buffer = str_replace('{chanid}', $feed->subscriptionId, $this->_buffer);
 		$this->_buffer = str_replace('{chandesc}', $sdesc, $this->_buffer);
 
 		$this->_buffer = str_replace('{chantitle}', $stitle, $this->_buffer);
@@ -338,7 +337,7 @@ class template {
 		$hasSummary = strpos($this->_buffer, '{summary}');
 		$this->_buffer = str_replace('{summary}', $ssummary, $this->_buffer);
 
-		$zfarticleurl = ZF_HOMEURL.'?q=item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->subscriptionId;
+		$zfarticleurl = ZF_HOMEURL.'?q=item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->feed->subscriptionId;
 
 		if ($hasSummary && $item->isTruncated)
 			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';

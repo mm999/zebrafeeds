@@ -58,7 +58,7 @@ class aggregator {
 				$feedParams = SubscriptionStorage::getInstance()->getSubscription($feed->subscriptionId)->getFeedParams();
 				$feedParams->setTrimStr($trim);
 				$feedParams->onlyNew = $onlyNew;
-				$feed->postProcess($feedParams);
+				$feed->prepareRendering($feedParams);
 			}
 			return $feeds;
 		}

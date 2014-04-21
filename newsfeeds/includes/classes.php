@@ -82,9 +82,6 @@ class NewsItem {
 	// unique id from title and desc
 	public $id;
 
-	//subscription of this item
-	public $subscriptionId;
-
 	// address and title of the news
 	public $link;
 
@@ -97,10 +94,12 @@ class NewsItem {
 	//time stamp of the news publication if provided, or first seen if not
 	public $date_timestamp;
 
+	public $feed;
+
 	//array of enclosure objects
 	public $enclosures;
 
-	public function __construct($subscriptionId, $link, $title, $date) {
+	public function __construct($feed, $link, $title, $date) {
 		$this->enclosures = array();
 		$this->isTruncated = false;
 		$this->isNew = false;
@@ -108,8 +107,8 @@ class NewsItem {
 		$this->link = $link;
 		$this->title = $title;
 		$this->date_timestamp = $date;
-		$this->subscriptionId = $subscriptionId;
-		$this->id = zf_makeId($subscriptionId, $this->link.$this->title);
+		$this->id = zf_makeId($feed->subscriptionId, $this->link.$this->title);
+		$this->feed = $feed;
 	}
 
 /*all sorts of processing to the item object
@@ -120,7 +119,7 @@ class NewsItem {
 
  publisher
 */
-	public function normalize() {
+	public function normalize($subId) {
 		/* build our id, used as CSS element id. add timestamp to make it unique  */
 
 		if ( $this->date_timestamp == 0) {
@@ -130,7 +129,7 @@ class NewsItem {
 			//$item['date_timestamp'] = 0;
 			//print_r($channel);
 			$tracker = ItemTracker::getInstance();
-			$firstseen = $tracker->getDateFirstSeen($this->subscriptionId, $this->id);
+			$firstseen = $tracker->getDateFirstSeen($subId, $this->id);
 			if ($firstseen == 0) {
 				$firstseen = time();
 			}
@@ -181,7 +180,7 @@ class NewsItem {
 	including the publisher and without enclosures */
 	public function getFullSerializableHeader($summary = false) {
 		$header = new SerializableItemHeader($this);
-		$header->subscriptionId = $this->subscriptionId;
+		$header->subscriptionId = $this->feed->subscriptionId;
 		if ($summary) $header->summary = $this->summary;
 		return $header;
 	}
@@ -205,9 +204,6 @@ class SerializableItemHeader {
 	public $isNew;
 
 	public $summary; //might end up empty;
-	//Publisher this item was obtained from
-	// might end up empty
-	public $subscriptionId;
 
 	// make this object out of a NewsItem object
 	public function __construct($item) {
