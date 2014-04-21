@@ -82,7 +82,8 @@ class ItemTracker {
             return;
         }
 
-        $this->loadedId = 0;
+
+        $this->loadedId = '';
         $filename = $this->fileName($subId);
         if ( ! file_exists( $filename ) ) {
             zf_debug( "Tracker file not found $filename", DBG_SESSION);
@@ -147,6 +148,8 @@ class ItemTracker {
     * $now: compare at timestamp X
     */
     public function markNewFeedItems($subId, $items, $since) {
+        zf_debug($subId .': marking new items ', DBG_SESSION);
+
         $this->load($subId);
 
         $now = time();
