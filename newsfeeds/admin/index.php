@@ -27,10 +27,13 @@ require_once('../init.php');
 require_once('adminfuncs.php');
 ini_set("user_agent",ZF_USERAGENT);
 
-$zfaction = isset($_GET['zfaction']) ? $_GET['zfaction'] : 'subscriptions';
+$zfaction = param('zfaction', 'subscriptions');
+
 
 if ($zfaction == 'logout')
-    zfLogout();
+	zfLogout();
+
+
 
 
 zfLogin();
@@ -43,7 +46,7 @@ zfLogin();
 	<title>ZebraFeeds admin panel</title>
 	<link rel="stylesheet" type="text/css" href="admin.css"/>
 	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-	<meta content="utf-8" http-equiv="encoding">	</head>
+	</head>
 	<body>
 
 

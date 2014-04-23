@@ -155,8 +155,7 @@ function displayStatus($message) {
 
 /* write the config array to the config file */
 function saveConfig(&$config) {
-	global $zf_path;
-	@$fp = fopen($zf_path.'config.php','w');
+	@$fp = fopen('../config.php','w');
 	if($fp) {
 		fwrite($fp,"<?php\n// ZebraFeeds ".ZF_VER." - copyright (c) Laurent Cazalet\n");
 		fwrite($fp,"// configuration file\n\n\n");
@@ -212,7 +211,6 @@ function zfurl() {
 // restrict check to files with ext $ext, if provided
 // returns number of bytes freed
 function clearOldData($dir, $age, $ext='') {
-	global $zf_path;
 	$now = time();
 	$size = 0;
 

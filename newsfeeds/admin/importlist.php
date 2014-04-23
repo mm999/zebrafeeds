@@ -20,7 +20,7 @@
 
 if (zfAuth()==false) exit;
 
-require_once($zf_path . 'includes/subscriptionstorage.php');
+require_once('../includes/subscriptionstorage.php');
 
 function displaydata($storage)
 {
@@ -201,4 +201,8 @@ if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
 </form>
 </div>
 </div>
-<?php } ?>
+
+<?php
+}
+
+

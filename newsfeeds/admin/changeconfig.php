@@ -28,7 +28,7 @@ if(zfAuth()==false) {
 
 
 
-if($_POST['dosave']=='Save settings')
+if($_POST['dosave']=='Save')
 {
     if($_POST['newpassword'] == $_POST['confirmpassword'] && $_POST['newpassword']!='') {
         $_POST['adminpassword'] = md5($_POST['newpassword']);
@@ -40,11 +40,6 @@ if($_POST['dosave']=='Save settings')
         echo '<div id="core">';
         displayStatus('Configuration saved.');
         if ($_POST['refreshmode'] == 'request') {
-            $refreshurl = ZF_URL.'/pub/refresh.php?key='.md5(ZF_ADMINNAME . ZF_ADMINPASS);
-            echo '<div>Newsfeeds will <strong>NOT</strong> be updated automatically.
-                  You\'ll have to request it manually or through a cron job.<br/><br/>
-                  Use the <a href="'.$refreshurl.'">ZebraFeeds refresh link</a> to configure your cronjob. <br/><br/><br/>
-                  <em>Note: this link changes whenever you change the admin user or password.</em></div>';
         }
         if ($_POST['rendermode'] == 'manual') {
             echo '<div>Newsfeeds will <strong>NOT</strong> be rendered automatically.<br/>
@@ -55,8 +50,7 @@ if($_POST['dosave']=='Save settings')
         displayStatus('Configuration NOT saved.');
     }
 }
-else
-{
+
 ?>
 
 <div id="core">  <form name="configform" action="<?php echo $_SERVER['PHP_SELF'].'?zfaction=config';?>" method="post">
@@ -69,14 +63,14 @@ else
 <a class="info" href="#">(?)<span>Points to the page embedding ZebraFeeds. Used also in the RSS feed publisher URL.</span></a>:
 		</div>
 		<div class="col2">
-			<input name="zfhomeurl" id="zfhomeurl" type="text" size="50" value="<?php echo ZF_HOMEURL; ?>" />
+			<input name="zfhomeurl" id="zfhomeurl" type="text" size="40" value="<?php echo ZF_HOMEURL; ?>" />
 		</div>
 
 		<div class="col1">
 			<label for="zfurl">ZebraFeeds script path URL: </label>
 		</div>
 		<div class="col2">
-			<input name="zfurl" id="zfurl" type="text" size="50" value="<?php if(ZF_URL!='') { echo ZF_URL; } else {if(zfurl()!=false) {echo zfurl();}} ?>" />
+			<input name="zfurl" id="zfurl" type="text" size="40" value="<?php if(ZF_URL!='') { echo ZF_URL; } else {if(zfurl()!=false) {echo zfurl();}} ?>" />
 		</div>
 		<div class="col1">
 			<label for="adminname">Admin username: </label>
@@ -111,7 +105,7 @@ else
 	</div>
 </div>
 <div class="frame">
-<h2>News feeds options</h2>
+<h2>Aggregator options</h2>
 	<div class="twocols">
 		<div class="col1">
 			<label for="usesubs">Use subscription lists: </label>
@@ -123,7 +117,7 @@ else
 			</select>
 		</div>
 		<div class="col1">
-			<label for="subfilename">Default subscription list</label>
+			<label for="subtag">Default subscription list</label>
 		        <a href="#" class="info">(?)
 			<span>the tag of subscriptions displayed by default</span>
 			</a>:
@@ -135,7 +129,7 @@ else
 		<div class="col1">
 			<label for="refreshmode">Refresh mode</label>
 			<a href="#" class="info">(?)
-			<span>How to refresh feeds.<br/> Automatic: when page is generated. <br/>
+			<span>How to refresh feeds.<br/> Automatic: only when needed.<br/>
                            On request:  manual/scheduled refresh of feeds (by a cronjob for example).
 			</span>
 			</a>:
@@ -151,7 +145,7 @@ else
 
 </div>
 <div class="frame">
-<h2>General display options</h2>
+<h2>Template options</h2>
 
 <?php //TODO: config for viewmode, trimsize/type ?>
 	<div class="twocols">
@@ -283,38 +277,24 @@ else
             </select>
 		</div>
 
-		<div class="col1">
-<label for="rendermode">Render mode</label>
-		<a href="#" class="info">(?)
-		<span>Automatic: automatically display feeds where <code>zebrafeeds.php</code> is included. <br/>
-                           Manual: including zebrafeeds.php does nothing. The user functions <strong>MUST</strong> be used to see aggregated news</span>
-		</a>:
-		</div>
-		<div class="col2">
-              <select name="rendermode" id="rendermode" >
-                <option value="automatic" <?php if(ZF_RENDERMODE=='automatic') echo 'selected="selected"';?>>Automatic</option>
-                <option value="manual" <?php if(ZF_RENDERMODE!='automatic') echo 'selected="selected"';?>>Manual</option>
-            </select>
-		</div>
-
-		<div class="col1">
-			<label for="ownername">Feed list owner name: </label>
-		</div>
-		<div class="col2">
-            <input name="ownername" type="text" id="ownername" value="<?php echo ZF_OWNERNAME;?>"/>
-		</div>
-
-		<div class="col1">
-			<label for="owneremail">Feed list owner email: </label>
-		</div>
-		<div class="col2">
-           		<input name="owneremail" type="text" id="owneremail" value="<?php echo ZF_OWNEREMAIL;?>"/>
-		</div>
 	</div>
 </div>
 <div id="saveconfig">
-    <input type="submit" name="dosave" id="dosave" value="Save settings"/>
+    <input type="submit" name="dosave" id="dosave" value="Save"/>
 </div>
   </form>
+<div class="info">
+<h3>Extra information</h3>
+
+<?php
+    $refreshurl = ZF_URL.'/pub/refresh.php?key='.md5(ZF_ADMINNAME . ZF_ADMINPASS);
+    echo 'Your personal ZebraFeeds refresh link to refresh all feeds via cron job:<br/><br/>
+          '.$refreshurl.' <br/><br/><br/>
+          <em>Note: this link changes whenever you change the admin user or password.</em>';
+?>
 </div>
-<?php } ?>
+</div>
+<?php
+
+
+
