@@ -24,7 +24,7 @@
 
 /* initialization part */
 require_once('../init.php');
-require_once($zf_path.'admin/adminfuncs.php');
+require_once('adminfuncs.php');
 ini_set("user_agent",ZF_USERAGENT);
 
 $zfaction = isset($_GET['zfaction']) ? $_GET['zfaction'] : 'subscriptions';
@@ -70,13 +70,13 @@ zfLogin();
 // after the normal header for all admin pages, select now what we gonna show
 
 	if ($zfaction == 'subscriptions') {
-        include($zf_path.'admin/subscriptions.php');
+        include('subscriptions.php');
     } elseif ($zfaction == 'addnew') {
-        include($zf_path.'admin/addnewfeed.php');
+        include('addnewfeed.php');
     } elseif ($zfaction == 'importlist') {
-        include($zf_path.'admin/importlist.php');
+        include('importlist.php');
 	} elseif ($zfaction == 'config') {
-        include($zf_path.'admin/changeconfig.php');
+        include('changeconfig.php');
 	} elseif ($zfaction == 'maintenance') {
 
         echo '<div id="core">

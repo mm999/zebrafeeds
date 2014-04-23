@@ -22,8 +22,8 @@
 
 if(zfAuth()==false) {
     exit;
-} elseif(!is_writable($zf_path.'config.php')) {
-    displayStatus($zf_path.'config.php is not writable (you cannot save changes)!');
+} elseif(!is_writable('../config.php')) {
+    displayStatus('config.php is not writable (you cannot save changes)!');
 }
 
 
