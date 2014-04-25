@@ -44,8 +44,8 @@ class FeedCache {
 
 	static public function getInstance() {
 		if (self::$instance == NULL){
-            self::$instance = new FeedCache(ZF_CACHEDIR);
-        }
+			self::$instance = new FeedCache(ZF_CACHEDIR);
+		}
 		return self::$instance;
 	}
 
@@ -112,7 +112,7 @@ class FeedCache {
 	Purpose:	check a url for membership in the cache
 				and whether the object is older then MAX_AGE (ie. STALE)
 	Input:		url from wich the rss file was fetched
-	            MAX_AGE to check against
+				MAX_AGE to check against
 	Output:		HIT, STALE or MISS
 \*=======================================================================*/
 	public function check_cache ( $key ) {
@@ -174,6 +174,23 @@ class FeedCache {
 
 
 
+	public function updateSingle($sub) {
+		zf_debug('fetching remote file: '.$sub->title, DBG_FEED);
+		$feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
+		if ( $feed ) {
+			zf_debug("Fetch successful: ".$sub->title, DBG_FEED);
+
+			$feed->normalize($sub->title, $sub->link, $sub->xmlurl, $sub->description);
+
+			// add object to cache
+			$this->set( $sub->id, $feed );
+		} else {
+			zf_debug('failed fetching remote file '.$sub->xmlurl, DBG_FEED);
+		}
+
+	}
+
+
 	/* update the cache for the array of subscriptions provided
 		updateMode: force, none, auto
 		ZebraFeeds addition
@@ -181,7 +198,9 @@ class FeedCache {
 		returns: nothing
 	*/
 	public function update($subscriptions, $updateMode = 'auto') {
-		// TODO: use parallel fetch
+
+		$subsToRefresh = array();
+
 		foreach ($subscriptions as $sub) {
 
 			zf_debug("Checking cache for $sub->title", DBG_FEED);
@@ -190,21 +209,47 @@ class FeedCache {
 			$needsRefresh = ($status == 'STALE') || ($status == 'MISS');
 
 			if ($updateMode == 'force' || ($needsRefresh && $updateMode == 'auto') ) {
-				zf_debug('fetching remote file '.$sub->title, DBG_FEED);
-				$feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
-				if ( $feed ) {
-					zf_debug("Fetch successful", DBG_FEED);
-
-					$feed->normalize($sub->title, $sub->link, $sub->xmlurl, $sub->description);
-
-					// add object to cache
-					$this->set( $sub->id, $feed );
-				} else {
-					zf_debug('failed fetching remote file '.$sub->xmlurl, DBG_FEED);
-				}
+				//$this->updateSingle($sub);
+				$subsToRefresh[] = $sub;
 			}
 
 		}
+		$this->updateAllParallel($subsToRefresh);
+	}
+
+
+	/* a big thanks to FiveFilters for this */
+	protected function updateAllParallel($subscriptions) {
+
+		zf_debugRuntime("before feeds parallel update");
+
+		$urls= array();
+		foreach ($subscriptions as $sub) {
+			$url = ZF_URL.'/index.php?q=force-refresh&id='.$sub->id;
+			$urls[] = $url;
+		}
+
+
+		// Request all feed items in parallel (if supported)
+		$http = new HumbleHttpAgent();
+		//$http->userAgentMap = $this->user_agents;
+		//$http->headerOnlyTypes = array_keys($this->content_type_exc);
+		//$http->rewriteUrls = $this->rewrite_url;
+		$http->userAgentDefault = HumbleHttpAgent::UA_PHP;
+		zf_debug('fetching all ', DBG_FEED);
+
+		$http->fetchAll($urls);
+
+		foreach($urls as $url){
+			if ($url && ($response = $http->get($url, true)) && ($response['status_code'] < 300 || $response['status_code'] > 400)) {
+				$effective_url = $response['effective_url'];
+				zf_debug('response: '. $response['body'], DBG_FEED);
+			}
+
+		}
+
+		zf_debugRuntime("End of parallel update");
+
 	}
 
 

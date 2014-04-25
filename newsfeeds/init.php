@@ -40,7 +40,7 @@ define('DBG_FILTER', 256); // item filtering
 define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
-define('ZF_DEBUG', 0 );
+define('ZF_DEBUG', DBG_FEED );
 
 // debug output 1=console otherwise stdout
 define('ZF_DEBUG_CONSOLE', 1);
@@ -135,5 +135,8 @@ require_once __DIR__.'/includes/common.php';
 require_once __DIR__ . '/includes/SimplePie/SimplePie.php';*/
 require_once __DIR__ . '/includes/simplepie.php';
 require_once __DIR__ . '/includes/itemfilter.php';
+require_once __DIR__ . '/includes/humble-http-agent/HumbleHttpAgent.php';
+require_once __DIR__ . '/includes/humble-http-agent/RollingCurl.php';
+require_once __DIR__ . '/includes/humble-http-agent/CookieJar.php';
 
 

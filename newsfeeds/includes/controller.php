@@ -31,7 +31,8 @@ q : query type. Values:
  - tag (always news by date)
  - subs (subs being tagged with specified tag, all if no tag specified)
  - tags (all tags available in subscriptions)
- - refresh: force refresh a feed
+ - force-refresh: force refresh a feed to cache. No output. Only for internal use
+ - refresh-all: force refresh all feeds of a tag to cache. No output. Only for internal use
 
 tag: use only subscription with this tag. default empty. applicable only for
 	q=subs and q=tag
@@ -177,13 +178,19 @@ function handleRequest() {
 			break;
 
 
-		case 'refresh':
+		case 'force-refresh':
+			// only internal use
 			// TODO: check API key
 			$sub = SubscriptionStorage::getInstance()->getSubscription($channelId);
-			$feeds = FeedCache::getInstance()->update(array($sub->id => $sub), 'force');
-			if (array_pop($feeds) != null) echo $sub->title. ' DONE. ';
+			FeedCache::getInstance()->updateSingle($sub);
+			echo $sub->title. ' DONE. ';
 			break;
 
+		case 'refresh-all':
+			$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
+			FeedCache::getInstance()->update($subs);
+			echo ' DONE. ';
+			break;
 
 	}
 
