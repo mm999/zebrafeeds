@@ -156,6 +156,12 @@ class TemplateView extends AbstractFeedView{
 		//foreach item
 		$itemsList = $feed->getItems();
 		zf_debug(sizeof($itemsList).' to render', DBG_RENDER);
+
+		$groupbyday = $params['groupbyday'];
+		if ( $groupbyday ) {
+			zf_debug("group by day is set", DBG_RENDER);
+		}
+
 		foreach ($itemsList as $item) {
 
 			/* two ways of rendering:
@@ -163,12 +169,8 @@ class TemplateView extends AbstractFeedView{
 			- normal, use the regular news template
 			 */
 			$renderIt = true;
-			if (function_exists('zf_itemfilter')) {
-				$renderIt = zf_itemfilter($item);
-			}
 
-			if ($params['groupbyday'] ) {
-				zf_debug("group by day is set", DBG_RENDER);
+			if ($groupbyday) {
 
 				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item->date_timestamp)));
 				/*
