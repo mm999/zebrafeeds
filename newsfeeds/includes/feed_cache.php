@@ -177,10 +177,11 @@ class FeedCache {
 	/* update the cache for the array of subscriptions provided
 		updateMode: force, none, auto
 		ZebraFeeds addition
+
+		returns: nothing
 	*/
 	public function update($subscriptions, $updateMode = 'auto') {
 		// TODO: use parallel fetch
-		$feeds = array();
 		foreach ($subscriptions as $sub) {
 
 			zf_debug("Checking cache for $sub->title", DBG_FEED);
@@ -193,39 +194,43 @@ class FeedCache {
 				$feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
 				if ( $feed ) {
 					zf_debug("Fetch successful", DBG_FEED);
-					/* one shot: add our extra data and do our post processing
-					  (we will here fix missing dates)
-					BEFORE storing to cache */
 
 					$feed->normalize($sub->title, $sub->link, $sub->xmlurl, $sub->description);
-					$feeds[$sub->id] = $feed;
 
 					// add object to cache
 					$this->set( $sub->id, $feed );
 				} else {
 					zf_debug('failed fetching remote file '.$sub->xmlurl, DBG_FEED);
-					if ($status == 'STALE') {
-						zf_debug('attempt to return cached version', DBG_FEED);
-						$feeds[$sub->id] = $this->get($sub->id);
-					} else {
-						zf_debug('empty feed returned', DBG_FEED);
-						$feeds[$sub->id] = new PublisherFeed($sub->id);
-					}
 				}
 			}
-			else {
-				// get from cache
-				$feeds[$sub->id] = $this->get($sub->id);
+
+		}
+	}
+
+
+	public function getFeeds($subscriptions, $chain = null) {
+		$feeds = array();
+		foreach($subscriptions as $sub) {
+			$feed = $this->get($sub->id);
+
+			if ($feed) {
+				$feed->filter($chain);
+				$feeds[$sub->id] = $feed;
+
+			} else {
+				zf_debug('empty feed returned', DBG_FEED);
+				$feeds[$sub->id] = new PublisherFeed();
 			}
 
 		}
 		return $feeds;
-
 	}
 
-	public function getItem($key, $itemId) {
+
+	// TODO: apply filter on item get
+	public function getItem($key, $itemId, $filter = null) {
 		$feed = $this->get($key);
-		return $feed->getItem($itemId);
+		return $feed->getItem($itemId, $filter);
 	}
 
 

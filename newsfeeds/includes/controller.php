@@ -54,21 +54,24 @@ mode: feed update mode. applicable only for q=channel
 sum: if 1 then summary included in news item header, 0 no summary (default)
 	 Applicable only when q=channel or q=tag
 
-trim: how to shorten the number of items when getting feeds with tag, to get only news
+trim: how to shorten the number of items when getting feeds to get only news
 	  or the last hour, since 4 days...
-	  when q=tag. Allowed values override default settings and are:
-			  <N>days, <N>hours, <N>news,
-	  when q=channel allowed values are:
-			   none (show all), auto (default, use subscription setting), <N>news
+	  valid when q=tag or q=channel
+      none:  show all
+      auto: default, if q=channel then use Xnews (subscription setting).
+                     if q=tag then use config values for trim
+      <N>news
+	  <N>days
+	  <N>hours
 
 onlynew: default to 0. If 1 will show only newly fetched items. Valid for q=tag or channel
 
 sort: feed or date. only for q=tag
-      if trim is set, ignored and forced to date
-      only valid for html output
+	  if trim is set, param ignored and forced to 'date'
+	  only valid for html output (f=html)
 
-decoration: for q=channel and f=html only
-            default to 0. if 1, will output channel header
+decoration: if (q=channel AND f=html) only
+			default to 0. if 1, will output channel header
  */
 
 
@@ -80,7 +83,7 @@ function handleRequest() {
 	$type = param('q', 'tag');
 	$channelId = param('id');
 	$itemId = param('itemid');
-	$sum = int_param('sum');
+	$sum = int_param('sum', 1);
 	$tag = param('tag','');
 	$trim = param('trim', 'auto');
 	$outputType = param('f','html');
@@ -91,8 +94,6 @@ function handleRequest() {
 	//refresh mode
 	$updateMode = param('mode', 'auto');
 
-	// record the time of the visit, server side mode. WHY???
-	VisitTracker::getInstance()->recordVisit();
 
 	if ($outputType =='html') {
 		$contenttype = 'text/html';
@@ -103,20 +104,19 @@ function handleRequest() {
 	}
 	if (!headers_sent()) header('Content-Type: '.$contenttype.'; charset='.ZF_ENCODING);
 
-	$storage = SubscriptionStorage::getInstance();
-	$cache = FeedCache::getInstance();
+	$zf_aggregator = new Aggregator();
 
 	switch ($type) {
 
 		case 'item':
 			//refresh: always from cache
-			$item = $cache->getItem($channelId, $itemId);
+			$item = $zf_aggregator->getItem($channelId, $itemId);
 			$view->renderArticle($item);
 			break;
 
 		case 'summary':
 			//refresh: always from cache
-			$item = $cache->getItem($channelId, $itemId);
+			$item = $zf_aggregator->getItem($channelId, $itemId);
 			$view->renderSummary($item);
 			break;
 
@@ -124,16 +124,7 @@ function handleRequest() {
 
 		case 'channel':
 			//refresh: user defined
-			$sub = $storage->getSubscription($channelId);
-			$feeds = $cache->update(array($sub->id => $sub), $updateMode);
-			$zf_aggregator = new Aggregator();
-			zf_debug("Aggregator loaded");
-
-			$feeds = $zf_aggregator->processFeeds($feeds, $trim, false, $onlyNew);
-			$feed = array_pop($feeds);
-
-			// could become true if we wanted date grouping for every channel
-			// will only be useful for TemplateView
+			$feed = $zf_aggregator->getChannelFeed($channelId, $updateMode, $trim, $onlyNew);
 			$view->renderFeed($feed, array(
 				'groupbyday' => false,
 				'decoration' => int_param('decoration'),
@@ -145,31 +136,22 @@ function handleRequest() {
 		case 'tag':
 			//refresh: always auto refresh for tag view
 
-			$subs = $storage->getActiveSubscriptions($tag);
-			zf_debugRuntime("before feeds update");
-			$feeds = $cache->update($subs, 'auto');
-
-			zf_debugRuntime("before aggregation");
-			$zf_aggregator = new Aggregator();
-			zf_debug("Aggregator loaded");
-
-
 			// if html output & sorted by feed, trim every single item
 			// according to subcription's settings
 			if ($sort == 'feed' && $outputType == 'html') {
-
-				$feeds = $zf_aggregator->processFeeds($feeds, $trim, false, $onlyNew);
 				$groupbyday = false;
-
+				$aggregate = false;
 			} else {
 				// otherwise just aggregate in a single feed
-				if ($trim=='auto') {
+				if ($trim == 'auto') {
 					$trim = ZF_TRIMSIZE.ZF_TRIMTYPE;
 				}
-				$feed = $zf_aggregator->processFeeds($feeds, $trim, true, $onlyNew);
-				$feeds = array($feed);
 				$groupbyday = true;
+				$aggregate = true;
 			}
+
+
+			$feeds = $zf_aggregator->getFeedsForTag($tag, $aggregate, $trim, $onlyNew);
 
 			zf_debugRuntime("before rendering");
 
@@ -190,15 +172,15 @@ function handleRequest() {
 
 		case 'tags':
 
-			$tags = $storage->getTags();
+			$tags = SubscriptionStorage::getInstance()->getTags();
 			echo json_encode($tags);
 			break;
 
 
 		case 'refresh':
 			// TODO: check API key
-			$sub = $storage->getSubscription($channelId);
-			$feeds = $cache->update(array($sub->id => $sub), 'force');
+			$sub = SubscriptionStorage::getInstance()->getSubscription($channelId);
+			$feeds = FeedCache::getInstance()->update(array($sub->id => $sub), 'force');
 			if (array_pop($feeds) != null) echo $sub->title. ' DONE. ';
 			break;
 

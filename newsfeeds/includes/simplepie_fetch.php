@@ -30,6 +30,10 @@ function zf_xpie_fetch_feed($subId, $url, &$resultString) {
 
 	$myfeed = null;
 
+    $filterChain = new FilterChain();
+    $trackerFilter = new DateTrackerFilter();
+    $filterChain->addFilter($trackerFilter);
+    $filterChain->addFilter(new SummaryNormalizerFilter());
 
     $SP_feed = new SimplePie();
 
@@ -69,7 +73,7 @@ function zf_xpie_fetch_feed($subId, $url, &$resultString) {
 					$pubitem->addEnclosure($newenc);
             	}
             }
-            $myfeed->addItem($pubitem);
+            $myfeed->addItem($pubitem, $filterChain);
         }
 
         /* metadata */
@@ -83,6 +87,10 @@ function zf_xpie_fetch_feed($subId, $url, &$resultString) {
     // php memory bug, as described in SP documentation
 	$SP_feed->__destruct();
 	unset($SP_feed);
+
+    // make sure to save tracker to disk
+    unset($trackerFilter);
+
     return $myfeed;
 
 

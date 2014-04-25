@@ -35,16 +35,14 @@ abstract class AbstractFeed {
 		$this->items = array();
 	}
 
-	public function addItem($item) {
-		if (function_exists('zf_itemfilteronfetch')) {
-			$keepit = zf_itemfilteronfetch($item);
-			if (!$keepit) {
-				// finally add our item to the news array
-				zf_debug('Item discarded by user function: \"'.$item->title.'\"', DBG_AGGR);
-				return;
+	public function addItem($item, $filterChain = null) {
+		if ($filterChain) {
+			if ($filterChain->acceptItem($item)) {
+				$this->items[$item->id]= $item;
 			}
+		} else {
+			$this->items[$item->id]= $item;
 		}
-		$this->items[$item->id]= $item;
 	}
 
 	/* get rid of superfluous items exceeding our limit, removing the bottom
@@ -54,43 +52,42 @@ abstract class AbstractFeed {
 		$this->items = array_slice($this->items, 0, $trimsize);
 	}
 
-	public function filterNonNew() {
-		$currentitems = $this->items;
-		$this->items = array();
-		foreach ($currentitems as $item) {
-			if ($item->isNew) {
-				$this->items[$item->id] = $item;
-			}
+	public function getItems($filterChain=null) {
+		if ($filterChain) {
+			$result = $filterChain->filter($this->items);
+		} else {
+			$result = $this->items;
 		}
+		return $result;
 	}
 
-
-	public function getItems() {
-		return $this->items;
-	}
-
-	public function getItem($itemid) {
+	public function getItem($itemid, $filter=null) {
 
 		if (isset($this->items[$itemid])) {
-			return $this->items[$itemid];
+			$item = $this->items[$itemid];
+			if ($filter) {
+				// ignore return, we are not rejecting items in this case
+				$item = $filter->accept($item);
+			}
 		} else {
-			return NULL;
+			$item = NULL;
+		}
+		return $item;
+	}
+
+	public function filter($chain) {
+		if ($chain && sizeof($chain)>0) {
+			$this->items = $chain->filter($this->items);
 		}
 	}
 
 	/* function to call after all RSS have been merged
 	in order to finalize processing, like sorting and trimming */
-	public function prepareRendering($feedParams) {
+	public function prepareRendering() {
 
-		if ($feedParams->sort) {
-			$this->sortItems();
-		}
-		if ($feedParams->trimType == 'news')
-			$this->trimItems($feedParams->trimSize);
+		$this->sortItems();
+		//$this->trimItems($trimSize);
 
-		if ((defined('ZF_ONLYNEW') && ZF_ONLYNEW == 'yes') || $feedParams->onlyNew) {
-			$this->filterNonNew();
-		}
 	}
 
 	/* sort our items */
@@ -131,26 +128,12 @@ class PublisherFeed extends AbstractFeed {
 		$this->xmlurl = $xmlurl;
 		$this->link = $link;
 
-		foreach ($this->items as $item) {
+		/*foreach ($this->items as $item) {
 			$item->normalize($this->subscriptionId);
-		}
+		}*/
 
 	}
 
-	public function prepareRendering($feedParams) {
-
-		$this->markNewItems();
-		parent::prepareRendering($feedParams);
-	}
-
-	public function markNewItems() {
-		$tracker = ItemTracker::getInstance();
-		$tracker->markNewFeedItems($this->subscriptionId,
-							$this->items,
-							VisitTracker::getInstance()->getLastSessionEnd());
-		$tracker->purge($this->subscriptionId);
-
-	}
 }
 
 /* AggregatedFeed is made of publisher feeds, er... aggregated
@@ -158,93 +141,30 @@ can be trimmed to last X [news|days|hours] */
 class AggregatedFeed extends AbstractFeed {
 
 
-	// timestamp before which we don't want news
-	private $_earliest;
-
 	/* this feed is an aggregation of feeds from a list
 	   this method initializes this
 	 */
-	public function __construct($feeds, $params) {
+	public function __construct($feeds, $filterChain) {
 
 		parent::__construct();
 
-		$this->_earliest = 0;
-
-
 		foreach($feeds as $pubfeed) {
-			$this->mergeItems($pubfeed,$params);
+	  		/* multiple approaches for merging
+
+			loop here, accept individual items
+			loop here, accept in the addItem method
+			in-place filter feed to be merged, add all items in one go to items array
+			get from feed filtered items list and append to array
+
+			*/
+			$itemsToMerge = $pubfeed->getItems($filterChain);
+			$this->items = array_merge($this->items, $itemsToMerge);
+			zf_debug("Merged ".$pubfeed->subscriptionId, DBG_AGGR);
 		}
-		$this->prepareRendering($params);
+		$this->prepareRendering();
 
 	}
 
-
-		/* merge the news items from the RSS object into our list of items
-		but before, do some stuff, like
-		- keep only the ones we want on a timeframe basis
-		- add additional data to items
-		feed must be a publisherfeed
-		 */
-	protected function mergeItems($feed, $feedParams) {
-
-		zf_debug( 'Merging aggregated feed of sub '.$feed->subscriptionId, DBG_AGGR);
-
-		$feed->markNewItems();
-
-  		$itemcount = 0;
-		$earliest = $feedParams->getEarliestDate();
-		foreach ($feed->items as $item) {
-
-			$itemts = (isset($item->date_timestamp)) ? $item->date_timestamp: 0;
-			$basetime = time();
-
-			// get timestamp of today at 0h00
-			//$todayts = strtotime(date("F j, Y"));
-			//$yesterdayts = $todayts - (3600*24);
-
-			zf_debug( 'Merging item "'.$item->title.'"', DBG_AGGR);
-			// optionally exclude news with date in future
-			if (ZF_NOFUTURE == 'yes') {
-				if ($itemts > $basetime ) {
-					zf_debug('Item has future date. Skipped.'.$basetime.' lower than '.$itemts, DBG_AGGR);
-					continue;
-				}
-			}
-
-			if ($feedParams->trimType !== 'none') {
-				if ($feedParams->trimType == 'hours' || $feedParams->trimType =='days') {
-					// consider onlyrecent items
-					zf_debug( "comparing item date ".date("F j, Y, g:i a",$itemts)."(".$itemts.") to earliest wanted ". $earliest ." : ".date("F j, Y, g:i a",$this->_earliest), DBG_AGGR);
-
-					if ( $itemts >= $earliest) {
-						zf_debug( 'Item within time frame', DBG_AGGR);
-					} else {
-						zf_debug( 'Item outside time frame', DBG_AGGR);
-						continue;
-					}
-				}
-				zf_debug( 'Item passes timeframe check', DBG_AGGR);
-			}
-
-			// finally add our item to the news array
-			zf_debug('Item merged', DBG_AGGR);
-
-			// dont use addItem not to call the filter callback again
-			$this->items[$item->id] = $item;
-
-			$itemcount++;
-
-		}// foreach item of feed
-		zf_debug("Merged $itemcount item(s) from ".$feed->subscriptionId, DBG_AGGR);
-
-	}
-
-	protected function filterOldNews($feedParams) {
-		zf_debug("AggregatedFeed, trim set to ". $feedParams->trimType.', '.
-		$feedParams->trimSize, DBG_AGGR);
-
-
-	}
 
 }
 /* end of Feed classes */

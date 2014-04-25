@@ -30,7 +30,64 @@ if (!defined('ZF_VER')) exit;
 
 class aggregator {
 
+	private $cache;
+
 	public function __construct() {
+		$visitTracker = VisitTracker::getInstance();
+		$visitTracker->recordVisit();
+		$end = $visitTracker->getLastSessionEnd();
+		ItemTracker::getInstance()->setLastSessionEnd($end);
+
+		$this->cache = FeedCache::getInstance();
+	}
+
+
+	public function getItem($channelId, $itemId) {
+		return $this->cache->getItem($channelId, $itemId);
+	}
+
+
+
+	public function getFeedsForTag($tag, $aggregate, $trim, $onlyNew) {
+
+		$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
+		zf_debugRuntime("before feeds update");
+
+		$this->cache->update($subs, 'auto');
+
+		// create filters
+		$chain = new FilterChain();
+		$chain->addFilter(new MarkNewItemFilter());
+		$feeds = $this->cache->getFeeds($subs, $chain);
+
+		if ($aggregate) {
+			$feeds = array(new AggregatedFeed($feeds, $this->makeFilterChain($trim, $onlyNew)));
+
+		} else {
+			$feeds = $this->processFeeds($feeds, $trim, $onlyNew);
+		}
+		zf_debugRuntime("after feeds update and aggr");
+		zf_debug('returning '.sizeof($feeds).' feeds for tag '.$tag, DBG_AGGR);
+
+		return $feeds;
+	}
+
+	public function getChannelFeed($channelId, $updateMode, $trim, $onlyNew) {
+
+		$sub = SubscriptionStorage::getInstance()->getSubscription($channelId);
+
+		$this->cache->update(array($sub->id => $sub), $updateMode);
+
+		// create filters
+		$chain = new FilterChain();
+		$chain->addFilter(new MarkNewItemFilter());
+		// TODO : filter by size
+		$feeds = $this->cache->getFeeds(array($sub->id => $sub), $chain);
+
+		$feeds = $this->processFeeds($feeds, $trim, $onlyNew);
+		$feed = array_pop($feeds);
+
+		return $feed;
 
 	}
 
@@ -38,30 +95,36 @@ class aggregator {
 	/*
 	feeds: array of feeds to handle
 	trim: trim parameters on request
-	aggregate: if true, must aggregate all feeds in one
 	onlyNew: if true, will keep only new items
 
 	$result: feed or array of feeds, in function of aggregate
 	 */
-	public function processFeeds($feeds, $trim, $aggregate, $onlyNew) {
+	private function processFeeds($feeds, $trim, $onlyNew) {
 
-		if ($aggregate) {
-			$feedParams = new FeedParams($trim);
-			$feedParams->onlyNew = $onlyNew;
-			$aggrfeed = new AggregatedFeed($feeds, $feedParams);
-			//post process of aggregated feed took place during aggregation
-			return $aggrfeed;
+		$chain = $this->makeFilterChain($trim, $onlyNew);
 
-		} else {
-
-			foreach($feeds as $feed) {
-				$feedParams = SubscriptionStorage::getInstance()->getSubscription($feed->subscriptionId)->getFeedParams();
-				$feedParams->setTrimStr($trim);
-				$feedParams->onlyNew = $onlyNew;
-				$feed->prepareRendering($feedParams);
-			}
-			return $feeds;
+		foreach($feeds as $feed) {
+			// TODO get size filter from subscription setting
+			// use the trim setting if trim is Xnews
+			// filter news
+			$feed->filter($chain);
+			$feed->prepareRendering();
 		}
+		return $feeds;
+	}
+
+	private function makeFilterChain($trim, $onlyNew){
+		$chain = new FilterChain();
+		if ($onlyNew) {
+			$chain->addFilter(new OnlyNewFilter());
+		}
+
+		if ($trim !== 'news') {
+			$chain->addFilter(new AgeFilter($trim));
+		}
+		$chain->addFilter(new MarkNewItemFilter());
+
+		return $chain;
 	}
 
 
