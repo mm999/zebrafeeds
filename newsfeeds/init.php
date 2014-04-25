@@ -36,6 +36,7 @@ define('DBG_OPML', 16); // opml load
 define('DBG_SESSION', 32); // history, session, cookies
 define('DBG_FEED', 64); // handling/fetching feeds
 define('DBG_RENDER', 128); // view and template rendering
+define('DBG_FILTER', 256); // item filtering
 define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
@@ -133,5 +134,6 @@ require_once __DIR__.'/includes/common.php';
 /*require_once __DIR__ . '/includes/SimplePie/SimplePieAutoLoader.php';
 require_once __DIR__ . '/includes/SimplePie/SimplePie.php';*/
 require_once __DIR__ . '/includes/simplepie.php';
+require_once __DIR__ . '/includes/itemfilter.php';
 
 
