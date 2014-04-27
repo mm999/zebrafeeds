@@ -175,6 +175,11 @@ class template {
 		$this->_printBuffer();
 	}
 
+	public function printSummary($summary) {
+		$this->_buffer = $summary;
+		$this->_printBuffer();
+	}
+
 	public function printFooter() {
 		$this->_buffer = $this->footer;
 		$this->_formatCommon();

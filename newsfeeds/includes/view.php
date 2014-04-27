@@ -30,29 +30,8 @@ abstract class AbstractFeedView {
 
 	abstract public function renderFeed($feed, $params);
 	abstract public function renderFeedList($feeds, $params);
-
-
-	public function renderArticle($item) {
-
-		if (function_exists('zf_itemfilter')) {
-			zf_debug('Calling filter');
-			zf_itemfilter($item);
-		}
-		$this->_doPrintArticle($item);
-	}
-
-	public function renderSummary($item) {
-		if (function_exists('zf_itemfilter')) {
-			zf_debug('Calling filter');
-			zf_itemfilter($item);
-		}
-		$this->_doPrintSummary($item);
-
-	}
-
-	abstract protected function _doPrintArticle($item);
-	abstract protected function _doPrintSummary($item);
-
+	abstract public function renderArticle($item);
+	abstract public function renderSummary($summary);
 }
 
 
@@ -87,12 +66,12 @@ class JSONView extends AbstractFeedView {
 		$this->renderFeed($feed, $params);
 	}
 
-	protected function _doPrintArticle($item) {
+	public function renderArticle($item) {
 		echo json_encode($item->getSerializableItem());
 	}
 
-	protected function _doPrintSummary($item) {
-		echo json_encode($item->summary);
+	public function RenderSummary($summary) {
+		echo json_encode($summary);
 	}
 
 
@@ -210,11 +189,12 @@ class TemplateView extends AbstractFeedView{
 	}
 
 
-	protected function _doPrintArticle($item) {
+	public function renderArticle($item) {
 		$this->template->printArticle($item);
 	}
 
-	protected function _doPrintSummary($item) {
+	public function renderSummary($summary) {
+		$this->template->printSummary($summary);
 	}
 
 }
