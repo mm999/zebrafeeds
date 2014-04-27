@@ -13,8 +13,6 @@
 
 if (!defined('ZF_VER')) exit;
 
-require_once __DIR__ . '/simplepie_fetch.php';
-
 
 class FeedCache {
 	private $BASE_CACHE = './cache';	// where the cache files are stored
@@ -232,9 +230,6 @@ class FeedCache {
 
 		// Request all feed items in parallel (if supported)
 		$http = new HumbleHttpAgent();
-		//$http->userAgentMap = $this->user_agents;
-		//$http->headerOnlyTypes = array_keys($this->content_type_exc);
-		//$http->rewriteUrls = $this->rewrite_url;
 		$http->userAgentDefault = HumbleHttpAgent::UA_PHP;
 		zf_debug('fetching all ', DBG_FEED);
 
@@ -272,7 +267,6 @@ class FeedCache {
 	}
 
 
-	// TODO: apply filter on item get
 	public function getItem($key, $itemId, $filter = null) {
 		$feed = $this->get($key);
 		return $feed->getItem($itemId, $filter);

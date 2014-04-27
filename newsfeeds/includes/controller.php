@@ -48,7 +48,7 @@ tags: list of existing tags. JSON output only
 subs: list of subscriptions for tag. JSON output only
 
 mode: feed update mode. applicable only for q=channel
-	- auto: let subscription decide, according to refresh time (default)
+	- auto: according to config's refresh time (default)
 	- none: force from cache
 	- force: force refresh feed from source
 
@@ -58,7 +58,7 @@ sum: if 1 then summary included in news item header, 0 no summary (default)
 trim: how to shorten the number of items when getting feeds to get only news
 	  or the last hour, since 4 days...
 	  valid when q=tag or q=channel
-      none:  show all
+      none: return all
       auto: default, if q=channel then use Xnews (subscription setting).
                      if q=tag then use config values for trim
       <N>news
@@ -88,9 +88,7 @@ function handleRequest() {
 	$tag = param('tag','');
 	$trim = param('trim', 'auto');
 	$outputType = param('f','html');
-	$template = param('zftemplate', ZF_TEMPLATE);
 	$onlyNew = int_param('onlynew',0);
-	$sort = param('sort', ZF_SORT);
 
 	//refresh mode
 	$updateMode = param('mode', 'auto');
@@ -98,6 +96,8 @@ function handleRequest() {
 
 	if ($outputType =='html') {
 		$contenttype = 'text/html';
+		$template = param('zftemplate', ZF_TEMPLATE);
+		$sort = param('sort', ZF_SORT);
 		$view = new TemplateView($template);
 	} else {
 		$contenttype = 'application/json';
