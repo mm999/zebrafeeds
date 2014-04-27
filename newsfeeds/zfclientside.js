@@ -88,10 +88,34 @@ function zf_getAllNews(chanid, outputelementid) {
 }
 
 function zf_getRefreshedNews(chanid,outputelementid) {
-	requestparams = "q=channel&trim=auto&mode=refresh&id=" + chanid ;
+	requestparams = "q=channel&trim=auto&mode=force&id=" + chanid ;
 	requestContent(requestparams);
 	REQELEMENTID = outputelementid;
 }
+
+function toggleVisible(element, initial) {
+
+	var state = element.style.display;
+	if (state == "") {
+		state = initial;
+	}
+
+	if (state == "none") {
+	   element.style.display = "block";
+	} else {
+	   element.style.display = "none";
+	}
+}
+
+function toggleVisibleById(id, initial) {
+
+	if(document.getElementById(id))  {
+
+		var element = document.getElementById(id);
+		toggleVisible(element, initial);
+	}
+}
+
 
 
 var http = getHTTPObject();

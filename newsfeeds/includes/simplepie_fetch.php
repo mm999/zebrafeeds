@@ -96,4 +96,35 @@ function zf_xpie_fetch_feed($subId, $url, &$resultString) {
 
 }
 
-?>
+function zf_xpie_basic_fetch($url) {
+
+    $myfeed = null;
+
+    $SP_feed = new SimplePie();
+
+    $SP_feed->set_feed_url($url);
+    // check here according to refresh time
+    $SP_feed->enable_cache(false);
+    $SP_feed->enable_order_by_date(false);
+    $SP_feed->set_timeout(20);
+    $SP_feed->set_useragent(ZF_USERAGENT);
+    $SP_feed->set_stupidly_fast(true);
+    $SP_feed->force_feed(true);
+    //$SP_feed->force_fsockopen(true);
+    //set cache duration, set cache location
+    $SP_feed->init();
+    $SP_feed->handle_content_type();
+
+    if ($SP_feed->data) {
+
+        $myfeed = new PublisherFeed(0);
+        $myfeed->normalize($SP_feed->get_title(), $SP_feed->get_link(), $url, $SP_feed->get_description() );
+    }
+
+    // php memory bug, as described in SP documentation
+    $SP_feed->__destruct();
+    unset($SP_feed);
+
+    return $myfeed;
+
+}

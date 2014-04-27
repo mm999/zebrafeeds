@@ -21,12 +21,12 @@
 
 /* initialization part */
 require_once('../init.php');
-require_once($zf_path.'admin/adminfuncs.php');
+require_once('adminfuncs.php');
 
 zfLogin();
 if (isset($_POST['action'])) {
 	$action = $_POST['action'];
-	$storage = new SubscriptionStorage();
+	$storage = SubscriptionStorage::getInstance();
 } else {
 	$action == 'unknown';
 }
@@ -40,12 +40,11 @@ switch ($action) {
 
 		$sub = $storage->getSubscription($id);
 		if ($sub) {
-			$sub->channel->title = $_POST['title'];
-			$sub->channel->xmlurl =	 $_POST['xmlurl'];
-			$sub->channel->description = $_POST['description'];
+			$sub->title = $_POST['title'];
+			$sub->xmlurl =	 $_POST['xmlurl'];
+			$sub->description = $_POST['description'];
 			$sub->position = $_POST['position'];
 			$sub->shownItems = $_POST['shownitems'];
-			$sub->refreshTime = $_POST['refreshtime'];
 			$sub->isActive = ($_POST['isactive'] =='yes');
 			$sub->tags = explode(',', $_POST['tags']);
 

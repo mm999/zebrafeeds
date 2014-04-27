@@ -21,16 +21,9 @@
 if (zfAuth()==false) exit;
 
 
-if (ZF_RSSPARSER == "magpie") {
-    require_once($zf_path . 'includes/magpie_fetch.php');
-} else {
-    require_once($zf_path . 'includes/simplepie_fetch.php');
-}
 
 function simple_fetch($url, &$resultString) {
-	$channel = new ChannelDescriptor($url);
-	$resp = "";
-	$rss = zf_xpie_fetch_feed($channel, $resp);
+	$rss = zf_xpie_basic_fetch($url);
 
 	//$resp = _fetch_remote_file( $url );
     if ( $rss ) {
@@ -57,7 +50,7 @@ function parse_feed($feedurl, $htmldata)
 
     if ($feed) {
         if (isset($feed->logo)) {
-            $chanimg = "<a href=\"$feed->link\"><img src=\"$feed->logo\" title=\"$feed->channel->title\" style=\"border: 0px;\" /></a>";
+            $chanimg = "<a href=\"$feed->link\"><img src=\"$feed->logo\" title=\"$feed->title\" style=\"border: 0px;\" /></a>";
         }
         else {
             $chanimg = '';
@@ -66,12 +59,12 @@ function parse_feed($feedurl, $htmldata)
         $htmldata = str_replace("{formaction}", $_SERVER['PHP_SELF'] . '?zfaction=addnew', $htmldata);
         $htmldata = str_replace("{feedurl}", htmlentities($feedurl), $htmldata);
         $htmldata = str_replace("{encfeedurl}", urlencode($feedurl), $htmldata);
-        $htmldata = str_replace("{htmlurl}", $feed->publisher->link, $htmldata);
+        $htmldata = str_replace("{htmlurl}", $feed->link, $htmldata);
         $htmldata = str_replace("{chanimg}", $chanimg, $htmldata);
 
-        $htmldata = str_replace("{chantitle}", $feed->publisher->title, $htmldata);
-        $htmldata = str_replace("{chandesc}", $feed->publisher->description, $htmldata);
-        $htmldata = str_replace("{chanlink}", $feed->publisher->link, $htmldata);
+        $htmldata = str_replace("{chantitle}", $feed->title, $htmldata);
+        $htmldata = str_replace("{chandesc}", $feed->description, $htmldata);
+        $htmldata = str_replace("{chanlink}", $feed->link, $htmldata);
         $htmldata = str_replace("{shownitems}", ZF_DEFAULT_NEWS_COUNT, $htmldata);
 
         return $htmldata;
@@ -173,11 +166,11 @@ $htmldata = <<<EOD
 		<input name="chandesc" type="text" id="chandesc" size="60" value="{chandesc}"/>
 	</div>
 
-	<div class="col1"><label for="shownnews">Display :</label></div>
+	<div class="col1"><label for="shownnews">In feed view mode, display :</label></div>
 	<div class="col2">
         	<input name="shownnews" type="text" id="shownnews" size="4" value="{shownitems}"/>&nbsp;news.
 	</div>
-	<div class="col1"><label for="isactive">Enabled :</label></div>
+	<div class="col1"><label for="isactive">Active :</label></div>
 	<div class="col2">
         <select name="isactive" id="isactive">
           <option value="yes" selected>yes</option>
@@ -205,12 +198,12 @@ if (isset($_POST['subscribe']) && $_POST['subscribe'] == 'Subscribe') {
 echo '<div id="core">';
     /* Case 1: complete the subscription */
 
-        $storage = new SubscriptionStorage();
+        $storage =  SubscriptionStorage::getInstance();
 
 		$sub = new Subscription($_POST['feedurl']);
-		$sub->channel->link = stripslashes($_POST['htmlurl']);
-		$sub->channel->title = stripslashes($_POST['chantitle']);
-		$sub->channel->description = stripslashes($_POST['chandesc']);
+		$sub->link = stripslashes($_POST['htmlurl']);
+		$sub->title = stripslashes($_POST['chantitle']);
+		$sub->description = stripslashes($_POST['chandesc']);
 		$sub->shownItems = $_POST['shownnews'];
 		$sub->isActive = ($_POST['isactive']=='yes');
 		$sub->tags = explode(',',$_POST['tags']);

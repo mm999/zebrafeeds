@@ -76,9 +76,9 @@ zfLogin();
         include('subscriptions.php');
     } elseif ($zfaction == 'addnew') {
         include('addnewfeed.php');
-    } elseif ($zfaction == 'importlist') {
+    } /*elseif ($zfaction == 'importlist') {
         include('importlist.php');
-	} elseif ($zfaction == 'config') {
+	}*/ elseif ($zfaction == 'config') {
         include('changeconfig.php');
 	} elseif ($zfaction == 'maintenance') {
 

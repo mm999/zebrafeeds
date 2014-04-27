@@ -76,7 +76,7 @@ function displayChannelList($subs) {
 	<span id="title{i}" class="{class} link" onclick="showEditForm('{i}'); return false;">{chantitle}</span>&nbsp;
 	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" alt="website"/></a>
 	<div class="listctrl">
-		<input type="button" name="remove" value="Remove" onclick="removeChannel('{i}'); return false;"/>&nbsp;
+		<input type="button" name="remove" value="Remove" onclick="removeChannel('{i}','{chantitle}'); return false;"/>&nbsp;
 	</div>
 	<div class="editfeed" id="editform{i}" style="display:none;">
 		<form action="#">
@@ -93,7 +93,7 @@ function displayChannelList($subs) {
 			</div>
 			<div>
 				<div><label for="tags{i}">Tag(s):</label><br/><input name="tags" id="tags{i}" type="text" size="20" value="{tags}"/></div>
-				<div><label for="shownitems{i}">Displayed items:</label><br/><input name="shownitems" id="shownitems{i}" type="text" size="4" value="{shownitems}"/></div>
+				<div><label for="shownitems{i}">Displayed items in feed view:</label><br/><input name="shownitems" id="shownitems{i}" type="text" size="4" value="{shownitems}"/></div>
 
 				<div class="savepanel">
 					<input type="button" name="save" value="Save" onclick="saveChannel('{i}', this.form); return false;"/>&nbsp;
@@ -264,7 +264,7 @@ $storage = SubscriptionStorage::getInstance();
 				}
 			}
 
-			function removeChannel(id) {
+			function removeChannel(id, title) {
 				if (!confirm('Are you sure you want to remove this subscription?')) {
 					return false;
 				}
@@ -272,8 +272,9 @@ $storage = SubscriptionStorage::getInstance();
 				http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
 				channeldata[0] = id;
+				channeldata[1] = title;
 				http.onreadystatechange = onRemoveCallback;
-				var query= "action=remove&id=" + id;
+				var query= "action=delete&id=" + id;
 				http.send(query);
 			}
 			function onRemoveCallback() {
@@ -281,20 +282,20 @@ $storage = SubscriptionStorage::getInstance();
 					if (http.status == 200) { // OK response
 						// TODO: handle error
 						var uielement = document.getElementById('entry'+channeldata[0]);
-						uielement.parentNode.removeChild(uielement);
+						uielement.innerHTML= channeldata[1] + '<i>removed</i>';
+						// parentNode.removeChild(uielement);
 					}
 				}
 			}
 
 
 		</script>
-		<script type="text/javascript" src="../zfcontrol.js"></script>
 		<script type="text/javascript" src="../zfclientside.js"></script>
 		<div class="frame">
 			<div id="listsettings">
 		<?php
 			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=addnew\">Add new</a> :: ";
-			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=importlist\">Import feed list</a> :: ";
+			//echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=importlist\">Import feed list</a> :: ";
 		?>
 				<a href="<?php echo $storage->getOPMLURL(); ?>">Export OPML file</a>
 			</div>

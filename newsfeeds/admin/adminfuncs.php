@@ -138,16 +138,6 @@ function listExceptCateg($category) {
 	return $data;
 }
 
-function displayListsForm($list){
-	echo '<form name="zflists" action="'.$_SERVER['PHP_SELF'].'?zfaction=subscriptions" method="post">';
-	echo '&nbsp; Go to list: &nbsp;';
-	echo '<select name="zflist" onchange="this.form.submit();">';
-	echo zf_ListsFormElements($list);
-	echo ' </select>';
-	echo '<input type="submit" value="Go"/>';
-	echo '</form>';
-}
-
 
 function displayStatus($message) {
 	echo '<div id="status">'.$message.'</div>';
@@ -167,8 +157,7 @@ function saveConfig(&$config) {
 		fwrite($fp,"define(\"ZF_ADMINNAME\",\"".$config['adminname']."\"); // admin username\n");
 		fwrite($fp,"define(\"ZF_ADMINPASS\",\"".$config['adminpassword']."\"); // crypted admin password, default is \"admin\" (without quotes). Leave empty to reset.\n");
 		fwrite($fp,"\n\n// feeds options //\n\n");
-		fwrite($fp,"define(\"ZF_USEOPML\",\"".$config['usesubs']."\"); // if yes the subscription file will be used, else the manual feed configuration\n");
-		fwrite($fp,"define(\"ZF_HOMELIST\",\"".$config['subfilename']."\"); // name of the default feed list in the subscriptions directory which holds the subscriptions data\n");
+		fwrite($fp,"define(\"ZF_HOMETAG\",\"".$config['subtag']."\"); // tag for the default list of subscriptions\n");
 		fwrite($fp,"define(\"ZF_REFRESHMODE\",\"".$config['refreshmode']."\"); // automatic: feeds are refreshed when page is generated. request: use a refresh link. see admin page for details\n");
 		fwrite($fp,"\n\n// general display options //\n\n");
 		fwrite($fp,"define(\"ZF_TEMPLATE\",\"".$config['template']."\"); // the default templates used to display the news (subdirectory name from templates directory)\n");
@@ -179,11 +168,7 @@ function saveConfig(&$config) {
 		fwrite($fp,"define(\"ZF_PUBDATEFORMAT\",\"".$config['pubdateformat']."\"); // format passed to strftime to convert dates got from RSS feeds\n");
 		fwrite($fp,"define(\"ZF_DATEFORMAT\",\"".$config['dateformat']."\"); // format passed to strftime to display date when displaying news grouped by date\n");
 		fwrite($fp,"\n\n// advanced options //\n\n");
-		//TODO: remove this
-		fwrite($fp,"define(\"ZF_NEWITEMS\",\"".$config['newitems']."\"); //No: doesn't mark new items, client: marks new items for each visitor (cookie based). server: marks new items since last refresh (common to all visitors)\n");
-		fwrite($fp,"define(\"ZF_RENDERMODE\",\"".$config['rendermode']."\"); // automatic: always display aggregated feeds when zebrafeeds.php is included. manual: user the manual integration in scripts with ZebraFeeds user functions\n");
 		fwrite($fp,"define(\"ZF_NOFUTURE\",\"".$config['nofuture']."\"); // if yes then does not show news with a timestamp from the future\n");
-		//fwrite($fp,"define(\"ZF_DYNAMICNEWSLENGTH\",\"".$config['dynlength']."\"); // news longer than that will be dynamically obtained. 0 to disable. Requires compatible templates \n");
 		fwrite($fp,"define(\"ZF_OWNERNAME\",\"".$config['ownername']."\"); // owner name which will appear in the OPML file (optional)\n");
 		fwrite($fp,"define(\"ZF_OWNEREMAIL\",\"".$config['owneremail']."\"); // owner email which will appear in the OPML file (optional)\n");
 		fwrite($fp,"\n\n//////END OF CONFIGURATION///////////////////////////////////////////////////\n\n");

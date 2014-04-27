@@ -81,6 +81,16 @@ a:active {
 	line-height: 2em;
 }
 
+#extrainfo {
+	border: 1px solid #FFB15A;
+	border-radius: 2px;
+	padding: 10px;
+}
+
+
+#saveconfig {
+	padding-bottom: 25px;
+}
 
 .menuitem {
 	padding: 6px;
@@ -202,9 +212,10 @@ a:active {
 }
 
 .sub-line {
-	border-bottom: 1px dotted #FFB15A;
-	border-width: 1px;
+	border: 1px solid #FFB15A;
+	border-radius: 2px;
 	padding: 7px;
+	margin: 5px;
 }
 .sub-line:hover {
 	background-color: #F8f8F8;
@@ -235,6 +246,7 @@ a:active {
 }
 .subscribed {
 }
+
 
 
 /*#firstline { border-bottom: 1px solid #000; }*/
@@ -414,7 +426,7 @@ a:hover.info span {
 	color: #fff;
 	border:1px solid #000;
 	width:150px;
-	text-align:center;
+	text-align:left;
 	font-weight:normal;
 	font-size: 10px;
 	line-height:12px;

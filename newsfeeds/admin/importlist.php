@@ -20,9 +20,7 @@
 
 if (zfAuth()==false) exit;
 
-require_once('../includes/subscriptionstorage.php');
-
-function displaydata($storage)
+function displaydata()
 {
     //global $items, $itemcount;
 
@@ -62,17 +60,16 @@ EOD;
 
         $returndata = '';
         $i = 0;
-		$subscriptions = $storage->getSubscriptions();
-        foreach($subscriptions as $key => $item) {
-			$channel = $sub->channel;
+		$subscriptions = SubscriptionStorage::getInstance()->getSubscriptions();
+        foreach($subscriptions as $key => $sub) {
             $tempdata = '';
             $tempdata = str_replace("{i}", $i, $htmldata);
             $tempdata = str_replace("{zfurl}", ZF_URL, $tempdata);
-            $tempdata = str_replace("{chantitle}", $channel->title, $tempdata);
-            $tempdata = str_replace("{htmlurl}", $channel->htmlurl, $tempdata);
-            $tempdata = str_replace("{description}", $channel->description, $tempdata);
-            $tempdata = str_replace("{xmlurl}", $channel->xmlurl, $tempdata);
-            if ($item['issubscribed'] == 'yes') {
+            $tempdata = str_replace("{chantitle}", $sub->title, $tempdata);
+            $tempdata = str_replace("{htmlurl}", $sub->htmlurl, $tempdata);
+            $tempdata = str_replace("{description}", $sub->description, $tempdata);
+            $tempdata = str_replace("{xmlurl}", $sub->xmlurl, $tempdata);
+            if ($sub->isActive) {
                 $tempdata = str_replace("{issubscribed}", "selected=\"selected\"", $tempdata);
                 $tempdata = str_replace("{notsubscribed}", "", $tempdata);
             } else {
@@ -89,9 +86,6 @@ EOD;
 // main
 $opmlurl = $_REQUEST['opmlurl'];
 if (isset($_REQUEST['opmlurl']) && $opmlurl != '') {
-
-//TODO: fix store new OPML to storage
-    $storage = new SubscriptionStorage($opmlurl);
 
 
     //$opmldata = parse_iopmlfile($opmlurl);
