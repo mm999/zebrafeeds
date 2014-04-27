@@ -90,7 +90,8 @@ class ItemTracker {
 		}
 
 
-		$this->loadedId = '';
+		$this->loadedId = $subId;
+
 		$filename = $this->fileName($subId);
 		if ( ! file_exists( $filename ) ) {
 			zf_debug( "Tracker file not found $filename", DBG_SESSION);
@@ -106,7 +107,6 @@ class ItemTracker {
 		if ($filesize = filesize($filename) ) {
 			$data = fread( $fp, filesize($filename) );
 			$this->_timestamps = unserialize( $data );
-			$this->loadedId = $subId;
 			zf_debug( "Tracker file loaded $filename", DBG_SESSION);
 			return 1;
 		}
@@ -161,7 +161,7 @@ class ItemTracker {
 		$this->load($subId);
 		$id = $item->id;
 
-		zf_debug('setting status for item '.$id.": ".$item->title, DBG_SESSION);
+		zf_debug('setting '.$item->isNew.' status for item '.$id.": ".$item->title, DBG_SESSION);
 
 		// did we have this item in our DB?
 		if (isset($this->_timestamps[$id])) {

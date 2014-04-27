@@ -34,7 +34,7 @@ class aggregator {
 
 	public function __construct() {
 		$visitTracker = VisitTracker::getInstance();
-		$visitTracker->recordVisit();
+		$visitTracker->checkIn();
 		$end = $visitTracker->getLastSessionEnd();
 		ItemTracker::getInstance()->setLastSessionEnd($end);
 

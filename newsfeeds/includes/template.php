@@ -327,12 +327,10 @@ class template {
 		$this->_buffer = str_replace('{pubdate}', $pubdate, $this->_buffer);
 		$this->_buffer = str_replace('{relativedate}', getRelativeTime($item->date_timestamp), $this->_buffer);
 		$this->_buffer = str_replace('{title}', $stitle, $this->_buffer);
-		if (ZF_NEWITEMS!='no' && $item->isNew) {
-			$this->_buffer = str_replace('{isnew}', ZF_ISNEW_STRING, $this->_buffer);
 
-		} else {
-			$this->_buffer = str_replace('{isnew}', '', $this->_buffer);
-		}
+		$newvalue = (ZF_NEWITEMS!='no' && $item->isNew)? ZF_ISNEW_STRING: '';
+		$this->_buffer = str_replace('{isnew}', $newvalue, $this->_buffer);
+
 
 		/* description */
 		$this->_buffer = str_replace('{description}', $sdescription, $this->_buffer);

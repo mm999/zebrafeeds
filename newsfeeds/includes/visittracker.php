@@ -23,7 +23,7 @@ class VisitTracker {
 
 
 	// store the current time
-	public function recordVisit() {
+	public function checkIn() {
 
 		// 1: read visit information
 
@@ -71,9 +71,10 @@ class VisitTracker {
 			$fp = @fopen( $name, 'w' );
 
 			if ( ! $fp ) {
-				zf_debug("History unable to open visit file for writing: $name");
+				zf_debug("History unable to open visit file for writing: $name", DBG_SESSION);
 
 			} else {
+				zf_debug("saving session file", DBG_SESSION);
 				$data = serialize( $this->_visits );
 				fwrite( $fp, $data );
 				fclose( $fp );
