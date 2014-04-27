@@ -184,6 +184,7 @@
 
 <script type="text/javascript">
 var ZFTEMPLATE = 'portal';
+var ZFURL = '{scripturl}';
 </script>
 <!-- ENDtemplateHeader -->
 
@@ -194,13 +195,10 @@ var ZFTEMPLATE = 'portal';
 <!-- channel -->
 <div class="zfchannelbox" id="ZFCHANNELBOX{chanid}">
 	<div class="controls">
-		<img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" style="border:0" onclick="zf_getRefreshedNews('{feedurl}', 10, 0, 'NEWSLIST'+'{chanid}');" />
-		<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" style="border:0" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
+		<img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" style="border:0" onclick="zf_getRefreshedNews('{chanid}', 'NEWSLIST'+'{chanid}');" />
+		<img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" style="border:0" onclick="zf_getAllNews('{chanid}', 'NEWSLIST'+'{chanid}');" />
 	</div>
 	<div class="chanlink">
-		<div class="logo">
-			{chanfavicon}
-		</div>
 		<a href="{chanlink}">{chantitle}</a>
 	</div>
 	<div class="dateline">
