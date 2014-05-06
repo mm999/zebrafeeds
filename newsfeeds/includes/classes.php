@@ -99,7 +99,7 @@ class NewsItem {
 	//array of enclosure objects
 	public $enclosures;
 
-	public function __construct($feed, $link, $title, $date, $id='') {
+	public function __construct($feed, $link, $title, $date) {
 		$this->enclosures = array();
 		$this->isTruncated = false;
 		$this->isNew = false;
@@ -107,16 +107,59 @@ class NewsItem {
 		$this->link = $link;
 		$this->title = $title;
 		$this->date_timestamp = $date;
-		/* if GUID available, use it as basis for id */
-		if (strlen($id) > 0 ) {
-			$key = $id;
-		} else {
-			$key = $this->link.$this->title;
-		}
-		$this->id = zf_makeId($feed->subscriptionId, $key);
+		$this->id = zf_makeId($feed->subscriptionId, $this->link.$this->title);
 		$this->feed = $feed;
 	}
 
+/*all sorts of processing to the item object
+ Everything that happens here is cached
+ - normalize items for dates and description
+ - make relative paths absolute in item's description
+ - set items and channel id
+
+ publisher
+*/
+	public function normalize($subId) {
+		/* build our id, used as CSS element id. add timestamp to make it unique  */
+
+		if ( $this->date_timestamp == 0) {
+
+			// we should let our
+			// history management system decide
+			//$item['date_timestamp'] = 0;
+			//print_r($channel);
+			$tracker = ItemTracker::getInstance();
+			$firstseen = $tracker->getDateFirstSeen($subId, $this->id);
+			if ($firstseen == 0) {
+				$firstseen = time();
+			}
+			$this->date_timestamp = $firstseen;
+			if (ZF_DEBUG & DBG_AGGR) {
+				zf_debug('-- using tracker time '. $this->date_timestamp);
+			}
+
+		}
+
+		if ((strlen($this->summary) == 0) ) {
+			  $this->summary = $this->description;
+		}
+
+		$strsum = strip_tags($this->summary);
+
+        //strip out inline css and simplify style tags
+        $search = array('#<(strong|b)[^>]*>(.*?)</(strong|b)>#isu', '#<(em|i)[^>]*>(.*?)</(em|i)>#isu', '#<u[^>]*>(.*?)</u>#isu');
+        $replace = array('<b>$2</b>', '<i>$2</i>', '<u>$1</u>');
+        $strsum = preg_replace($search, $replace, $strsum);
+
+		$this->isTruncated = false;
+		if (strlen($strsum) > ZF_MAX_SUMMARY_LENGTH ) {
+			$this->summary = substr($strsum, 0, ZF_SUMMARY_TRUNCATED_LENGTH);
+			$lastspace = strrpos($this->summary, ' ');
+			$this->summary = substr($this->summary, 0, $lastspace).'...';
+			$this->isTruncated = true;
+		}
+
+	}
 
 	public function hasEnclosures(){
 		return sizeof($this->enclosures)>0;
