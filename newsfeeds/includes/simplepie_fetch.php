@@ -59,7 +59,7 @@ function zf_xpie_fetch_feed($subId, $url, &$resultString) {
 
 		$items = $SP_feed->get_items();
         foreach( $items as $item) {
-        	$pubitem = new NewsItem($myfeed, $item->get_permalink(), $item->get_title(), $item->get_date('U'));
+        	$pubitem = new NewsItem($myfeed, $item->get_permalink(), $item->get_title(), $item->get_date('U'), $item->get_id(false));
 		    $pubitem->description = $item->get_content();
 
             $encidx = 0;
