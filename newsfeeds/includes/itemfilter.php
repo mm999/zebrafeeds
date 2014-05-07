@@ -3,9 +3,11 @@
 class FilterChain{
 
 	protected $filters;
+	protected $maxSize;
 
 	public function __construct() {
 		$this->filters = array();
+		$this->maxSize = -1; /* no limit */
 	}
 
 	public function addFilter($filter) {
@@ -23,9 +25,31 @@ class FilterChain{
 				$result[$item->id] = $item;
 			}
 		}
+
+		if ($this->maxSize > -1) {
+			zf_debug("Keeping only last $this->maxSize items", DBG_FILTER);
+			$result = array_slice($result, 0, $this->maxSize);
+
+		}
 		return $result;
 	}
 
+
+	public function setFeedTrim($trim) {
+		// at this stage, 'auto' and 'none' has been handled already
+		zf_debug("handling trim string $trim", DBG_FILTER);
+		if (preg_match("/([0-9]+)(.*)/",$trim, $matches)) {
+            $trimType = $matches[2];
+            $trimSize = $matches[1];
+        }
+
+		//zf_debug("Preparing TRIM filter $trimSize $trimType", DBG_FILTER);
+		if ($trimType !== 'news') {
+			$this->addFilter(new AgeFilter($trimType, $trimSize));
+		} else {
+			$this->maxSize = $trimSize;
+		}
+	}
 
 	public function acceptItem($item) {
 		$accept = true;
@@ -73,7 +97,7 @@ class MarkNewItemFilter extends ItemFilter{
 
 	public function accept($item) {
 		$this->tracker->checkNewStatus($item->feed->subscriptionId, $item);
-		zf_debug("Mark new item: is new? ".$item->isNew?'yes':'no', DBG_FILTER);
+		zf_debug("Mark new item ".$item->id.": is new? ".($item->isNew?'yes':'no'), DBG_FILTER);
 		return true;
 	}
 
@@ -139,33 +163,18 @@ class SummaryNormalizerFilter extends ItemFilter{
 
 class AgeFilter extends ItemFilter{
 
-	protected $trimType;
-	protected $trimSize;
 	protected $oldest;
 
-	public function __construct($trimString){
-
-		if ($trimString == 'none') {
-			$this->trimSize = 0;
-			$this->trimType = 'none';
-		} else {
-			if (preg_match("/([0-9]+)(.*)/",$trimString, $matches)) {
-	            $this->trimType = $matches[2];
-	            $this->trimSize = $matches[1];
-	        }
-	    }
-
-
-
+	public function __construct($type, $size){
 
 		$this->oldest = 0;
 
 		// get timestamp we don't want to go further
-		if ($this->trimType == 'hours') {
+		if ($type == 'hours') {
 			// earliest is the timestamp before which we should ignore news
-			$this->oldest = time() - (3600 * $this->trimSize);
+			$this->oldest = time() - (3600 * $size);
 		}
-		if ($this->trimType =='days') {
+		if ($type =='days') {
 			// earliest is the timestamp before which we should ignore news
 
 			// get timestamp of today at 0h00
@@ -173,7 +182,7 @@ class AgeFilter extends ItemFilter{
 
 			// substract x-1 times 3600*24 seconds from that
 			// x-1 because the current day counts, in the last x days
-			$this->oldest = $todayts -  (3600*24*($this->trimSize-1));
+			$this->oldest = $todayts -  (3600*24*($size-1));
 		}
 	}
 

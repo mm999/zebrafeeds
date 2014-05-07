@@ -17,11 +17,10 @@
 //
 // ZebraFeeds aggregator class
 
-/* what does this class do?
-this is the main facade class
-- Configure the aggregation (template, source list, processing and rendering options
-- aggregation and data preparation
-- rendering of views
+/* class in charge of providing models
+- feeds
+- items
+- summaries
 
  */
 
@@ -61,16 +60,22 @@ class aggregator {
 		$feeds = $this->cache->getFeeds($subs, $chain);
 
 		if ($aggregate) {
+			// aggregate all feeds in one: use global trim setting if auto is set
+			if ($trim == 'auto') {
+				$trim = ZF_TRIMSIZE.ZF_TRIMTYPE;
+			}
 			$feeds = array(new AggregatedFeed($feeds, $this->makeFilterChain($trim, $onlyNew)));
 
 		} else {
-			$feeds = $this->processFeeds($feeds, $trim, $onlyNew);
+			// keeps feed separate (no aggregation): use individual subscription trim setting if auto is set
+			$feeds = $this->processSingleFeeds($feeds, $trim, $onlyNew);
 		}
 		zf_debugRuntime("after feeds update and aggr");
 		zf_debug('returning '.sizeof($feeds).' feeds for tag '.$tag, DBG_AGGR);
 
 		return $feeds;
 	}
+
 
 	public function getChannelFeed($channelId, $updateMode, $trim, $onlyNew) {
 
@@ -79,9 +84,7 @@ class aggregator {
 		$this->cache->update(array($sub->id => $sub), $updateMode);
 
 		// create filters
-		$chain = new FilterChain();
-		$chain->addFilter(new MarkNewItemFilter());
-		// TODO : filter by size
+		$chain = $this->makeFilterChain($trim, $onlyNew);
 		$feeds = $this->cache->getFeeds(array($sub->id => $sub), $chain);
 
 		$feeds = $this->processFeeds($feeds, $trim, $onlyNew);
@@ -94,38 +97,47 @@ class aggregator {
 
 	/*
 	feeds: array of feeds to handle
-	trim: trim parameters on request
+	trim: trim parameters on request. if auto use subscription settings
 	onlyNew: if true, will keep only new items
 
 	$result: feed or array of feeds, in function of aggregate
 	 */
-	private function processFeeds($feeds, $trim, $onlyNew) {
+	private function processSingleFeeds($feeds, $trim, $onlyNew) {
 
-		$chain = $this->makeFilterChain($trim, $onlyNew);
 
 		foreach($feeds as $feed) {
-			// TODO get size filter from subscription setting
-			// use the trim setting if trim is Xnews
-			// filter news
+
+			// use the subscription setting if auto
+			// keep the trim parameter if not auto
+			if ($trim == 'auto') {
+				//$trim = get subscription settings
+				$sub = SubscriptionStorage::getInstance()->getSubscription($feed->subscriptionId);
+				$trim = $sub->shownItems.'news';
+			}
+			$chain = $this->makeFilterChain($trim, $onlyNew);
+			$feed->sortItems();
 			$feed->filter($chain);
-			$feed->prepareRendering();
 		}
 		return $feeds;
 	}
 
+
 	private function makeFilterChain($trim, $onlyNew){
+
 		$chain = new FilterChain();
 		if ($onlyNew) {
 			$chain->addFilter(new OnlyNewFilter());
 		}
 
-		if ($trim !== 'news') {
-			$chain->addFilter(new AgeFilter($trim));
+		if ($trim !== 'none') {
+			$chain->setFeedTrim($trim);
 		}
+		// always add the 'mark new' filter
 		$chain->addFilter(new MarkNewItemFilter());
 
 		return $chain;
 	}
+
 
 
 }

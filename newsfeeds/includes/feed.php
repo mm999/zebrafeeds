@@ -81,14 +81,6 @@ abstract class AbstractFeed {
 		}
 	}
 
-	/* function to call after all RSS have been merged
-	in order to finalize processing, like sorting and trimming */
-	public function prepareRendering() {
-
-		$this->sortItems();
-		//$this->trimItems($trimSize);
-
-	}
 
 	/* sort our items */
 	public function sortItems() {
@@ -128,10 +120,6 @@ class PublisherFeed extends AbstractFeed {
 		$this->xmlurl = $xmlurl;
 		$this->link = $link;
 
-		/*foreach ($this->items as $item) {
-			$item->normalize($this->subscriptionId);
-		}*/
-
 	}
 
 }
@@ -157,11 +145,12 @@ class AggregatedFeed extends AbstractFeed {
 			get from feed filtered items list and append to array
 
 			*/
-			$itemsToMerge = $pubfeed->getItems($filterChain);
+			$itemsToMerge = $pubfeed->getItems();
 			$this->items = array_merge($this->items, $itemsToMerge);
 			zf_debug("Merged ".$pubfeed->subscriptionId, DBG_AGGR);
 		}
-		$this->prepareRendering();
+		$this->sortItems();
+		$this->filter($filterChain);
 
 	}
 

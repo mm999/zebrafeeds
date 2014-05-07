@@ -82,16 +82,8 @@ decoration: if (q=channel AND f=html) only
 function handleRequest() {
 
 	$type = param('q', 'tag');
-	$channelId = param('id');
-	$itemId = param('itemid');
-	$sum = int_param('sum', 1);
-	$tag = param('tag','');
-	$trim = param('trim', 'auto');
 	$outputType = param('f','html');
-	$onlyNew = int_param('onlynew',0);
 
-	//refresh mode
-	$updateMode = param('mode', 'auto');
 
 
 	if ($outputType =='html') {
@@ -105,36 +97,47 @@ function handleRequest() {
 	}
 	if (!headers_sent()) header('Content-Type: '.$contenttype.'; charset='.ZF_ENCODING);
 
-	$zf_aggregator = new Aggregator();
 
 	switch ($type) {
 
 		case 'item':
+
 			//refresh: always from cache
-			$item = $zf_aggregator->getItem($channelId, $itemId);
+			$zf_aggregator = new Aggregator();
+			$item = $zf_aggregator->getItem(param('id'), param('itemid'));
 			$view->renderArticle($item);
 			break;
 
 		case 'summary':
+
 			//refresh: always from cache
-			$item = $zf_aggregator->getItem($channelId, $itemId);
+			$zf_aggregator = new Aggregator();
+			$item = $zf_aggregator->getItem(param('id'), param('itemid'));
 			$view->renderSummary($item);
 			break;
 
 
 
 		case 'channel':
+
 			//refresh: user defined
-			$feed = $zf_aggregator->getChannelFeed($channelId, $updateMode, $trim, $onlyNew);
+			$zf_aggregator = new Aggregator();
+			$feed = $zf_aggregator->getChannelFeed(
+					param('id'),
+					param('mode', 'auto'),
+					param('trim', 'auto'),
+					int_param('onlynew', 0)
+					);
 			$view->renderFeed($feed, array(
 				'groupbyday' => false,
 				'decoration' => int_param('decoration'),
-				'summary' => ($sum==1)));
+				'summary' => (param('sum',1)==1)));
 			break;
 
 
 
 		case 'tag':
+
 			//refresh: always auto refresh for tag view
 
 			// if html output & sorted by feed, trim every single item
@@ -144,29 +147,32 @@ function handleRequest() {
 				$aggregate = false;
 			} else {
 				// otherwise just aggregate in a single feed
-				if ($trim == 'auto') {
-					$trim = ZF_TRIMSIZE.ZF_TRIMTYPE;
-				}
 				$groupbyday = true;
 				$aggregate = true;
 			}
 
-
-			$feeds = $zf_aggregator->getFeedsForTag($tag, $aggregate, $trim, $onlyNew);
+			$zf_aggregator = new Aggregator();
+			$tag = param('tag','');
+			$feeds = $zf_aggregator->getFeedsForTag(
+				$tag,
+				$aggregate,
+				$trim =  param('trim', 'auto'),
+				int_param('onlynew', 0));
 
 			zf_debugRuntime("before rendering");
 
 			$view->renderFeedList($feeds, array(
 				'groupbyday' => $groupbyday,
-				'summary' => ($sum==1),
+				'summary' => (int_param('sum', 1)==1),
 				'tag' => $tag));
 			break;
 
 
 
 		case 'subs':
+
 			//only JSON
-			$subs = SubscriptionStorage::getInstance()->getSortedActiveSubscriptions($tag);
+			$subs = SubscriptionStorage::getInstance()->getSortedActiveSubscriptions(param('tag',''));
 			echo json_encode($subs);
 			break;
 
@@ -179,15 +185,17 @@ function handleRequest() {
 
 
 		case 'force-refresh':
+
 			// only internal use
 			// TODO: check API key
-			$sub = SubscriptionStorage::getInstance()->getSubscription($channelId);
+			$sub = SubscriptionStorage::getInstance()->getSubscription(param('id'));
 			FeedCache::getInstance()->updateSingle($sub);
 			echo $sub->title. ' DONE. ';
 			break;
 
 		case 'refresh-all':
-			$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
+
+			$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions(param('tag',''));
 			FeedCache::getInstance()->update($subs);
 			echo ' DONE. ';
 			break;
