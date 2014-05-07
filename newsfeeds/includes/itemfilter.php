@@ -72,8 +72,8 @@ class MarkNewItemFilter extends ItemFilter{
 	}
 
 	public function accept($item) {
-		$this->tracker->setNewStatus($item->feed->subscriptionId, $item);
-		zf_debug("is new? ".$item->isNew);
+		$this->tracker->checkNewStatus($item->feed->subscriptionId, $item);
+		zf_debug("Mark new item: is new? ".$item->isNew?'yes':'no', DBG_FILTER);
 		return true;
 	}
 

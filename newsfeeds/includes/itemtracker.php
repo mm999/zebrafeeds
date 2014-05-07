@@ -79,13 +79,14 @@ class ItemTracker {
 		$data = serialize( $this->_timestamps );
 		fwrite( $fp, $data );
 		fclose( $fp );
+		zf_debug( "tracker file saved", DBG_SESSION);
 	}
 
 
 	protected function load($subId){
 
 		if ($this->loadedId == $subId) {
-			zf_debug( "Tracker file already loaded for $subId", DBG_SESSION);
+			zf_debug( "Tracker file in cache for $subId", DBG_SESSION);
 			return;
 		}
 
@@ -140,15 +141,17 @@ class ItemTracker {
 
 		if (!isset($this->_timestamps[$item->id])) {
 
-			zf_debug('New item '.$item->id.' (getting date of first time seen)', DBG_SESSION);
+			zf_debug('New item '.$item->id.' (storing date of first time seen)', DBG_SESSION);
 
 			$this->_timestamps[$item->id]['ts'] = time();
+		} else {
+			zf_debug('Item is known, already logged.', DBG_SESSION);
 		}
-
 		// whatever case, mark this news as current, we saw it in the feed
 		$this->_timestamps[$item->id]['current'] = true;
 
 		if ($item->date_timestamp == 0) {
+			zf_debug('Item has no date. Fixing this', DBG_SESSION);
 			$item->date_timestamp = $this->_timestamps[$item->id]['ts'];
 		}
 
@@ -156,25 +159,26 @@ class ItemTracker {
 
 
 	// inform the tracker that this items has been seen and get the "New" status assigned
-	public function setNewStatus($subId, $item) {
+	public function checkNewStatus($subId, $item) {
 
 		$this->load($subId);
 		$id = $item->id;
 
-		zf_debug('setting '.$item->isNew.' status for item '.$id.": ".$item->title, DBG_SESSION);
+		zf_debug('setting New status (current is '.($item->isNew?'NEW':'NOT NEW').') for item '.$id.": ".$item->title, DBG_SESSION);
+		zf_debug('last session end '.date('dS F Y h:i:s A', $this->since), DBG_SESSION);
 
 		// did we have this item in our DB?
 		if (isset($this->_timestamps[$id])) {
 			// found in our tracker DB
 			// it's new if it appeared after our since time stamp reference
 
-			zf_debug('item last seen on '.date('dS F Y h:i:s A', $this->_timestamps[$id]['ts']), DBG_SESSION);
+			zf_debug('item last checked in on '.date('dS F Y h:i:s A', $this->_timestamps[$id]['ts']), DBG_SESSION);
 
 			if ($this->_timestamps[$id]['ts'] - $this->since > 0 ) {
-				zf_debug('=> new unseen item', DBG_SESSION);
+				zf_debug($id.' => NEW', DBG_SESSION);
 				$item->isNew = true;
 			} else {
-				zf_debug('=> This is old news', DBG_SESSION);
+				zf_debug($id.' => OLD', DBG_SESSION);
 				$item->isNew = false;
 			}
 
