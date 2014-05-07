@@ -212,7 +212,11 @@ class FeedCache {
 			}
 
 		}
-		$this->updateAllParallel($subsToRefresh);
+		if (sizeof($subsToRefresh)>0) {
+			$this->updateAllParallel($subsToRefresh);
+		} else {
+			zf_debug('nothing to refresh', DBG_FEED);
+		}
 	}
 
 
@@ -231,7 +235,7 @@ class FeedCache {
 		// Request all feed items in parallel (if supported)
 		$http = new HumbleHttpAgent();
 		$http->userAgentDefault = HumbleHttpAgent::UA_PHP;
-		zf_debug('fetching all ', DBG_FEED);
+		zf_debug('fetching all '.sizeof($urls).' feeds', DBG_FEED);
 
 		$http->fetchAll($urls);
 
@@ -244,7 +248,6 @@ class FeedCache {
 		}
 
 		zf_debugRuntime("End of parallel update");
-
 	}
 
 
