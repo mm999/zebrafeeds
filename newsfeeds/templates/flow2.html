@@ -47,28 +47,16 @@ max-width: 600px;
 
 
 .newsitem {
-}
-
-.newstitle {
-  padding: 5px;
-  margin: 15px;
-  /*border: 1px solid #dde;*/
-  position: relative;
-  padding-right: 20px;
+  margin-bottom: 10px;
+	border: 1px solid #CCC;
+	border-radius: 2px;
+	padding: 4px;
 }
 
 .newstitle img {
   margin-right: 4px;
 }
 
-.newsdesc {
-  text-align: left;
-  display: none;
-}
-
-.newsdesc a:hover {
-  text-decoration: underline;
-}
 
 .channame {
   padding: 5px;
@@ -99,7 +87,7 @@ max-width: 600px;
 
 .itemtitle {
   cursor: pointer;
-  /*font-size: 12pt;*/
+  font-size: 12pt;
 }
 
 .controls {
@@ -120,8 +108,11 @@ max-width: 600px;
 .datelabel {
   color: #777;
   font-size: 8pt;
+/*  text-align: right;*/
+/*  position: absolute;*/
+  /*padding-top: 7px;*/
+/*  right: 5px;*/
 }
-
 .datelabel a:link {
   color: #621b2f;
   text-decoration: none;
@@ -138,8 +129,8 @@ max-width: 600px;
 
 
 .chantitle, .summary {
-  color: #AAA;
-  font-size: 8pt;
+  color: #555;
+  font-size: 9pt;
 }
 
 .chantitle a:link {
@@ -167,8 +158,9 @@ max-width: 600px;
   padding-left: 15px;
   padding-right: 15px;
   padding-bottom: 20px;
-max-width: 400px;
-margin: 0px auto;
+	max-width: 400px;
+margin: 0 auto;
+line-height: 140%;
 }
 
 .storycontent img {
@@ -208,9 +200,10 @@ margin: 0px auto;
 	top:0;
 	bottom:0;
 	left:0;
+	right:0;
+
 	width:100%;
-	background:#000;
-	opacity:0.45;
+	background:#FFF;
 	visibility:hidden;
 }
 
@@ -218,13 +211,11 @@ margin: 0px auto;
   background:#fff;
   margin-right: auto;
   margin-left: auto;
-  width: 70%;
+  max-width: 600px;
   z-index: 100;
   visibility:hidden;
-  border: 1px solid #666;
+  border: 1px solid #999;
   position: absolute; /* makes the div go into a position that’s absolute to the browser viewing area */
-  left: 15%; /* positions the div half way horizontally */
-
 
 }
 
@@ -241,7 +232,8 @@ function showOverlay() {
 
 	o = document.getElementById('overlayarticle');
 	o.style.visibility = 'visible';
-	o.style.top= (document.documentElement.scrollTop +20) + 'px' ;
+// move it to the viewport
+	o.style.top= (document.documentElement.scrollTop +30) + 'px' ;
 }
 
 function hideOverlay() {
@@ -266,8 +258,6 @@ outputid is the id of the element to send the output to.
 the server know what to do...
 */
 function showItem(feedurl, itemid, outputid) {
-  //zf_getArticle(feedurl, itemid, "ZFCONTENT" + itemid);
-  //toggleVisibleById('ZFCONTENT' + itemid, "none");
   highlightCurrent(itemid);
   zf_getArticle(feedurl, itemid, "overlayarticle");
   showOverlay();
@@ -286,14 +276,14 @@ function highlightCurrent(newcurrentid) {
 
 <!-- header -->
 
+<div id="zfwrapper">
 <div id="overlay"></div>
 <div id="overlayarticle"></div>
-<div id="zfwrapper">
 <!-- ENDheader -->
 <!-- channel -->
 <div class="channel">
   <div class="channame">
-    <a href="{chanlink}" rel="nofollow">{chantitle}</a>
+    <a href="{chanlink}" rel="noreferrer">{chantitle}</a>
     <span class="dateline">{chandesc}</span>
     <div class="controls">
       last updated: {lastupdated}
@@ -305,12 +295,14 @@ function highlightCurrent(newcurrentid) {
 <div class="newslist" id="NEWSLIST{chanid}">
 <!-- ENDchannel -->
 <!-- news -->
-<div id="ITEM{itemid}">
-  <div class="newstitle" id="HEAD{itemid}">
-    <!-- this is the tricky bit, to have ajaxed news items -->
-    <span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{chanid}','{itemid}');">{title}</span>
-    <span class="datelabel">{relativedate} <a href="notes?url={link_encoded}&amp;title={title}" class="readlater">R</a> <a href="wb/?action=add&amp;plainurl={link_encoded}" class="readlater">Wb</a></span>
+<div class="newsitem">
+  <div class="newstitle">
+    <span class="itemtitle {isnew}" onclick="showItem('{chanid}','{itemid}');">{title}</span>
+    <span class="datelabel">{relativedate} <a href="{link}" rel="noreferrer">[permalink]</a> <a href="wb/?action=add&plainurl={link_encoded}" class="readlater">Wb</a></span>
   </div>
+<div class="summary">
+  {summary}
+</div>
 </div>
 <!-- ENDnews -->
 <!-- newsDay -->
@@ -321,14 +313,16 @@ function highlightCurrent(newcurrentid) {
 </div>
 <!-- ENDnewsDay -->
 <!-- newsByDate -->
-<div>
-	<div class="newstitle" id="HEAD{itemid}">
-	<span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{chanid}','{itemid}');">{title}</span>
-<div class="summary">
-	{summary}
-</div>
-
-	  <span class="chantitle"><a href="{link}" rel="nofollow">{chantitle}</a> <a href="wb/?action=add&amp;plainurl={link_encoded}" class="readlater">Wb</a></span> <span class="datelabel">{relativedate}</span>
+<div class="newsitem">
+	<div>
+		<!-- span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{chanid}','{itemid}');">{title}</span -->
+		<a href="{articleurl}" id="TITLE{itemid}" class="itemtitle {isnew}">{title}</a>
+	</div>
+	<div class="summary">
+		{summary}
+	</div>
+	<div>
+		<span class="chantitle"><a href="?q=channel&id={chanid}">{chantitle}</a> - <span class="datelabel">{relativedate}</span> - <a href="{link}" rel="noreferrer">[permalink]</a> - <a href="wb/?action=add&plainurl={link_encoded}" class="readlater">Wb</a></span>
 	</div>
 </div>
  <!-- ENDnewsByDate -->
@@ -340,11 +334,10 @@ function highlightCurrent(newcurrentid) {
 <!-- article -->
 <div class="storycontent">
   <div>
-    <h3><a href="{link}" rel="nofollow" title="{chantitle}" target="_parent">{title}</a></h3>
-    <a href="" onclick="hideOverlay(); return false;">hide</a>
+    <h3><a href="{link}" rel="noreferrer" title="{chantitle}" target="_parent">{title}</a></h3>
   </div>
     <span class="enclosure">{enclosures}</span><br/>
     {description}
-    <a href="" onclick="hideOverlay(); return false;">hide</a>
+<div style="margin-top:25px;"><a href="https://twitter.com/share?url={link_encoded}&text={title}" rel="noreferrer">Tweet this</a></div>
 </div>
 <!-- ENDarticle -->

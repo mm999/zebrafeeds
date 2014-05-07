@@ -7,19 +7,20 @@
 
 <!-- templateHeader -->
 <style type="text/css">
-body {color:#333;background:#fff;margin:0;padding:0;}
+body {color:#000;background:#fff;margin:0;padding:0;}
 a img {border:none;}
 #mobilewrap {margin: 4px;padding:3px; background-color:#fff}
 hr{display:none;}
 h1,h2{font-size:1.4em;line-height:1.2;}
-.item{position:relative;clear:left;padding:10px 20px 10px 5px;border-bottom:1px solid;}
-.item h2,.item h3{border-right:1px solid;padding-right:5px;}
+.item{position:relative;clear:left;padding:10px 20px 10px 5px;}
+.item h2,.item h3{border-left:1px solid;padding-left:5px;}
 .item a{text-decoration:none;color:#34A}
 .source{font-size:0.6em;color:#999}
-.desc{color:#444;padding:3px;text-align:left;overflow:hidden}
+.desc{padding:4px;text-align:left;overflow:hidden}
 .desc a, .source a{text-decoration:none;color:#444}
-.desc img{display:block; max-width:100%}
+.desc img{display:block; max-width:100%; height: auto}
 .desc blockquote{margin-left: 2em}
+.newclass{font-weight: bold}
 .zfchannelstatus{font-size:0.6em;color:#888}
 </style>
 <script type="text/javascript">
@@ -35,13 +36,25 @@ var ZFTEMPLATE = 'mobile';
 <!-- channel -->
 <!-- ENDchannel -->
 <!-- news -->
-<div class="item"><a href="{articleurl}">{title}</a>&nbsp;<br/><span class="source"> {chantitle}, {relativedate} </span><br/>{summary}</div>
+<div class="item"><a href="{articleurl}" class="{isnew}">{title}</a>
+	<br/>
+	<span class="source">
+		{chantitle}, {relativedate}
+	</span>
+	<div>{summary}</div>
+	<div class="source"><a href="wb/?action=add&plainurl={link_encoded}">save to WB</a> :: <a href="http://mobilizer.instapaper.com/m?u={link_encoded}" rel="noreferrer">mobilize</a> :: <a href="{link}" rel="noreferrer">permalink</a>
+	</div>
+</div>
 <!-- ENDnews -->
 <!-- article -->
 <div id="mobilewrap">
-<div class="item"><a href="{link}">{title}</a><br/><span class="source">{chantitle}, {pubdate}</span>
-</div>
-<div class="desc">{description}</div>
+	<div class="item">
+		<h2><a href="{link}" rel="noreferrer">{title}</a></h2>
+		<span class="source">
+			{chantitle}, {pubdate} :: <a href="http://mobilizer.instapaper.com/m?u={link_encoded}" rel="noreferrer">mobilize</a>
+		</span>
+	</div>
+	<div class="desc">{description}</div>
 </div>
 <!-- ENDarticle -->
 <!-- newsDay -->
