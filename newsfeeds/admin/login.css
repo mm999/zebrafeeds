@@ -2,10 +2,9 @@
 
 
 html, body{
-	margin: 0;
+	margin: 20px auto;
 	padding: 0;
-	text-align: center;
-	background: #dbca95;
+	background: #fff;
 	font-size: 12px;
 	font-family: Verdana, Arial, Helvetica, sans-serif
 }
@@ -26,25 +25,26 @@ a:hover {
 a:active {
 	color: blue
 }
-/* Login form 
+/* Login form
  ------------------------ */
 #loginform {
-	text-align: center;
-	margin: 10px auto 10px auto;
+	margin: 0 auto;
 	padding: 20px 40px;
-	width: 200px;
+	max-width: 400px;
 /*	background: #fff;*/
 }
 
+.normaltext {
+	padding: 20px;
+	margin: 0 auto;
+}
 #user,#pass {
-	text-align: left;
 	margin: 0 auto 30px auto;
 }
 #user input, #pass input {
 	width: 200px;
 }
 .accessdenied {
-	margin: 40px;
 	font-size: 1.5em;
 	font-weight: bold;
 	color: #F00;
