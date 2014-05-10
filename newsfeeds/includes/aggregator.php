@@ -54,10 +54,7 @@ class aggregator {
 
 		$this->cache->update($subs, 'auto');
 
-		// create filters
-		$chain = new FilterChain();
-		$chain->addFilter(new MarkNewItemFilter());
-		$feeds = $this->cache->getFeeds($subs, $chain);
+		$feeds = $this->cache->getFeeds($subs);
 
 		if ($aggregate) {
 			// aggregate all feeds in one: use global trim setting if auto is set
@@ -87,7 +84,7 @@ class aggregator {
 		$chain = $this->makeFilterChain($trim, $onlyNew);
 		$feeds = $this->cache->getFeeds(array($sub->id => $sub), $chain);
 
-		$feeds = $this->processFeeds($feeds, $trim, $onlyNew);
+		$feeds = $this->processSingleFeeds($feeds, $trim, $onlyNew);
 		$feed = array_pop($feeds);
 
 		return $feed;

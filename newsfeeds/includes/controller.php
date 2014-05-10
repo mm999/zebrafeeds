@@ -128,7 +128,7 @@ function handleRequest() {
 					param('trim', 'auto'),
 					int_param('onlynew', 0)
 					);
-			$view->renderFeed($feed, array(
+			$view->renderFeedList(array($feed), array(
 				'groupbyday' => false,
 				'decoration' => int_param('decoration'),
 				'summary' => (param('sum',1)==1)));
@@ -152,7 +152,7 @@ function handleRequest() {
 			}
 
 			$zf_aggregator = new Aggregator();
-			$tag = param('tag','');
+			$tag = param('tag',ZF_HOMETAG);
 			$feeds = $zf_aggregator->getFeedsForTag(
 				$tag,
 				$aggregate,

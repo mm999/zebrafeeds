@@ -97,7 +97,7 @@ class TemplateView extends AbstractFeedView{
 	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
 	public function renderFeed($feed, $params) {
-		zf_debug('Rendering feed in TemplateView', DBG_RENDER);
+		zf_debug('Rendering feed '.$feed->subscriptionId.' in TemplateView', DBG_RENDER);
 
 		if ($params['decoration'] == 1 ) {
 			$this->template->printChannel($feed);
@@ -112,7 +112,9 @@ class TemplateView extends AbstractFeedView{
 	public function renderFeedList($feeds, $params) {
 		$this->template->printHeader();
 		// if only one item: no header or footer to print
-		$params['decoration'] = (sizeof($feeds)>1)?1:0;
+		if (!isset($params['decoration'])) {
+			$params['decoration'] = (sizeof($feeds)>1)?1:0;
+		}
 		foreach($feeds as $feed) {
 			$this->renderFeed($feed, $params);
 		}
@@ -127,7 +129,7 @@ class TemplateView extends AbstractFeedView{
 	/* print only news items, no header */
 	protected function renderNewsItems($feed, $params) {
 
-		zf_debug('Rendering Newsitems in TemplateView', DBG_RENDER);
+		zf_debug('Rendering Newsitems of '.$feed->subscriptionId.' in TemplateView', DBG_RENDER);
 		$currentDay = '';
 		//$today = date('m.d.Y');
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
@@ -147,7 +149,6 @@ class TemplateView extends AbstractFeedView{
 			- group by day, we use a special template part, and separate each day
 			- normal, use the regular news template
 			 */
-			$renderIt = true;
 
 			if ($groupbyday) {
 
@@ -172,11 +173,13 @@ class TemplateView extends AbstractFeedView{
 					//echo zf_formatTemplate(array(), $day, array(), $template->newsDay, false);
 					$this->template->printDay($currentDay);
 				}
-				if ($renderIt) $this->template->printNewsByDate($item);
+
+				zf_debug("print news by date", DBG_RENDER);
+				$this->template->printNewsByDate($item);
 
 			} else {
-				zf_debug("calling print news", DBG_RENDER);
-				if ($renderIt) $this->template->printNews($item);
+				zf_debug("print news", DBG_RENDER);
+				$this->template->printNews($item);
 			}
 
 		} // end foreach

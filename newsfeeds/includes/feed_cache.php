@@ -262,7 +262,7 @@ class FeedCache {
 
 			} else {
 				zf_debug('empty feed returned', DBG_FEED);
-				$feeds[$sub->id] = new PublisherFeed();
+				$feeds[$sub->id] = new PublisherFeed($sub->id);
 			}
 
 		}
