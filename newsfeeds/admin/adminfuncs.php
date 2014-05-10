@@ -66,7 +66,9 @@ function zfLogin() {
 		if ($_SESSION['logged_in'] != 1) {
 			echo "<!DOCTYPE html";
 			echo "<head><title>ZebraFeeds Authentication</title>";
-			echo '<link rel="stylesheet" type="text/css" href="login.css" />';
+			echo '<link rel="stylesheet" type="text/css" href="login.css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>';
 			echo "</head><body>";
 			echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"".ZF_URL."/images/logo_admin.png\" border=\"0\" alt=\"ZebraFeeds\"/></a>";
 			echo "<h3>Admin Login</h3></div><form action=\"{$_SERVER['PHP_SELF']}\" method=\"post\">";
@@ -93,7 +95,9 @@ function zfLogin() {
 function zfLoginFailed() {
 	echo "<!DOCTYPE html";
 	echo "<head><title>Unauthorized Access</title>";
-	echo '<link rel="stylesheet" type="text/css" href="login.css" />';
+	echo '<link rel="stylesheet" type="text/css" href="login.css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>';
 	echo "</head><body>";
 	echo "<br/>";
 	echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"".ZF_URL."/images/logo_admin.png\" border=\"0\" alt=\"ZebraFeeds\"/></a></div>";
@@ -116,9 +120,11 @@ function zfLogout() {
 		session_unset();			// kill all session globals
 		session_destroy();			// kill everything
 	} else {
-		echo "<!DOCTYPE html><html><head><title>ZebraFeeds Admin Panel - auth not set</title></head><body><div align=\"center\"><br/><h3>Authentication mechanism not configured !</h3></div></body></html>";
+		echo "<!DOCTYPE html><html><head><title>ZebraFeeds Admin Panel - auth not set</title></head><body><div align=\"center\"><br/><h3>Authentication method not configured !</h3></div></body></html>";
 	}
-	echo "<!DOCTYPE html><html><head><title>ZebraFeeds admin logout</title></head><body><div align=\"center\"><br/><h3>You are logged out !</h3><a href=\"".ZF_URL."/admin/index.php\">Login again !</a></div></body></html>";
+	echo '<!DOCTYPE html><html><head>	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>
+<title>ZebraFeeds admin logout</title></head><body><div align="center"><br/><h3>You are logged out !</h3><a href="'.ZF_URL.'/admin/index.php">Login again !</a></div></body></html>';
 	exit;
 }
 

@@ -2,15 +2,20 @@
 html, body{
 	margin: 0;
 	padding: 0;
-	text-align: center;
-	/*background: #dbca95;*/
 	background: #FFFFFF;
 	font-size: 12px;
 	font-family: Verdana, Arial, Helvetica, sans-serif
 }
 
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+select:focus, textarea:focus, input:focus {
+	font-size: 16px;
+	background:#eee;
+	}
+}
 img {
-border: 0;
+	border: 0;
 }
 
 a:link {
@@ -53,7 +58,7 @@ a:active {
 #core {
 	background-color: #fff;
 	margin: 0 auto 0 auto;
-	padding: 15px 20px 20px 20px;
+	padding: 15px 20px 20px 10px;
 	max-width: 780px;
 	text-align: left;
 	border: 1px solid #666;
@@ -134,7 +139,7 @@ a:active {
 	right: 10px;
 	top: 5px;
 	display: inline-block;
-	margin-left: 40px;
+	margin-left: 15px;
 	float: right;
 }
 
@@ -144,7 +149,7 @@ a:active {
 	border-left: 2px solid #333333;
 	margin: 5px;
 	margin-bottom: 20px;
-	padding-left: 20px;
+	padding-left: 5px;
 }
 
 #listsettings {
