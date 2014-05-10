@@ -277,8 +277,6 @@ function highlightCurrent(newcurrentid) {
 <!-- header -->
 
 <div id="zfwrapper">
-<div id="overlay"></div>
-<div id="overlayarticle"></div>
 <!-- ENDheader -->
 <!-- channel -->
 <div class="channel">
@@ -287,8 +285,8 @@ function highlightCurrent(newcurrentid) {
     <span class="dateline">{chandesc}</span>
     <div class="controls">
       last updated: {lastupdated}
-      <img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh all articles of {chantitle}" style="border:0;" onclick="zf_getRefreshedNews('{feedurl}', 10, 0, 'NEWSLIST'+'{chanid}');" />
-      <img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" style="border:0;" onclick="zf_getAllNews('{feedurl}', 0, 'NEWSLIST'+'{chanid}');" />
+      <img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh feed for {chantitle}" style="border:0;" onclick="zf_getRefreshedNews('{chanid}', 'NEWSLIST'+'{chanid}');" />
+      <img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" style="border:0;" onclick="zf_getAllNews('{chanid}','NEWSLIST'+'{chanid}');" />
     </div>
   </div>
 </div>
@@ -322,7 +320,7 @@ function highlightCurrent(newcurrentid) {
 		{summary}
 	</div>
 	<div>
-		<span class="chantitle"><a href="?q=channel&id={chanid}">{chantitle}</a> - <span class="datelabel">{relativedate}</span> - <a href="{link}" rel="noreferrer">[permalink]</a> - <a href="wb/?action=add&plainurl={link_encoded}" class="readlater">Wb</a></span>
+		<span class="chantitle"><a href="?q=channel&id={chanid}&decoration=1">{chantitle}</a> - <span class="datelabel">{relativedate}</span> - <a href="{link}" rel="noreferrer">[permalink]</a> - <a href="wb/?action=add&plainurl={link_encoded}" class="readlater">Wb</a></span>
 	</div>
 </div>
  <!-- ENDnewsByDate -->
