@@ -40,7 +40,7 @@ define('DBG_FILTER', 256); // item filtering
 define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
-define('ZF_DEBUG', DBG_SESSION | DBG_FEED );
+define('ZF_DEBUG', 0 );
 
 // debug output 1=console otherwise stdout
 define('ZF_DEBUG_CONSOLE', 1);
@@ -107,15 +107,14 @@ defaultConfig('ZF_OWNERNAME', '');
 defaultConfig('ZF_PUBDATEFORMAT', '%x, %X');
 defaultConfig('ZF_DATEFORMAT', '%x');
 defaultConfig('ZF_REFRESHMODE','automatic');
-defaultConfig('ZF_RENDERMODE','automatic');
 defaultConfig('ZF_NEWITEMS','server');
 defaultConfig('ZF_NOFUTURE','no');
 defaultConfig('ZF_HOMEURL','');
 defaultConfig('ZF_USEOPML', 'yes');
 defaultConfig('ZF_ENCODING', 'UTF-8');
 defaultConfig('ZF_DISPLAYERROR', 'no');
-defaultConfig('ZF_TEMPLATE', 'newsflow');
-defaultConfig('ZF_HOMELIST', 'sample');
+defaultConfig('ZF_TEMPLATE', 'flow2');
+defaultConfig('ZF_HOMETAG', '');
 defaultConfig('ZF_SORT', 'date');
 defaultConfig('ZF_TRIMTYPE', 'days');
 defaultConfig('ZF_TRIMSIZE', 3);
