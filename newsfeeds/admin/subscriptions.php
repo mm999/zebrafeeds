@@ -75,9 +75,7 @@ function displayChannelList($subs) {
 <div title="Edit feed properties" class="sub-line" id="entry{i}">
 	<span id="title{i}" class="{class} link" onclick="showEditForm('{i}'); return false;">{chantitle}</span>&nbsp;
 	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" alt="website"/></a>
-	<div class="listctrl">
-		<input type="button" name="remove" value="Remove" onclick="removeChannel('{i}','{chantitle}'); return false;"/>&nbsp;
-	</div>
+	::	<a href="" onclick="removeChannel('{i}','{chantitle}'); return false;"/>Unsubscribe</a>
 	<div class="editfeed" id="editform{i}" style="display:none;">
 		<form action="#">
 			<div>

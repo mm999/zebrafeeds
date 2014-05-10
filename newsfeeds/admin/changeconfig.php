@@ -107,7 +107,7 @@ if($_POST['dosave']=='Save')
 					</a>:
 				</div>
 				<div class="col2">
-					<input type="text" name="subtag" id="subtag" value='<?php echo ZF_HOMETAG;?>'/>
+					<input type="text" name="subtag" id="subtag" value="<?php echo ZF_HOMETAG;?>"/>
 				</div>
 				<div class="col1">
 					<label for="refreshmode">Refresh mode</label>
