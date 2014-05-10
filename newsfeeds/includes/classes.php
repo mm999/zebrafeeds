@@ -62,13 +62,6 @@ class Subscription {
 
 	}
 
-	public function getFeedParams(){
-		$p = new FeedParams();
-		$p->trimSize = $this->shownItems;
-		$p->trimType = 'news';
-		return $p;
-	}
-
 	public function __toString(){
 		return $this->xmlurl;
 	}
@@ -206,62 +199,6 @@ class Enclosure {
 
 	public function isVideo() {
 		return !(strpos($this->type, 'video') === false);
-	}
-}
-
-
-/*=======*/
-class FeedParams {
-	// how to shorten the list of items
-	public $trimType = 'none';
-	// freshness number in days, hours or news
-	public $trimSize = 0;
-	public $onlyNew = false;
-	public $sort = true;
-
-	public function __construct($trimString = 'none') {
-		$this->setTrimStr($trimString);
-	}
-
-	//allowed values: Xdays, Ynews,  Zhours, today,  yesterday, onlynew, auto
-	public function setTrimStr($trimString) {
-		switch ($trimString) {
-			// auto: no change, use what was previously set
-			case 'auto':
-				break;
-			case 'none':
-				$this->trimSize = 0;
-				$this->trimType = 'none';
-			default:
-				if (preg_match("/([0-9]+)(.*)/",$trimString, $matches)) {
-		            $this->trimType = $matches[2];
-		            $this->trimSize = $matches[1];
-		        }
-		        break;
-	    }
-	}
-
-	public function getEarliestDate() {
-
-		$earliest = 0;
-
-		// get timestamp we don't want to go further
-		if ($this->trimType == 'hours') {
-			// earliest is the timestamp before which we should ignore news
-			$earliest = time() - (3600 * $this->trimSize);
-		}
-		if ($this->trimType =='days') {
-			// earliest is the timestamp before which we should ignore news
-
-			// get timestamp of today at 0h00
-			$todayts = strtotime(date("F j, Y"));
-
-			// substract x-1 times 3600*24 seconds from that
-			// x-1 because the current day counts, in the last x days
-			$earliest = $todayts -  (3600*24*($this->trimSize-1));
-		}
-
-		return $earliest;
 	}
 }
 

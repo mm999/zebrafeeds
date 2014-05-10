@@ -45,13 +45,6 @@ abstract class AbstractFeed {
 		}
 	}
 
-	/* get rid of superfluous items exceeding our limit, removing the bottom
-	of the array, only by numbers (trimSize)*/
-	public function trimItems($trimsize) {
-		zf_debug("Keeping only last $trimsize items", DBG_AGGR);
-		$this->items = array_slice($this->items, 0, $trimsize);
-	}
-
 	public function getItems($filterChain=null) {
 		if ($filterChain) {
 			$result = $filterChain->filter($this->items);
