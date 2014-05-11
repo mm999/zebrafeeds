@@ -2,24 +2,21 @@
 <html>
     <head>
         <title>ZebraFeeds documentation</title> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>
         <link rel="stylesheet" type="text/css" href="style/style2.css" />
     </head>
     <body>
         <div class="top"><img src="style/logo.png" alt="" /></div>
         <div id="menu">
-            <table align="right" border="0" cellpadding="4" cellspacing="5" width="60%">
-                <tbody>
-                    <tr>
-                        <td><a href="#install">Installation</a></td>
-                        <td><a href="#include">Include on your page</a></td>
-                        <td><a href="#features">Features</a></td>
-                        <td><a href="#mmode">Manual mode</a></td>
-                        <td><a href="#templates">Template reference</a></td>
-                        <td><a href="#config">Configuration file reference</a></td>
-                    </tr>
-                </tbody>
-            </table>
-            <h1>Documentation</h1>
+            <h2>Documentation</h2>
+
+<a href="#install">Installation</a> :: 
+<a href="#include">Include on your site</a> :: 
+<a href="#features">Features</a> ::
+<a href="#mmode">Manual mode</a> ::
+<a href="#templates">Template reference</a> ::
+<a href="#config">Configuration file reference</a>
+
         </div>
         <div class="section">
             <div class="text"> This is the <a href="http://www.cazalet.org/zebrafeeds">ZebraFeeds</a>
@@ -86,10 +83,9 @@
 		</div>
 
 		<div class="section">
-			<h2><a name="include">Include on your page</a></h2>
+			<h2><a name="include">Include on your site</a></h2>
 
 			<div class="text">
-				Including ZebraFeeds on your page is easy.
 				<h3>PHP script integration</h3>
 				This section describes the integration of ZebraFeeds script in another PHP script.<br/>
 				Once the installation is succesfull you can include the feedsreader on
@@ -105,14 +101,14 @@
 				in the directory containing the 'newsfeeds' dir): <br/>
 
 				<pre>
-	&lt;html&gt;
-	 &lt;head&gt;
-	  &lt;?php include ('newsfeeds/zebraheader.php'); ?&gt;
-	 &lt;/head&gt;
-	 &lt;body&gt;
-	  &lt;?php include ('newsfeeds/zebrafeeds.php'); ?&gt;
-	 &lt;/body&gt;
-	&lt;/html&gt;</pre>
+&lt;html&gt;
+ &lt;head&gt;
+  &lt;?php include('newsfeeds/zebraheader.php'); ?&gt;
+ &lt;/head&gt;
+ &lt;body&gt;
+  &lt;?php include('newsfeeds/zebrafeeds.php'); ?&gt;
+ &lt;/body&gt;
+&lt;/html&gt;</pre>
 
 				<br/>
 
@@ -122,21 +118,21 @@
 				It must be done before any other output, since cookies are sent in the headers.
 
 				<pre>
-	  &lt;?php include ('newsfeeds/zebracookies.php'); ?&gt;
-	&lt;html&gt;
-	 &lt;head&gt;
-	  &lt;?php include ('newsfeeds/zebraheader.php'); ?&gt;
-	 &lt;/head&gt;
-	 &lt;body&gt;
-	  &lt;?php include ('newsfeeds/zebrafeeds.php'); ?&gt;
-	 &lt;/body&gt;
-	&lt;/html&gt;</pre>
+&lt;?php include ('newsfeeds/zebracookies.php'); ?&gt;
+&lt;html&gt;
+  &lt;head&gt;
+   &lt;?php include ('newsfeeds/zebraheader.php'); ?&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+   &lt;?php include ('newsfeeds/zebrafeeds.php'); ?&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
 				See the below the section of the documentation pertaining to marking new items.
 
 				<h5>ZebraFeeds control bar</h5>
 				If you want to use the ZebraFeeds control bar, include<br/>
 
-	<pre>&lt;?php include ('newsfeeds/zebrabar.php'); ?&gt;</pre>
+<pre>&lt;?php include ('newsfeeds/zebrabar.php'); ?&gt;</pre>
 
 				somewhere in the BODY section.<br/>
 				<br/>

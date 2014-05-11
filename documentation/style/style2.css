@@ -26,7 +26,7 @@ body {
 
 #menu{
 	text-align: left;
-	padding-left: 20px;
+	padding: 10px;
 }
 #menu h1{
 	font-size: 20px;
@@ -49,10 +49,11 @@ body {
 
 
 .section{
-	border: 1px dashed #FF7200;
-	margin: 20px;
-	padding-left: 20px;
-	padding-right: 20px;
+	border: 1px solid #DED080;
+	border-radius: 2px;
+	margin: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
 	padding-top: 5px;
 	padding-bottom: 15px;
 }
@@ -74,7 +75,7 @@ h4 {
 
 h3 {
 		border-bottom : 1px solid #ffb2b3;
-		margin-left: 20px;
+		margin: 20px;
 		padding: 2px;
 
 }
