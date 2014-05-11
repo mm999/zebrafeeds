@@ -1,8 +1,4 @@
-
 newsfeeds/config.php
-
 newsfeeds/admin/.htaccess
-
-newsfeeds/categories/Home.opml
-
+newsfeeds/zebrafeeds.opml
 newsfeeds/data/*
