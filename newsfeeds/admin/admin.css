@@ -14,6 +14,7 @@ select:focus, textarea:focus, input:focus {
 	background:#eee;
 	}
 }
+
 img {
 	border: 0;
 }
@@ -59,7 +60,7 @@ a:active {
 	background-color: #fff;
 	margin: 0 auto 0 auto;
 	padding: 15px 20px 20px 10px;
-	max-width: 780px;
+	max-width: 640px;
 	text-align: left;
 	border: 1px solid #666;
 	border-width: 0;
@@ -106,10 +107,6 @@ a:active {
 
 
 
-.zftable {
-	border: 1px solid #666;
-}
-
 #bottom {
 	text-align: center;
 	font-size: 10px;
@@ -125,51 +122,35 @@ a:active {
 
 /* Subscription list
 ------------------------ */
-#listsform, #status {
+#status {
 	text-align: left;
 	padding: 15px;
-	margin: 5px;
+	margin: 0 auto;
+	max-width: 350px;
 	/*border: 2px solid #dbca95;*/
 	border: 1px solid #333333;
 
 	/*border-radius: 3px;*/
 }
 
-.listctrl{
-	right: 10px;
-	top: 5px;
-	display: inline-block;
-	margin-left: 15px;
-	float: right;
-}
 
 .frame {
 	/*border-radius: 3px;*/
 	/*border: 2px solid #dbca95;*/
 	border-left: 2px solid #333333;
-	margin: 5px;
-	margin-bottom: 20px;
-	padding-left: 5px;
+	/*margin: 5px;
+	margin-bottom: 20px;*/
+	padding-left: 10px;
 }
 
 #listsettings {
 	margin: 5px;
 	padding: 10px;
-	margin-bottom: 20px;
+	margin-bottom: 5px;
 	/*border-bottom: 1px solid #dbca95;*/
 	border-bottom: 1px solid #333333;
 }
 
-#chancolumn {
-	margin: 0px;
-}
-
-#chancolumnheader{
-	margin-top:5px;
-	margin-bottom: 5px;
-	padding: 5px;
-	padding-left: 12px;
-}
 
 #chanlist {
 	overflow-y: auto;
@@ -180,15 +161,6 @@ a:active {
 	text-align: left;
 }
 
-.chanlistcheck {
-	color: #aaa;
-}
-
-#editcolumn {
-	width: 45%;
-	margin: 0px;
-
-}
 .editfeed {
 	padding-left: 15px;
 	padding-bottom: 15px;
@@ -212,32 +184,16 @@ a:active {
 }
 
 
-.sub-feed {
-	border-bottom: 1px dotted #FFB15A;
-}
-
 .sub-line {
 	border: 1px solid #FFB15A;
 	border-radius: 2px;
-	padding: 7px;
+	padding: 4px;
 	margin: 5px;
 }
 .sub-line:hover {
 	background-color: #F8f8F8;
 }
-.sub-number {
 
-	text-align: right;
-}
-
-
-#firstline, #lastline {
-	background: #fff;
-	padding: 10px 0 10px 0;
-}
-#lastline td {
-	padding-top: 15px;
-}
 
 .link {
 	cursor: pointer;
@@ -247,39 +203,37 @@ a:active {
 
 .unsubscribed {
 	font-style: italic;
-	font-size: 80%;
+	font-size: 100%;
 }
 .subscribed {
+	font-size: 120%;
 }
 
-
-
-/*#firstline { border-bottom: 1px solid #000; }*/
-/*#firstline td, #lastline td {
-background: #eee;
-padding: 10px 0 10px 0;
-border-bottom: 1px solid #000;
-}*/
-#firstline td{
-	text-align: center;
-	border-bottom: 1px solid #000;
-}
 
 .legend {
 	font-weight: bold;
+}
+
+.desc {
+	width: 90%;
+}
+
+.desc2 {
+	width: 80%;
+}
+
+.icon {
+	vertical-align: middle;
+	position: relative;
 }
 
 /* Main menu
 -------------------------------------------------------- */
 
 #header {
-	text-align: left;
 	font-size:90%;
-	background: transparent;
-	padding: 0 20px 0 20px;
 	width: 85%;
-	margin: 0 auto 0 auto;
-
+	margin: 0 auto;
 }
 
 ul.tabs {
@@ -288,7 +242,7 @@ ul.tabs {
 	background-color: transparent;
 	padding: 20px 0 0 0;
 	height: 22px;
-	margin: 0 auto 0 -20px;
+	margin: 0 auto 10 -20px;
 	list-style: none;
 }
 
@@ -335,28 +289,22 @@ ul.tabs .active a {
 
 ul.tabs a, ul.tabs strong, ul.tabs span {
 	display:block;
-	/*background: url(../images/right.png) no-repeat right top;*/
 	padding:5px 15px 4px 6px;
 }
 
-ul.tabs .active {
-	/*background-image: url(../images/left_on.png);*/
-}
+
 
 ul.tabs .active a {
-	/*background-image: url(../images/right_on.png);*/
 	padding-bottom:5px;
 }
 
 ul.tabs a {
 	display:block;
-	/*background: url(../images/left.png) no-repeat left top;*/
 	padding:5px 15px 4px 6px;
 }
 
 ul.tabs a {
 	display:block;
-	/*background: url(../images/right.png) no-repeat right top;*/
 	padding:5px 6px 4px 5px;
 	text-decoration:none;
 	font-weight:bold;
@@ -390,18 +338,6 @@ ul.tabs a {
 margin-top: 10px;
 }
 
-/* .twocols .col1 {
-	width : 49%;
-	margin-left : 1%;
-	float : left;
-	text-align: left;
-}
-.twocols .col1, .col2:first-child {
-	width : 40%;
-	margin-left : 0;
-
-}
-*/
 .col1 p {
 	height: 5em;
 	padding: 0 5em 0 5em;

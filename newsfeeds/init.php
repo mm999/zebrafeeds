@@ -11,18 +11,13 @@ include_once __DIR__.'/config.php';
 /* initialization for both admin and user areas */
 
 // hidden settings, no GUI for these
-define('ZF_DEFAULT_NEWS_COUNT', 5);
+define('ZF_DEFAULT_NEWS_COUNT', 3);
 define('ZF_DEFAULT_REFRESH_TIME', 120);
 define('ZF_SESSION_DURATION', 900); // 15 minutes before unmarking items as new
-define('ZF_VISITOR_COOKIE_EXPIRATION',60*60*24*30); //30 days life-expectancy for client-side cookies to mark items as new
-define('ZF_FORCE_ENCODED_CONTENT', 'yes'); // ONLY FOR MAGPIE. stored in cache. if this is changed, it will be active only after cache is refreshed
 define('ZF_GROUP_BY_DAY', 'yes'); // if yes, items are grouped by day when multiple channels sorted by date
 define('ZF_MAX_SUMMARY_LENGTH', 300); // if description is longer (tags-stripped), let's truncate to make the summary
 define('ZF_SUMMARY_TRUNCATED_LENGTH', 300); // if truncate to summary, here's the remaining length
 define('ZF_SHOWCREDITS', 'no');
-define('ZF_RSSEXPORTSIZE', 25); //25 news exported in RSS,  max
-define('ZF_ONLYNEW', 'no'); // if yes, show only never seen news
-define('ZF_NEWONTOP', 'no'); // if yes, will show first the new/unseen items on top in views grouped by date
 // ideally, this should be defined in the template
 //define('ZF_ISNEW_STRING', '<img src="'.ZF_URL.'/images/new.png" border="0" title="is new since last visit" alt="New"/>');
 define('ZF_ISNEW_STRING', 'newclass');
@@ -40,7 +35,7 @@ define('DBG_FILTER', 256); // item filtering
 define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
-define('ZF_DEBUG', 0 );
+define('ZF_DEBUG', DBG_ALL );
 
 // debug output 1=console otherwise stdout
 define('ZF_DEBUG_CONSOLE', 1);
@@ -102,15 +97,11 @@ function defaultConfig($name,$value) {
 //default values for parameters with a UI
 defaultConfig('ZF_LOGINTYPE', 'session');
 defaultConfig('ZF_LOCALE', 'english');
-defaultConfig('ZF_OWNEREMAIL', '');
-defaultConfig('ZF_OWNERNAME', '');
 defaultConfig('ZF_PUBDATEFORMAT', '%x, %X');
 defaultConfig('ZF_DATEFORMAT', '%x');
 defaultConfig('ZF_REFRESHMODE','automatic');
-defaultConfig('ZF_NEWITEMS','server');
 defaultConfig('ZF_NOFUTURE','no');
 defaultConfig('ZF_HOMEURL','');
-defaultConfig('ZF_USEOPML', 'yes');
 defaultConfig('ZF_ENCODING', 'UTF-8');
 defaultConfig('ZF_DISPLAYERROR', 'no');
 defaultConfig('ZF_TEMPLATE', 'flow2');

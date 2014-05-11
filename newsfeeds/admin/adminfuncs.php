@@ -128,20 +128,6 @@ function zfLogout() {
 	exit;
 }
 
-/* return a list of existing categories suited to be inserted in a listbox
-arg: category, category to be skipped in the list
-*/
-function listExceptCateg($category) {
-	$data = '';
-	$clist = zf_getListNames();
-	foreach($clist as $categf) {
-		if($category!=$categf) {
-			$data .= "<option value=\"$categf\">$categf</option>";
-		}
-	}
-	return $data;
-}
-
 
 function displayStatus($message) {
 	echo '<div id="status">'.$message.'</div>';
@@ -160,21 +146,21 @@ function saveConfig(&$config) {
 		fwrite($fp,"define(\"ZF_URL\",\"".$config['zfurl']."\"); // URL to ZebraFeeds directory installation; \n");
 		fwrite($fp,"define(\"ZF_ADMINNAME\",\"".$config['adminname']."\"); // admin username\n");
 		fwrite($fp,"define(\"ZF_ADMINPASS\",\"".$config['adminpassword']."\"); // crypted admin password, default is \"admin\" (without quotes). Leave empty to reset.\n");
-		fwrite($fp,"\n\n// feeds options //\n\n");
+		fwrite($fp,"\n\n// Aggregator options //\n\n");
 		fwrite($fp,"define(\"ZF_HOMETAG\",\"".$config['subtag']."\"); // tag for the default list of subscriptions\n");
 		fwrite($fp,"define(\"ZF_REFRESHMODE\",\"".$config['refreshmode']."\"); // automatic: feeds are refreshed when page is generated. request: use a refresh link. see admin page for details\n");
-		fwrite($fp,"\n\n// general display options //\n\n");
+		fwrite($fp,"define(\"ZF_SORT\",\"".$config['sortmode']."\"); // \n");
+		fwrite($fp,"define(\"ZF_TRIMTYPE\",\"".$config['trimtype']."\"); // \n");
+		fwrite($fp,"define(\"ZF_TRIMSIZE\",\"".$config['trimsize']."\"); // \n");
+		fwrite($fp,"define(\"ZF_NOFUTURE\",\"".$config['nofuture']."\"); // if yes then does not show news with a timestamp from the future\n");
+		fwrite($fp,"\n\n// Template options //\n\n");
 		fwrite($fp,"define(\"ZF_TEMPLATE\",\"".$config['template']."\"); // the default templates used to display the news (subdirectory name from templates directory)\n");
 		fwrite($fp,"define(\"ZF_DISPLAYERROR\",\"".$config['displayerror']."\"); // if yes then when a feed cannot be read (or has errors) formatted error message shows in {description}\n");
-		fwrite($fp,"\n\n// localization options //\n\n");
+		fwrite($fp,"\n\n// Localization options //\n\n");
 		fwrite($fp,"define(\"ZF_ENCODING\",\"".$config['encoding']."\"); // character encoding for output\n");
 		fwrite($fp,"define(\"ZF_LOCALE\",\"".$config['locale']."\"); // language for dates, system messages\n");
 		fwrite($fp,"define(\"ZF_PUBDATEFORMAT\",\"".$config['pubdateformat']."\"); // format passed to strftime to convert dates got from RSS feeds\n");
 		fwrite($fp,"define(\"ZF_DATEFORMAT\",\"".$config['dateformat']."\"); // format passed to strftime to display date when displaying news grouped by date\n");
-		fwrite($fp,"\n\n// advanced options //\n\n");
-		fwrite($fp,"define(\"ZF_NOFUTURE\",\"".$config['nofuture']."\"); // if yes then does not show news with a timestamp from the future\n");
-		fwrite($fp,"define(\"ZF_OWNERNAME\",\"".$config['ownername']."\"); // owner name which will appear in the OPML file (optional)\n");
-		fwrite($fp,"define(\"ZF_OWNEREMAIL\",\"".$config['owneremail']."\"); // owner email which will appear in the OPML file (optional)\n");
 		fwrite($fp,"\n\n//////END OF CONFIGURATION///////////////////////////////////////////////////\n\n");
 		fwrite($fp,"\n\n?>");
 		fclose($fp);

@@ -57,7 +57,7 @@ zfLogin();
 	</div>
 <div id="header">
 			<ul class="tabs">
-		<?php if (ZF_USEOPML == 'yes')
+		<?php
             echo "<li"; if (in_array($zfaction, array('subscriptions', 'addnew' ,'importlist'))) echo " class=\"active\""; echo ">";
 			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=subscriptions\">Subscriptions</a></li>";?>
         <?php echo "<li"; if ($zfaction == "config") echo " class=\"active\""; echo ">" ?>
