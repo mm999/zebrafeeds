@@ -21,27 +21,27 @@
 
 
 if(zfAuth()==false) {
-    exit;
+	exit;
 } elseif(!is_writable('../config.php')) {
-    displayStatus('config.php is not writable (you cannot save changes)!');
+	displayStatus('config.php is not writable (you cannot save changes)!');
 }
 
 
 
 if($_POST['dosave']=='Save')
 {
-    if($_POST['newpassword'] == $_POST['confirmpassword'] && $_POST['newpassword']!='') {
-        $_POST['adminpassword'] = md5($_POST['newpassword']);
-    } else {
-        $_POST['adminpassword'] = ZF_ADMINPASS;
-    }
+	if($_POST['newpassword'] == $_POST['confirmpassword'] && $_POST['newpassword']!='') {
+		$_POST['adminpassword'] = md5($_POST['newpassword']);
+	} else {
+		$_POST['adminpassword'] = ZF_ADMINPASS;
+	}
 
-    if (saveConfig($_POST)) {
-        displayStatus('Configuration saved.');
-    } else {
-        displayStatus('Configuration NOT saved.');
-    }
-}
+	if (saveConfig($_POST)) {
+		displayStatus('Configuration saved.');
+	} else {
+		displayStatus('Configuration NOT saved.');
+	}
+} else {
 
 ?>
 
@@ -102,7 +102,7 @@ if($_POST['dosave']=='Save')
 			<div class="twocols">
 				<div class="col1">
 					<label for="subtag">Default tag</label>
-				        <a href="#" class="info">(?)
+					<a href="#" class="info">(?)
 					<span>the tag of subscriptions displayed by default. All if empty</span>
 					</a>:
 				</div>
@@ -112,30 +112,57 @@ if($_POST['dosave']=='Save')
 				<div class="col1">
 					<label for="refreshmode">Refresh mode</label>
 					<a href="#" class="info">(?)
-					<span>How to refresh feeds.<br/> Automatic: only when needed, or by link.<br/>
-		                           Only by link: manual/scheduled refresh of feeds (by a cronjob for example).
+					<span>How to refresh feeds.<br/> Automatic: when page is generated, or on request (special link).<br/>
+						  Only on request: manual/scheduled refresh of feeds (by a cronjob for example).
 					</span>
 					</a>:
 				</div>
 				<div class="col2">
 					<select name="refreshmode" id="refreshmode" >
-				                <option value="automatic" <?php if(ZF_REFRESHMODE=='automatic') echo 'selected="selected"';?>>Automatic</option>
-		                		<option value="request" <?php if(ZF_REFRESHMODE!='automatic') echo 'selected="selected"';?>>Only by link</option>
-			            </select>
-
+						<option value="automatic" <?php if(ZF_REFRESHMODE=='automatic') echo 'selected="selected"';?>>Automatic</option>
+						<option value="request" <?php if(ZF_REFRESHMODE!='automatic') echo 'selected="selected"';?>>Only by link</option>
+					</select>
 				</div>
-		<?php //TODO: config for viewmode, trimsize/type ?>
 				<div class="col1">
-					<label for="nofuture">Discard future news</label>
+					<label for="sort">Sort mode</label>
 					<a href="#" class="info">(?)
-					<span>fight RSS spamming by hiding news that want to stay on top!</span>
+					<span>How to sort feeds, only for HTML output.<br/>By feed or by date.<br/>
+					</span>
 					</a>:
 				</div>
 				<div class="col2">
-		            <select name="nofuture" id="nofuture">
-		              <option value="yes" <?php if(ZF_NOFUTURE=='yes') echo 'selected="selected"';?>>yes</option>
-		              <option value="no" <?php if(ZF_NOFUTURE!='yes') echo 'selected="selected"';?>>no</option>
-		            </select>
+					<select name="sort" id="sort" >
+						<option value="feed" <?php if(ZF_SORT=='feed') echo 'selected="selected"';?>>By feed</option>
+						<option value="date" <?php if(ZF_SORT!='date') echo 'selected="selected"';?>>By date</option>
+				   </select>
+				</div>
+				<div class="col1">
+					<label for="trimsize">Limit news when sorted by date</label>
+					<a href="#" class="info">(?)
+					<span>When sorted by date, limit the list of news to the last X days/hours/news.
+					</span>
+					</a>:
+				</div>
+				<div class="col2">
+					<input type="text" name="trimsize" id="trimsize" size="5" value="<?php echo ZF_TRIMSIZE;?>"/>
+					<select name="trimtype" id="trimtype" >
+						<option value="news" <?php if(ZF_TRIMTYPE=='news') echo 'selected="selected"';?>>latest news</option>
+						<option value="days" <?php if(ZF_TRIMTYPE=='days') echo 'selected="selected"';?>>days</option>
+						<option value="hours" <?php if(ZF_TRIMTYPE=='hours') echo 'selected="selected"';?>>hours</option>
+					</select>
+				</div>
+		<?php //TODO: config for trimsize/type ?>
+				<div class="col1">
+					<label for="nofuture">Hide future news</label>
+					<a href="#" class="info">(?)
+					<span>Hide news with date in the future</span>
+					</a>:
+				</div>
+				<div class="col2">
+					<select name="nofuture" id="nofuture">
+					  <option value="yes" <?php if(ZF_NOFUTURE=='yes') echo 'selected="selected"';?>>yes</option>
+					  <option value="no" <?php if(ZF_NOFUTURE!='yes') echo 'selected="selected"';?>>no</option>
+					</select>
 				</div>
 			</div>
 
@@ -149,17 +176,17 @@ if($_POST['dosave']=='Save')
 				</div>
 				<div class="col2">
 					<select name="template" id="template">
-		              <?php
-		                  $tnames = zf_getTemplateNames();
-		                  foreach($tnames as $templatef) {
-		                      if(ZF_TEMPLATE==$templatef) {
-		                          echo "<option value=\"$templatef\" selected=\"selected\">$templatef</option>";
-		                      } else {
-		                          echo "<option value=\"$templatef\">$templatef</option>";
-		                      }
-		                  }
-		             ?>
-		        		</select>
+					  <?php
+						  $tnames = zf_getTemplateNames();
+						  foreach($tnames as $templatef) {
+							  if(ZF_TEMPLATE==$templatef) {
+								  echo "<option value=\"$templatef\" selected=\"selected\">$templatef</option>";
+							  } else {
+								  echo "<option value=\"$templatef\">$templatef</option>";
+							  }
+						  }
+					 ?>
+						</select>
 				</div>
 				<div class="col1">
 					<label for="displayerror">Display errors</label>
@@ -169,8 +196,8 @@ if($_POST['dosave']=='Save')
 				</div>
 				<div class="col2">
 					<select name="displayerror" id="displayerror">
-				              <option value="yes" <?php if(ZF_DISPLAYERROR=='yes') echo 'selected="selected"';?>>yes</option>
-				              <option value="no" <?php if(ZF_DISPLAYERROR!='yes') echo 'selected="selected"';?>>no</option>
+						<option value="yes" <?php if(ZF_DISPLAYERROR=='yes') echo 'selected="selected"';?>>yes</option>
+						<option value="no" <?php if(ZF_DISPLAYERROR!='yes') echo 'selected="selected"';?>>no</option>
 					</select>
 				</div>
 			</div>
@@ -184,79 +211,80 @@ if($_POST['dosave']=='Save')
 					<label for="encoding">Page encoding: </label>
 				</div>
 				<div class="col2">
-				        <select name="encoding" id="encoding">
-		      <?php
-		        $encodings = array ( 'UTF-8' ,
-		                            'ISO-8859-1',
-		                            'US-ASCII',
-		                            'ISO-8859-2',
-		                            'ISO-8859-3',
-		                            'ISO-8859-4',
-		                            'ISO-8859-5',
-		                            'ISO-8859-6',
-		                            'ISO-8859-7',
-		                            'ISO-8859-8',
-		                            'ISO-8859-9',
-		                            'ISO-2022-JP',
-		                            'ISO-2022-KR',
-		                            'ISO-2022-CN',
-		                            'Big5',
-		                            'WINDOWS-1251');
+					<select name="encoding" id="encoding">
+			  <?php
+				$encodings = array ( 'UTF-8' ,
+									'ISO-8859-1',
+									'US-ASCII',
+									'ISO-8859-2',
+									'ISO-8859-3',
+									'ISO-8859-4',
+									'ISO-8859-5',
+									'ISO-8859-6',
+									'ISO-8859-7',
+									'ISO-8859-8',
+									'ISO-8859-9',
+									'ISO-2022-JP',
+									'ISO-2022-KR',
+									'ISO-2022-CN',
+									'Big5',
+									'WINDOWS-1251');
 
-		          $arrayLength = count($encodings);
-		          for ($i = 0; $i < $arrayLength; $i++){
-		             echo "<option value=\"$encodings[$i]\" "; if(ZF_ENCODING==$encodings[$i]) echo "selected=\"selected\""; echo ">$encodings[$i]</option>";
-		          }
-		       ?>
-				        </select>
+				  $arrayLength = count($encodings);
+				  for ($i = 0; $i < $arrayLength; $i++){
+					 echo "<option value=\"$encodings[$i]\" "; if(ZF_ENCODING==$encodings[$i]) echo "selected=\"selected\""; echo ">$encodings[$i]</option>";
+				  }
+			   ?>
+						</select>
 				</div>
 
 				<div class="col1">
 					<label for="locale">Locale</label>
-		           		<a href="#" class="info">(?)
+						<a href="#" class="info">(?)
 					<span>Value to pass to the setlocale PHP function. It tells which language to display dates in.
 					</span></a>:
 				</div>
 				<div class="col2">
-		            <input name="locale" type="text" id="locale" value="<?php echo ZF_LOCALE;?>"/>
+					<input name="locale" type="text" id="locale" value="<?php echo ZF_LOCALE;?>"/>
 				</div>
 
 				<div class="col1">
 					<label for="pubdateformat">News date/Time format</label>
-		 			<a href="#" class="info">(?)
+					<a href="#" class="info">(?)
 					<span>Format dates received from feeds (if possible). Used by the strftime PHP function.</span></a>:
 				</div>
 				<div class="col2">
-		            <input name="pubdateformat" type="text" id="pubdateformat" value="<?php echo ZF_PUBDATEFORMAT;?>"/>
+					<input name="pubdateformat" type="text" id="pubdateformat" value="<?php echo ZF_PUBDATEFORMAT;?>"/>
 				</div>
 
 				<div class="col1">
 					<label for="dateformat">Day date format</label>
-		        	<a href="#" class="info">(?)
+					<a href="#" class="info">(?)
 					<span>Format used to display date when news are grouped by date. Should only be a date (no time) format. See the strftime PHP function.</span></a>:
 				</div>
 				<div class="col2">
-		            <input name="dateformat" type="text" id="dateformat" value="<?php echo ZF_DATEFORMAT;?>"/>
+					<input name="dateformat" type="text" id="dateformat" value="<?php echo ZF_DATEFORMAT;?>"/>
 				</div>
 			</div>
 
 		</div>
 		<div id="saveconfig">
-		    <input type="submit" name="dosave" id="dosave" value="Save"/>
+			<input type="submit" name="dosave" id="dosave" value="Save"/>
 		</div>
 	</form>
 	<div id="extrainfo">
 		<h3>Extra information</h3>
 
 	<?php
-	    $refreshurl = ZF_URL.'/pub/refresh.php?key='.md5(ZF_ADMINNAME . ZF_ADMINPASS);
-	    echo 'Your personal ZebraFeeds refresh link to refresh all feeds via cron job:<br/><br/>
-	          '.$refreshurl.' <br/><br/><br/>
-	          <em>Note: this link changes whenever you change the admin user or password.</em>';
+		$refreshurl = ZF_URL.'/pub/refresh.php?key='.md5(ZF_ADMINNAME . ZF_ADMINPASS);
+		echo 'Your personal ZebraFeeds refresh link to refresh all feeds via cron job:<br/><br/>
+			  '.$refreshurl.' <br/><br/><br/>
+			  <em>Note: this link changes whenever you change the admin user or password.</em>';
 	?>
 	</div>
 </div>
 <?php
 
+}
 
 
