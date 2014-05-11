@@ -30,30 +30,19 @@ class VisitTracker {
 		$this->_visits['lastvisit'] = 0;
 		$this->_visits['lastsessionend'] = 0;
 
-		if (ZF_NEWITEMS=='server') {
+		$name = ZF_HISTORYDIR.'/visit.txt';
 
-			$name = ZF_HISTORYDIR.'/visit.txt';
-
-			$fp = @fopen($name, 'r');
-			if ( ! $fp ) {
-				zf_debug("Failed to open visit file for reading: $name", DBG_SESSION);
-			} else {
-				if ($filesize = filesize($name) ) {
-					$data = fread( $fp, filesize($name) );
-					$this->_visits = unserialize( $data );
-				}
-				zf_debug('last visit in server file: '.date('dS F Y h:i:s A', $this->_visits['lastvisit']), DBG_SESSION);
-			}
-
+		$fp = @fopen($name, 'r');
+		if ( ! $fp ) {
+			zf_debug("Failed to open visit file for reading: $name", DBG_SESSION);
 		} else {
-
-			// read visit time from cookie
-			$this->_visits['lastvisit'] = $_COOKIE['lastvisit'];
-			$this->_visits['lastsessionend'] = $_COOKIE['lastsessionend'];
-			zf_debug('last visit in cookie: '.date('dS F Y h:i:s A', $this->_visits['lastvisit']), DBG_SESSION);
-			zf_debug('last session end in cookie: '.date('dS F Y h:i:s A', $this->_visits['lastsessionend']), DBG_SESSION);
-
+			if ($filesize = filesize($name) ) {
+				$data = fread( $fp, filesize($name) );
+				$this->_visits = unserialize( $data );
+			}
+			zf_debug('last visit in server file: '.date('dS F Y h:i:s A', $this->_visits['lastvisit']), DBG_SESSION);
 		}
+
 
 		$now = time();
 		// if our last visit happened X seconds ago
