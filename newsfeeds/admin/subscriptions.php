@@ -75,23 +75,24 @@ function displayChannelList($subs) {
 <div title="Edit feed properties" class="sub-line" id="entry{i}">
 	<span id="title{i}" class="{class} link" onclick="showEditForm('{i}'); return false;">{chantitle}</span>&nbsp;
 	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="{zfurl}/images/extlink.png" alt="website"/></a>
-	::	<a href="" onclick="removeChannel('{i}','{chantitle}'); return false;"/>Unsubscribe</a>
 	<div class="editfeed" id="editform{i}" style="display:none;">
 		<form action="#">
 			<div>
-				<div><input type="checkbox" id="isactive{i}" name="isactive" {isactive} value="isactive" title="Active"/> <label for="isactive{i}">Active</label> -- <label for="position{i}">position:</label> <input name="position" id="position{i}" type="text" size="3" value="{position}"/></div>
+				<div><input type="checkbox" id="isactive{i}" name="isactive" {isactive} value="isactive" title="Active"/> <label for="isactive{i}">Active</label>
+				:: <a href="" title="remove from the subscription list" onclick="removeChannel('{i}','{chantitle}'); return false;"/>Unsubscribe</a></div>
 				<label for="chantitle{i}">Title:</label>&nbsp;<br/>
-				<input type="text" size="30" name="chantitle" id="chantitle{i}" value="{chantitle}" /><br/><br/>
+				<input type="text" class="desc" name="chantitle" id="chantitle{i}" value="{chantitle}" /><br/>
 				<label for="xmlurl{i}"> feed URL:</label><br/>
-				<input type="text" size="30" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
-				<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img src="{zfurl}/images/feed.png" alt="RSS/ATOM feed"/></a>
+				<input type="text" class="desc2" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
+				<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img class="icon" src="{zfurl}/images/feed.png" alt="RSS/ATOM feed"/></a>
 				<br/>
 				<label for="description{i}">Description</label><br/>
-				<textarea rows="2" cols="30" id="description{i}" name="description">{description}</textarea><br/><br/>
+				<textarea rows="2" class="desc" id="description{i}" name="description">{description}</textarea><br/><br/>
 			</div>
 			<div>
 				<div><label for="tags{i}">Tag(s):</label><br/><input name="tags" id="tags{i}" type="text" size="20" value="{tags}"/></div>
 				<div><label for="shownitems{i}">Displayed items in feed view:</label><br/><input name="shownitems" id="shownitems{i}" type="text" size="4" value="{shownitems}"/></div>
+				<div><label for="position{i}">position:</label> <input name="position" id="position{i}" type="text" size="3" value="{position}"/></div>
 
 				<div class="savepanel">
 					<input type="button" name="save" value="Save" onclick="saveChannel('{i}', this.form); return false;"/>&nbsp;
@@ -297,15 +298,9 @@ $storage = SubscriptionStorage::getInstance();
 		?>
 				<a href="<?php echo $storage->getOPMLURL(); ?>">Export OPML file</a>
 			</div>
-			<div id="chancolumn">
-				<div id="chancolumnheader">
-				<?php echo (ZF_SORT == 'feed')?'<span class="chanlistcheck">
-					<small><em>Sorted by position</em></small> </span><br/><br/>':'';?>
-				</div>
 				<div id="chanlist">
 					<?php displayChannelList($sortedChannels);?>
 				</div>
-			</div>
 		</div>
 	</div>
 <?php
