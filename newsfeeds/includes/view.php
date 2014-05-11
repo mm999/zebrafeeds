@@ -97,7 +97,7 @@ class TemplateView extends AbstractFeedView{
 	  or made of multiple single feeds if grouped by channel
 	at this point, items are supposed to be filtered */
 	public function renderFeed($feed, $params) {
-		zf_debug('Rendering feed '.$feed->subscriptionId.' in TemplateView', DBG_RENDER);
+		zf_debug('Rendering '.(isset($feed->subscriptionId)?$feed->subscriptionId:'aggregated feed').' in TemplateView', DBG_RENDER);
 
 		if ($params['decoration'] == 1 ) {
 			$this->template->printChannel($feed);
@@ -129,14 +129,14 @@ class TemplateView extends AbstractFeedView{
 	/* print only news items, no header */
 	protected function renderNewsItems($feed, $params) {
 
-		zf_debug('Rendering Newsitems of '.$feed->subscriptionId.' in TemplateView', DBG_RENDER);
+		zf_debug('Rendering Newsitems of '.(isset($feed->subscriptionId)?$feed->subscriptionId:'aggregated feed').' in TemplateView', DBG_RENDER);
 		$currentDay = '';
 		//$today = date('m.d.Y');
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
 
 		//foreach item
 		$itemsList = $feed->getItems();
-		zf_debug(sizeof($itemsList).' to render', DBG_RENDER);
+		zf_debug(sizeof($itemsList).' items to render', DBG_RENDER);
 
 		$groupbyday = $params['groupbyday'];
 		if ( $groupbyday ) {

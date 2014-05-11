@@ -133,7 +133,6 @@ class template {
 
 	public function printPageHeader() {
 		$this->_buffer = $this->pageHeader;
-		//TODO: add ZFURL and ZFTEMPLATE
 		$this->_formatCommon();
 		$this->_printBuffer();
 	}
@@ -249,6 +248,7 @@ class template {
 	*/
 	protected function _formatCommon() {
 		$this->_buffer = str_replace('{scripturl}', ZF_URL, $this->_buffer);
+		$this->_buffer = str_replace('{template}', $this->name, $this->_buffer);
 	}
 
 	protected function _formatOptions(){

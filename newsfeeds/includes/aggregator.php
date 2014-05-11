@@ -52,6 +52,8 @@ class aggregator {
 		$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
 		zf_debugRuntime("before feeds update");
 
+		zf_debug('processing '.sizeof($subs).' subs for tag '.$tag, DBG_AGGR);
+
 		$this->cache->update($subs, 'auto');
 
 		$feeds = $this->cache->getFeeds($subs);
