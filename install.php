@@ -62,7 +62,7 @@ padding: 10px;
 <?php
 
 require_once('newsfeeds/init.php');
-require_once($zf_path.'admin/adminfuncs.php');
+require_once('newsfeeds/admin/adminfuncs.php');
 
 function displayProceedGotoButton($nextStep) {
 	echo '<div>
@@ -88,17 +88,16 @@ if (!isset($_POST['step'])) {
 	echo '<h2>Step 1: Permissions</h2>';
 
 	echo '<p>Attempting to set correct file and directory permissions...';
-	@touch($zf_path.'config.php');
-	@chmod($zf_path.'config.php',0666);
+	@touch('newsfeeds/config.php');
+	@chmod('newsfeeds/config.php',0666);
 	@mkdir(ZF_DATADIR,0777);
 	// do not use constant as it can cause problems in case of upgrade (???)
 	@mkdir(ZF_CACHEDIR,0777);
-	@chmod(ZF_OPMLDIR,0777);
 
 	$ok = true;
 	// config.php exists and is writable
-	if(!is_writable($zf_path.'config.php')) {
-		echo '<br/>'.$zf_path.'config.php is not writable (you cannot save changes)!<br/>';
+	if(!is_writable('newsfeeds/config.php')) {
+		echo '<br/>config.php is not writable (you cannot save changes)!<br/>';
 		$ok = false;
 	}
 
@@ -112,9 +111,9 @@ if (!isset($_POST['step'])) {
 		$ok = false;
 	}
 
-	// cache/data exists
-	if(!is_writable(ZF_OPMLDIR)) {
-		echo '<br/>'.ZF_OPMLDIR.' is not writable!';
+	// zebrafeeds.opml exists and is writable
+	if(!is_writable('newsfeeds/zebrafeeds.opml')) {
+		echo '<br/>zebrafeeds.opml is not writable (you cannot save subscriptions)!<br/>';
 		$ok = false;
 	}
 
@@ -216,8 +215,7 @@ if (!isset($_POST['step'])) {
 
 	// default values for the other parameters saved in config.php
 	$config["zfhomeurl"] = substr($_POST["zfurl"],0,strrpos($_POST["zfurl"],"/"));
-	$config["usesubs"] = ZF_USEOPML;
-	$config["subfilename"] = ZF_HOMELIST;
+	$config["subtag"] = ZF_HOMETAG;
 	$config["refreshmode"] =  ZF_REFRESHMODE;
 	$config["template"] = ZF_TEMPLATE;
 	$config["displayerror"] = ZF_DISPLAYERROR;
@@ -227,8 +225,6 @@ if (!isset($_POST['step'])) {
 	$config["dateformat"] = ZF_DATEFORMAT;
 	$config["nofuture"] = ZF_NOFUTURE;
 	$config["rendermode"] = ZF_RENDERMODE;
-	$config["ownername"] = ZF_OWNERNAME;
-	$config["owneremail"] = ZF_OWNEREMAIL;
 	$config["newitems"] = ZF_NEWITEMS;
 
 
