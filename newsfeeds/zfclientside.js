@@ -36,7 +36,7 @@ function requestContent(requestparams) {
 	scripturl = ZFURL + "/index.php";
 
 	//http.onload = null;
-	http.open("GET", scripturl + '?zftemplate='+ ZFTEMPLATE + '&f=html&' + requestparams, true);
+	http.open("GET", scripturl + '?zftemplate='+ ZFTEMPLATE + '&f=innerhtml&' + requestparams, true);
 	//alert(scripturl + '?' + requestparams);
 
 	http.onreadystatechange = handleResponse;

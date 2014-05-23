@@ -28,7 +28,7 @@ parameters dictionary
 q : query type. Values:
  - item: a single new item, with article view
  - channel: we want channel news, sorted by date
- - tag (always news by date)
+ - tag: feeds tagged with a certain tag
  - subs (subs being tagged with specified tag, all if no tag specified)
  - tags (all tags available in subscriptions)
  - force-refresh: force refresh a feed to cache. No output. Only for internal use
@@ -41,7 +41,9 @@ id: id of the channel to deal with
 
 itemid : the news item unique id for lookup
 
-f: output type (json, html) default to html
+f: output type (json, html, innerhtml)
+   if json: 'sort' param ignored. always by date, feeds aggregated
+   default to html
 
 tags: list of existing tags. JSON output only
 
@@ -67,9 +69,8 @@ trim: how to shorten the number of items when getting feeds to get only news
 
 onlynew: default to 0. If 1 will show only newly fetched items. Valid for q=tag or channel
 
-sort: feed or date. only for q=tag
+sort: feed or date. only for q=tag AND for html output (f=html or innerhtml)
 	  if trim is set, param ignored and forced to 'date'
-	  only valid for html output (f=html)
 
 decoration: if (q=channel AND f=html) only
 			default to 0. if 1, will output channel header
@@ -86,16 +87,11 @@ function handleRequest() {
 
 
 
-	if ($outputType =='html') {
-		$contenttype = 'text/html';
-		$template = param('zftemplate', ZF_TEMPLATE);
-		$sort = param('sort', ZF_SORT);
-		$view = new TemplateView($template);
+	if (strstr($outputType,'html')) {
+		$view = new TemplateView(param('zftemplate', ZF_TEMPLATE), $outputType == 'innerhtml');
 	} else {
-		$contenttype = 'application/json';
 		$view = new JSONView();
 	}
-	if (!headers_sent()) header('Content-Type: '.$contenttype.'; charset='.ZF_ENCODING);
 
 
 	switch ($type) {
@@ -128,7 +124,7 @@ function handleRequest() {
 					param('trim', 'auto'),
 					int_param('onlynew', 0)
 					);
-			$view->renderFeedList(array($feed), array(
+			$view->renderFeed($feed, array(
 				'groupbyday' => false,
 				'decoration' => int_param('decoration'),
 				'summary' => (param('sum',1)==1)));
@@ -142,7 +138,8 @@ function handleRequest() {
 
 			// if html output & sorted by feed, trim every single item
 			// according to subcription's settings
-			if ($sort == 'feed' && $outputType == 'html') {
+			$sort = param('sort', ZF_SORT);
+			if ($sort == 'feed' && strstr($outputType, 'html')) {
 				$groupbyday = false;
 				$aggregate = false;
 			} else {
@@ -173,6 +170,7 @@ function handleRequest() {
 
 			//only JSON
 			$subs = SubscriptionStorage::getInstance()->getSortedActiveSubscriptions(param('tag',''));
+			if (!headers_sent()) header('Content-Type: application/json; charset='.ZF_ENCODING);
 			echo json_encode($subs);
 			break;
 
@@ -180,6 +178,7 @@ function handleRequest() {
 		case 'tags':
 
 			$tags = SubscriptionStorage::getInstance()->getTags();
+			if (!headers_sent()) header('Content-Type: application/json; charset='.ZF_ENCODING);
 			echo json_encode($tags);
 			break;
 

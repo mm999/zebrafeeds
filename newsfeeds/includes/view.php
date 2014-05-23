@@ -37,6 +37,9 @@ abstract class AbstractFeedView {
 
 class JSONView extends AbstractFeedView {
 
+	public function __construct() {
+		if (!headers_sent()) header('Content-Type: application/json; charset='.ZF_ENCODING);
+	}
 
 	public function renderFeed($feed, $params) {
 
@@ -87,16 +90,18 @@ class TemplateView extends AbstractFeedView{
 
 	protected $template;
 
-	public function __construct($templateName) {
+	// tells if mode is full page with header, or only innerhtml
+	protected $innerHTML;
+
+	public function __construct($templateName, $innerHTML) {
+		if (!headers_sent()) header('Content-Type: text/html; charset='.ZF_ENCODING);
 		$this->template = new template($templateName);
+		$this->innerHTML = $innerHTML;
 	}
 
 
-	/* render the view,
-	  made of an unique "feed" if grouped by date"
-	  or made of multiple single feeds if grouped by channel
-	at this point, items are supposed to be filtered */
-	public function renderFeed($feed, $params) {
+	/* render an single "feed" */
+	protected function renderBareFeed($feed, $params) {
 		zf_debug('Rendering '.(isset($feed->subscriptionId)?$feed->subscriptionId:'aggregated feed').' in TemplateView', DBG_RENDER);
 
 		if ($params['decoration'] == 1 ) {
@@ -109,19 +114,35 @@ class TemplateView extends AbstractFeedView{
 		}
 	}
 
+	public function renderFeed($feed, $params) {
+		if (!$this->innerHTML) {
+			$this->template->printHeader();
+		}
+		$this->renderBareFeed($feed, $params);
+		if (!$this->innerHTML) {
+			$this->template->printFooter();
+			$this->template->printErrors();
+		}
+	}
+
+
 	public function renderFeedList($feeds, $params) {
-		$this->template->printHeader();
+		if (!$this->innerHTML) {
+			$this->template->printHeader();
+		}
 		// if only one item: no header or footer to print
 		if (!isset($params['decoration'])) {
 			$params['decoration'] = (sizeof($feeds)>1)?1:0;
 		}
 		foreach($feeds as $feed) {
-			$this->renderFeed($feed, $params);
+			$this->renderBareFeed($feed, $params);
 		}
 
-		$this->template->printFooter();
-		$this->template->printErrors();
-		$this->template->printCredits();
+		if (!$this->innerHTML) {
+			$this->template->printFooter();
+			$this->template->printErrors();
+			$this->template->printCredits();
+		}
 
 
 	}
@@ -193,11 +214,27 @@ class TemplateView extends AbstractFeedView{
 
 
 	public function renderArticle($item) {
+		if (!$this->innerHTML) {
+			$this->template->printHeader();
+		}
+
 		$this->template->printArticle($item);
+
+		if (!$this->innerHTML) {
+			$this->template->printFooter();
+		}
 	}
 
 	public function renderSummary($summary) {
+		if (!$this->innerHTML) {
+			$this->template->printHeader();
+		}
+
 		$this->template->printSummary($summary);
+
+		if (!$this->innerHTML) {
+			$this->template->printFooter();
+		}
 	}
 
 }
