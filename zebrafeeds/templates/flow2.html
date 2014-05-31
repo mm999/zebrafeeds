@@ -154,15 +154,6 @@ max-width: 600px;
 }
 
 
-.storycontent {
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-bottom: 20px;
-	max-width: 400px;
-margin: 0 auto;
-line-height: 140%;
-}
-
 .storycontent img {
   display: block;
   float: none;
@@ -222,7 +213,7 @@ line-height: 140%;
 
 </style>
 
-<script type="text/javascript" src="{scripturl}/zfclientside.js"></script>
+<script type="text/javascript" src="{scripturl}/pub/zfclientside.js"></script>
 
 <script type="text/javascript">
 
@@ -318,6 +309,6 @@ var ZFCURRENTNEWSID = 0;
     <h3><a href="{link}" rel="noreferrer" title="{chantitle}" target="_parent">{title}</a></h3>
   </div>
     <span class="enclosure">{enclosures}</span><br/>
-    {description}
+    <div class="storycontent">{description}</div>
 <div style="margin-top:25px;"><a href="https://twitter.com/share?url={link_encoded}&text={title}" rel="noreferrer">Tweet this</a></div>
 <!-- ENDarticle -->
