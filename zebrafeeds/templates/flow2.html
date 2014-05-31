@@ -1,0 +1,323 @@
+<!--  ZebraFeeds template
+  name / description: newsflow
+  author: Laurent (laurent@cazalet.org)
+
+  note: Do NOT delete or modify comments in the template files -
+-->
+
+
+<!-- templateHeader -->
+
+<style type="text/css">
+
+#zfwrapper {
+  margin-top: 5px;
+  margin-bottom: 1px;
+  display: block;
+  margin-right: auto;
+margin-left: auto;
+max-width: 600px;
+  /* font-family: Times New Roman, serif; */
+}
+
+.zfchannelstatus {
+  font-size: 9pt;
+  background-color: #eeeeee;
+  color: #666;
+  margin-right: 3px;
+}
+
+.logo {
+  float: left;
+  margin: 0px;
+  padding: 1px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.channel {
+  vertical-align: middle;
+  /*padding: 1px;*/
+}
+
+.channel img {
+  max-height: 16px;
+  width: auto;
+}
+
+
+.newsitem {
+  margin-bottom: 10px;
+	border: 1px solid #CCC;
+	border-radius: 2px;
+	padding: 4px;
+}
+
+.newstitle img {
+  margin-right: 4px;
+}
+
+
+.channame {
+  padding: 5px;
+  /*border-radius: 3px;*/
+  /*border: 1px solid #666;*/
+  /*margin: 10px;*/
+  /*background: #eeeee0;*/
+  color: #555;
+}
+
+
+.day {
+  padding: 5px;
+  /*border-radius: 3px;*/
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+  margin: 10px;
+  /*background: #eeeee0;*/
+  color: #555;
+}
+
+.channame a {
+  font-size: 100%;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+
+.itemtitle {
+  cursor: pointer;
+  font-size: 12pt;
+}
+
+.controls {
+  vertical-align: middle;
+  float: right;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 5px;
+  height: 12px;
+  width: auto;
+  font-size: 8pt;
+}
+
+.controls img{
+  cursor: pointer;
+}
+
+.datelabel {
+  color: #777;
+  font-size: 8pt;
+/*  text-align: right;*/
+/*  position: absolute;*/
+  /*padding-top: 7px;*/
+/*  right: 5px;*/
+}
+.datelabel a:link {
+  color: #621b2f;
+  text-decoration: none;
+}
+
+.datelabel a:visited {
+  color: #939393;
+  text-decoration: none;
+}
+
+.datelabel a:hover {
+  text-decoration: none;
+}
+
+
+.chantitle, .summary {
+  color: #555;
+  font-size: 9pt;
+}
+
+.chantitle a:link {
+  color: #777;
+}
+
+.enclosure {
+  color: #229;
+  font-size: 90%;
+  text-decoration: none;
+}
+
+.enclosure a {
+  text-decoration: underline;
+}
+
+.newslist {
+  padding-bottom: 1px;
+/*  padding-left: 25px;
+  padding-right: 25px; */
+}
+
+
+.storycontent {
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-bottom: 20px;
+	max-width: 400px;
+margin: 0 auto;
+line-height: 140%;
+}
+
+.storycontent img {
+  display: block;
+  float: none;
+  margin: 10px;
+  max-width: 100%;
+  height: auto;
+}
+
+.storycontent h3 {
+  font-size: 140%;
+}
+
+.storycontent blockquote {
+	border-left: 3px solid rgb(220, 220, 220);
+	padding-left: 7px;
+	margin-left: 6px;
+	width: 90%;
+}
+
+
+.newclass {
+  font-weight: bold;
+}
+
+.readlater {
+    text-decoration: none;
+    border-radius: 2px;
+    background: #B9EAB9;
+    padding: 3px;
+}
+
+#overlay {
+	z-index:90;
+	position:fixed;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+
+	width:100%;
+	background:#FFF;
+	visibility:hidden;
+}
+
+#overlayarticle {
+  background:#fff;
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 600px;
+  z-index: 100;
+  visibility:hidden;
+  border: 1px solid #999;
+  position: absolute; /* makes the div go into a position that’s absolute to the browser viewing area */
+
+}
+
+
+</style>
+
+<script type="text/javascript" src="{scripturl}/zfclientside.js"></script>
+
+<script type="text/javascript">
+
+function showOverlay() {
+	var o = document.getElementById('overlay');
+	o.style.visibility = 'visible';
+
+	o = document.getElementById('overlayarticle');
+	o.style.visibility = 'visible';
+// move it to the viewport
+	o.style.top= (document.documentElement.scrollTop +30) + 'px' ;
+}
+
+function hideOverlay() {
+	var o = document.getElementById('overlay');
+	o.style.visibility = 'hidden';
+	o = document.getElementById('overlayarticle');
+	o.style.visibility = 'hidden';
+  o.innerHTML = '';
+}
+</script>
+
+
+<script type="text/javascript">
+var ZFURL = '{scripturl}';
+var ZFTEMPLATE = '{template}';
+var ZFCURRENTNEWSID = 0;
+
+
+
+</script>
+
+<!-- ENDtemplateHeader -->
+
+
+<!-- header -->
+
+<div id="zfwrapper">
+<!-- ENDheader -->
+<!-- channel -->
+<div class="channel">
+  <div class="channame">
+    <a href="{chanlink}" rel="noreferrer">{chantitle}</a>
+    <span class="dateline">{chandesc}</span>
+    <div class="controls">
+      last updated: {lastupdated}
+      <img src="{scripturl}/images/refresh.png" alt="[REFRESH]" title="refresh feed for {chantitle}" style="border:0;" onclick="zf_getRefreshedNews('{chanid}', 'NEWSLIST'+'{chanid}');" />
+      <img src="{scripturl}/images/more.png" alt="[MORE]" title="get all articles of {chantitle}" style="border:0;" onclick="zf_getAllNews('{chanid}','NEWSLIST'+'{chanid}');" />
+    </div>
+  </div>
+</div>
+<div class="newslist" id="NEWSLIST{chanid}">
+<!-- ENDchannel -->
+<!-- news -->
+<div class="newsitem">
+  <div class="newstitle">
+    <span class="itemtitle {isnew}" onclick="showItem('{chanid}','{itemid}');">{title}</span>
+    <span class="datelabel">{relativedate} <a href="{link}" rel="noreferrer">[permalink]</a> <a href="wb/?action=add&plainurl={link_encoded}" class="readlater">Wb</a></span>
+  </div>
+<div class="summary">
+  {summary}
+</div>
+</div>
+<!-- ENDnews -->
+<!-- newsDay -->
+<div class="channel">
+  <div class="day">
+    {date}
+  </div>
+</div>
+<!-- ENDnewsDay -->
+<!-- newsByDate -->
+<div class="newsitem">
+	<div>
+		<!-- span id="TITLE{itemid}" class="itemtitle {isnew}" onclick="showItem('{chanid}','{itemid}');">{title}</span -->
+		<a href="{articleurl}" id="TITLE{itemid}" class="itemtitle {isnew}">{title}</a>
+	</div>
+	<div class="summary">
+		{summary}
+	</div>
+	<div>
+		<span class="chantitle"><a href="?q=channel&id={chanid}&decoration=1">{chantitle}</a> - <span class="datelabel">{relativedate}</span> - <a href="{link}" rel="noreferrer">[permalink]</a> - <a href="wb/?action=add&plainurl={link_encoded}" class="readlater">Wb</a></span>
+	</div>
+</div>
+ <!-- ENDnewsByDate -->
+<!-- channelFooter -->
+<!-- ENDchannelFooter -->
+<!-- footer -->
+</div> <!-- zfwrapper div -->
+<!-- ENDfooter -->
+<!-- article -->
+  <div>
+    <h3><a href="{link}" rel="noreferrer" title="{chantitle}" target="_parent">{title}</a></h3>
+  </div>
+    <span class="enclosure">{enclosures}</span><br/>
+    {description}
+<div style="margin-top:25px;"><a href="https://twitter.com/share?url={link_encoded}&text={title}" rel="noreferrer">Tweet this</a></div>
+<!-- ENDarticle -->

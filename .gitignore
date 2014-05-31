@@ -1,4 +1,2 @@
-newsfeeds/config.php
-newsfeeds/admin/.htaccess
-newsfeeds/zebrafeeds.opml
-newsfeeds/data/*
+zebrafeeds/config.php
+zebrafeeds/data/*

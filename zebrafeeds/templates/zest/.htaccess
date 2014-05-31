@@ -1,0 +1,7 @@
+# this .htaccess allows external clients to call scripts in this directory
+# this is handy if your ZebraFeeds installation is behind an
+# Apache protected area, but you still want to let Cron scripts be
+# called from external websites (like webpage checker services)
+
+Satisfy any
+Allow from all
