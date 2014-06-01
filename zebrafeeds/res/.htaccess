@@ -1,3 +1,2 @@
-AuthType none
 Satisfy any
-
+Allow from all
