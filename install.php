@@ -57,12 +57,12 @@ padding: 10px;
 </head>
 <body>
 <div id="header">
-<a href="http://cazalet.org/zebrafeeds"><img src="../res/img/logo_admin.png" border="0" alt="ZebraFeeds logo"/></a>  Installation
+<a href="http://cazalet.org/zebrafeeds"><img src="res/img/logo_admin.png" border="0" alt="ZebraFeeds logo"/></a>  Installation
 </div>
 <?php
 
-require_once(__DIR__.'/../init.php');
-require_once('../includes/adminfuncs.php');
+require_once(__DIR__.'/init.php');
+require_once('includes/adminfuncs.php');
 
 function displayProceedGotoButton($nextStep) {
 	echo '<div>
@@ -138,8 +138,9 @@ if (!isset($_POST['step'])) {
 // set url of zebrafeeds
 //
 
+//TODO: display just for confirmation. Extract last part and save as zebrafeeds folder name. use it in init.php
 $defaultUrl = dirname(getZfUrl());
-$defaultUrl = substr($defaultUrl,0,strrpos($defaultUrl,"/"));
+
 ?>
 
 <form name="configform" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
@@ -228,7 +229,7 @@ $defaultUrl = substr($defaultUrl,0,strrpos($defaultUrl,"/"));
 		displayStatus('Basic configuration saved.');
 		echo 'You must now go to the administration panel to complete the installation<br/><br/>';
 		echo 'For security reasons, make sure to delete the file <code>install.php</code><br/><br/>';
-		echo 'Check out the <a href="../../index.php">Demo page</a> or to to the <a href="index.php?zfaction=config">Administration Panel</a>.';
+		echo 'Check out the <a href="embed-demo.php">Embed demo page</a> or to to the <a href="index.php?zfaction=config">configuration page</a>.';
 
 	} else {
 		echo "Cannot continue the installation";

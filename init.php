@@ -75,9 +75,12 @@ setlocale(LC_ALL, ZF_LOCALE);
 define('ZF_VER', '2.0');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
 
-//define("ZF_HOMEURL",getZfUrl()); // URL to your web page, were feeds are included;
-//define("ZF_URL",ZF_HOMEURL.'zebrafeeds/'); // URL to ZebraFeeds directory installation;
-//define("ZF_URL",dirname(ZF_HOMEURL)); // URL to ZebraFeeds folder;
+define("ZF_HOMEURL",getZfUrl()); // URL to your web page, were feeds are included;
+
+//TODO: instead of saving ZF_URL in config, save ZF_INSTALLFOLDER detected at installation and use it to reconstruct ZF_URL
+define("ZF_URLTEST",ZF_HOMEURL.ZF_INSTALLFOLDER.'/'); // URL to ZebraFeeds directory installation;
+
+//echo ZF_HOMEURL.' ---- '. ZF_URLTEST;
 
 define("ZF_DATADIR", __DIR__.'/data');
 define("ZF_OPMLFILE", ZF_DATADIR.'/zebrafeeds.opml');
@@ -86,9 +89,10 @@ define("ZF_HISTORYDIR", ZF_DATADIR.'/history');
 
 // full path
 define("ZF_CACHEDIR", ZF_DATADIR.'/cache');
-
 // only simplepie supported;
 define("ZF_RSSPARSER", "simplepie");
+
+ini_set("user_agent",ZF_USERAGENT);
 
 
 //Defaults

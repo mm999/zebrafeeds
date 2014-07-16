@@ -118,9 +118,9 @@ if($_POST['dosave']=='Save')
 					</a>:
 				</div>
 				<div class="col2">
-					<select name="sort" id="sort" >
+					<select name="sortmode" id="sort" >
 						<option value="feed" <?php if(ZF_SORT=='feed') echo 'selected="selected"';?>>By feed</option>
-						<option value="date" <?php if(ZF_SORT!='date') echo 'selected="selected"';?>>By date</option>
+						<option value="date" <?php if(ZF_SORT=='date') echo 'selected="selected"';?>>By date</option>
 				   </select>
 				</div>
 				<div class="col1">
@@ -271,6 +271,29 @@ if($_POST['dosave']=='Save')
 	</div>
 </div>
 <?php
+
+	echo '<div id="core">
+			<div class="frame"><strong>Manage cached data</strong>
+				<ul>
+				<li>
+					<a href="';
+			echo $_SERVER['PHP_SELF'] . '?zfaction=cleanold" onclick="return confirm(\'Are you sure you want to delete old cache and history data?\');">Clean up</a>
+					- clean up caches and history older than 2 weeks.
+				</li>
+				<li>
+					<a href="';
+					echo $_SERVER['PHP_SELF'] . '?zfaction=flush" onclick="return confirm(\'Are you sure you want to delete ALL cache and history data?\');">Flush!</a>
+					- flush ALL caches and history.
+				</li>
+				</ul>
+			</div>';
+
+	echo '<div class="frame"><strong>Updates</strong><br/><br/>';
+	echo "Your ZebraFeeds version: " . ZF_VER . "<br/><br/>";
+	@$update = readfile('http://www.cazalet.org/zebrafeeds/latest.php');
+	if (!$update)
+		echo "Error: could not open update file.<br/><br/>You can check it manually at: <a href=\"http://cazalet.org/zebrafeeds/latest.php\">http://cazalet.org/zebrafeeds/latest.php</a>.";
+	echo '</div></div>';
 
 }
 

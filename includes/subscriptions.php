@@ -74,17 +74,17 @@ function displayChannelList($subs) {
 		$namehtmldata = <<<EOD
 <div title="Edit feed properties" class="sub-line" id="entry{i}">
 	<span id="title{i}" class="{class} link" onclick="showEditForm('{i}'); return false;">{chantitle}</span>&nbsp;
-	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="../res/img/extlink.png" alt="website"/></a>
+	<a href="javascript:open('{htmlurl}')" title="Open the publisher site in a new window" onclick="window.open('{htmlurl}'); return false;"><img src="res/img/extlink.png" alt="website"/></a>
 	<div class="editfeed" id="editform{i}" style="display:none;">
 		<form action="#">
 			<div>
 				<div><input type="checkbox" id="isactive{i}" name="isactive" {isactive} value="isactive" title="Active"/> <label for="isactive{i}">Active</label>
-				:: <a href="" title="remove from the subscription list" onclick="removeChannel('{i}','{chantitle}'); return false;"/>Unsubscribe</a></div>
+				:: <a href="" title="remove from the subscription list" onclick="removeChannel('{i}','{chantitle_enc}'); return false;"/>Unsubscribe</a></div>
 				<label for="chantitle{i}">Title:</label>&nbsp;<br/>
 				<input type="text" class="desc" name="chantitle" id="chantitle{i}" value="{chantitle}" /><br/>
 				<label for="xmlurl{i}"> feed URL:</label><br/>
 				<input type="text" class="desc2" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
-				<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img class="icon" src="../res/img/feed.png" alt="RSS/ATOM feed"/></a>
+				<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img class="icon" src="res/img/feed.png" alt="RSS/ATOM feed"/></a>
 				<br/>
 				<label for="description{i}">Description</label><br/>
 				<textarea rows="2" class="desc" id="description{i}" name="description">{description}</textarea><br/><br/>
@@ -115,6 +115,7 @@ EOD;
 			$class = $sub->isActive?'subscribed':'unsubscribed';
 			$tempdata = str_replace("{class}", $class, $tempdata);
 			$tempdata = str_replace("{chantitle}", $sub->title, $tempdata);
+			$tempdata = str_replace("{chantitle_enc}", addslashes($sub->title), $tempdata);
 			$tempdata = str_replace("{htmlurl}", htmlentities($sub->link), $tempdata);
 
 			$tempdata = str_replace("{xmlurl}", htmlspecialchars($sub->xmlurl), $tempdata);
@@ -228,11 +229,11 @@ $storage = SubscriptionStorage::getInstance();
 				channeldata[1] = aform.elements["chantitle"].value;
 				channeldata[2] = isactive;
 
-				http.open('POST', 'cmd.php', true);
+				http.open('POST', 'index.php', true);
 				http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
 				http.onreadystatechange = onSaveCallback;
-				var query= "action=store&id=" + id
+				var query= "zfaction=store&id=" + id
 								+ "&title=" + title
 								+ "&xmlurl=" + xmlurl
 								+ "&description=" + description
@@ -266,13 +267,13 @@ $storage = SubscriptionStorage::getInstance();
 				if (!confirm('Are you sure you want to remove this subscription?')) {
 					return false;
 				}
-				http.open('POST', 'cmd.php', true);
+				http.open('POST', 'index.php', true);
 				http.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
 				channeldata[0] = id;
 				channeldata[1] = title;
 				http.onreadystatechange = onRemoveCallback;
-				var query= "action=delete&id=" + id;
+				var query= "zfaction=delete&id=" + id;
 				http.send(query);
 			}
 			function onRemoveCallback() {
@@ -280,7 +281,7 @@ $storage = SubscriptionStorage::getInstance();
 					if (http.status == 200) { // OK response
 						// TODO: handle error
 						var uielement = document.getElementById('entry'+channeldata[0]);
-						uielement.innerHTML= channeldata[1] + '<i>removed</i>';
+						uielement.innerHTML= channeldata[1] + ' <i>removed</i>';
 						// parentNode.removeChild(uielement);
 					}
 				}
@@ -288,7 +289,7 @@ $storage = SubscriptionStorage::getInstance();
 
 
 		</script>
-		<script type="text/javascript" src="../pub/zfclientside.js"></script>
+		<script type="text/javascript" src="pub/zfclientside.js"></script>
 		<div class="frame">
 			<div id="listsettings">
 		<?php

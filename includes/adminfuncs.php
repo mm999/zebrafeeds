@@ -66,12 +66,12 @@ function zfLogin() {
 		if ($_SESSION['logged_in'] != 1) {
 			echo "<!DOCTYPE html";
 			echo "<head><title>ZebraFeeds Authentication</title>";
-			echo '<link rel="stylesheet" type="text/css" href="../res/css/login.css" />
+			echo '<link rel="stylesheet" type="text/css" href="res/css/login.css" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>';
 			echo "</head><body>";
-			echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"../res/img/logo_admin.png\" border=\"0\" alt=\"ZebraFeeds\"/></a>";
-			echo "<h3>Admin Login</h3></div><form action=\"{$_SERVER['PHP_SELF']}\" method=\"post\">";
+			echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"res/img/logo_admin.png\" border=\"0\" alt=\"ZebraFeeds\"/></a>";
+			echo "<h3>Login</h3></div><form action=\"{$_SERVER['PHP_SELF']}\" method=\"post\">";
 			echo "<div id=\"loginform\">";
 				echo "<div id=\"user\"><label for=\"username\">Username</label>";
 			echo "<br/><input type=\"text\" id=\"username\" name=\"admin_user\" /><br/><br/>";
@@ -85,7 +85,7 @@ function zfLogin() {
 			define('ZF_ADMINLOGGED', "yes");
 		}
 	} else {
-		echo "<html><head><title>ZebraFeeds Admin Panel - auth not set</title></head><body><div align=\"center\"><br/><h3>Authentication mechanism not configured !</h3></div></body></html>";
+		echo "<html><head><title>ZebraFeeds - auth not set</title></head><body><div align=\"center\"><br/><h3>Authentication mechanism not configured !</h3></div></body></html>";
 		exit;
 	}
 }
@@ -100,10 +100,10 @@ function zfLoginFailed() {
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>';
 	echo "</head><body>";
 	echo "<br/>";
-	echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"../res/img/logo_admin.png\" border=\"0\" alt=\"ZebraFeeds\"/></a></div>";
+	echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"res/img/logo_admin.png\" border=\"0\" alt=\"ZebraFeeds\"/></a></div>";
 	echo "<div style=\"padding: 20px\"><span class=\"accessdenied\">ACCESS DENIED</span><br/><br/>";
 	echo "Sorry, you have no access to administration area. ";
-	echo "<a href=\"../admin\">Please login</a></div>";
+	echo "<a href=\"./\">Please login</a></div>";
 	echo "</body></html>";
 	exit;
 }
@@ -120,11 +120,11 @@ function zfLogout() {
 		session_unset();			// kill all session globals
 		session_destroy();			// kill everything
 	} else {
-		echo "<!DOCTYPE html><html><head><title>ZebraFeeds Admin Panel - auth not set</title></head><body><div align=\"center\"><br/><h3>Authentication method not configured !</h3></div></body></html>";
+		echo "<!DOCTYPE html><html><head><title>ZebraFeeds - auth not set</title></head><body><div align=\"center\"><br/><h3>Authentication method not configured !</h3></div></body></html>";
 	}
 	echo '<!DOCTYPE html><html><head>	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>
-<title>ZebraFeeds admin logout</title></head><body><div align="center"><br/><h3>You are logged out !</h3><a href="../admin">Login again !</a></div></body></html>';
+<title>ZebraFeeds logout</title></head><body><div align="center"><br/><h3>You are logged out !</h3><a href="./">Login again !</a></div></body></html>';
 	exit;
 }
 
@@ -135,7 +135,7 @@ function displayStatus($message) {
 
 /* write the config array to the config file */
 function saveConfig(&$config) {
-	@$fp = fopen('../config.php','w');
+	@$fp = fopen('config.php','w');
 	if($fp) {
 		fwrite($fp,"<?php\n// ZebraFeeds ".ZF_VER." - copyright (c) Laurent Cazalet\n");
 		fwrite($fp,"// configuration file\n\n\n");

@@ -28,7 +28,7 @@
 /* 4 functions borrowed from PicoFarad - by F. Guillot (author of Miniflux) */
 function param($name, $default_value = null)
 {
-	return isset($_GET[$name]) ? $_GET[$name] : $default_value;
+	return isset($_GET[$name]) ? $_GET[$name] : (isset($_POST[$name])? $_POST[$name]:$default_value);
 }
 
 
