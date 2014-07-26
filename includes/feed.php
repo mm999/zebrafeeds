@@ -74,6 +74,10 @@ abstract class AbstractFeed {
 		}
 	}
 
+	public function setItem($item) {
+		$this->items[$item->id] = $item;
+	}
+
 
 	/* sort our items */
 	public function sortItems() {

@@ -95,6 +95,15 @@ function handleRequest() {
 			$view->renderArticle($item);
 			break;
 
+		case 'download-item':
+
+			//refresh: always from cache
+			$zf_aggregator = new Aggregator();
+			$item = $zf_aggregator->downloadItem(param('id'), param('itemid'));
+			$view = zf_createView();
+			$view->renderArticle($item);
+			break;
+
 		case 'summary':
 
 			//refresh: always from cache

@@ -45,7 +45,17 @@ class aggregator {
 		return $this->cache->getItem($channelId, $itemId);
 	}
 
+	public function downloadItem($channelId, $itemId) {
+		$item = $this->cache->getItem($channelId, $itemId);
+		$html = file_get_contents($item->link);
+		$reader = new Readability($html, $item->link);
+		if ($reader->init()) {
+			$item->description = $reader->articleContent->innerHTML;
+			$this->cache->setItem($channelId, $item);
+		}
+		return $item;
 
+	}
 
 	public function getFeedsForTag($tag, $aggregate, $trim, $onlyNew) {
 

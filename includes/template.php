@@ -341,13 +341,10 @@ class template {
 		$this->_buffer = str_replace('{summary}', $ssummary, $this->_buffer);
 
 		$zfarticleurl = '?q=item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->feed->subscriptionId;
-
-		if ($hasSummary && $item->isTruncated)
-			$readmorelink = '<a href="'.$zfarticleurl.'">Read full news</a>';
-		else
-			$readmorelink = '';
-		$this->_buffer = str_replace('{readfullnewslink}', $readmorelink, $this->_buffer);
 		$this->_buffer = str_replace('{articleurl}', $zfarticleurl, $this->_buffer);
+
+		$zfdownloadcontent = '?q=download-item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->feed->subscriptionId;
+		$this->_buffer = str_replace('{download}', $zfdownloadcontent, $this->_buffer);
 
 
 		// for RSS feeds only

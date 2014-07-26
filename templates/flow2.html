@@ -295,7 +295,7 @@ var ZFCURRENTNEWSID = 0;
 		{summary}
 	</div>
 	<div>
-		<span class="chantitle"><a href="?q=channel&id={chanid}&decoration=1">{chantitle}</a> - <span class="datelabel">{relativedate}</span> - <a href="{link}" rel="noreferrer">[permalink]</a> - <a href="wb/?action=add&plainurl={link_encoded}" class="readlater">Wb</a></span>
+		<span class="chantitle"><a href="?q=channel&amp;id={chanid}&amp;decoration=1">{chantitle}</a> - <span class="datelabel">{relativedate}</span> - <a href="{link}" rel="noreferrer">[permalink]</a> - <a href="wb/?action=add&amp;plainurl={link_encoded}" class="readlater">Wb</a></span>
 	</div>
 </div>
  <!-- ENDnewsByDate -->
@@ -310,5 +310,6 @@ var ZFCURRENTNEWSID = 0;
   </div>
     <span class="enclosure">{enclosures}</span><br/>
     <div class="storycontent">{description}</div>
-<div style="margin-top:25px;"><a href="https://twitter.com/share?url={link_encoded}&text={title}" rel="noreferrer">Tweet this</a></div>
+<div style="margin-top:25px;">
+    <a href="{download}">Download full article</a> - <a href="https://twitter.com/share?url={link_encoded}&amp;ext={title}" rel="noreferrer">Tweet this</a></div>
 <!-- ENDarticle -->

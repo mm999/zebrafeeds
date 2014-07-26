@@ -275,6 +275,12 @@ class FeedCache {
 		return $feed->getItem($itemId, $filter);
 	}
 
+	public function setItem($key, $item, $filter = null) {
+		$feed = $this->get($key);
+		$feed->setItem($item);
+		$this->set($key, $feed);
+	}
+
 
 }
 
