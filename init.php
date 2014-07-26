@@ -3,9 +3,9 @@
 // http://www.cazalet.org/zebrafeeds
 //
 
-define("ZF_CONFIGFILE", __DIR__.'/config.php');
+define('INITDIR', dirname(__FILE__));
+define("ZF_CONFIGFILE", INITDIR.'/config.php');
 include_once ZF_CONFIGFILE;
-require_once __DIR__.'/includes/common.php';
 
 
 
@@ -71,6 +71,9 @@ if (ZF_DEBUG) {
 
 
 
+define ('SSL_PORT', 443);
+require_once INITDIR.'/includes/common.php';
+
 setlocale(LC_ALL, ZF_LOCALE);
 define('ZF_VER', '2.0');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
@@ -82,9 +85,9 @@ define("ZF_URLTEST",ZF_HOMEURL.ZF_INSTALLFOLDER.'/'); // URL to ZebraFeeds direc
 
 //echo ZF_HOMEURL.' ---- '. ZF_URLTEST;
 
-define("ZF_DATADIR", __DIR__.'/data');
+define("ZF_DATADIR", INITDIR.'/data');
 define("ZF_OPMLFILE", ZF_DATADIR.'/zebrafeeds.opml');
-define("ZF_TEMPLATESDIR", __DIR__.'/templates');
+define("ZF_TEMPLATESDIR", INITDIR.'/templates');
 define("ZF_HISTORYDIR", ZF_DATADIR.'/history');
 
 // full path
@@ -93,7 +96,6 @@ define("ZF_CACHEDIR", ZF_DATADIR.'/cache');
 define("ZF_RSSPARSER", "simplepie");
 
 ini_set("user_agent",ZF_USERAGENT);
-
 
 //Defaults
 function defaultConfig($name,$value) {
@@ -118,24 +120,25 @@ defaultConfig('ZF_SORT', 'date');
 defaultConfig('ZF_TRIMTYPE', 'days');
 defaultConfig('ZF_TRIMSIZE', 3);
 
-require_once __DIR__.'/includes/controller.php';
-require_once __DIR__.'/includes/classes.php';
-require_once __DIR__.'/includes/aggregator.php';
-require_once __DIR__.'/includes/feed_cache.php';
-require_once __DIR__.'/includes/feed.php';
-require_once __DIR__.'/includes/view.php';
-require_once __DIR__.'/includes/subscriptionstorage.php';
-require_once __DIR__.'/includes/itemtracker.php';
-require_once __DIR__.'/includes/visittracker.php';
-require_once __DIR__.'/includes/template.php';
-require_once __DIR__.'/includes/simplepie_fetch.php';
-require_once __DIR__.'/includes/itemfilter.php';
+require_once INITDIR.'/includes/controller.php';
+require_once INITDIR.'/includes/classes.php';
+require_once INITDIR.'/includes/aggregator.php';
+require_once INITDIR.'/includes/feed_cache.php';
+require_once INITDIR.'/includes/feed.php';
+require_once INITDIR.'/includes/view.php';
+require_once INITDIR.'/includes/subscriptionstorage.php';
+require_once INITDIR.'/includes/itemtracker.php';
+require_once INITDIR.'/includes/visittracker.php';
+require_once INITDIR.'/includes/template.php';
+require_once INITDIR.'/includes/simplepie_fetch.php';
+require_once INITDIR.'/includes/itemfilter.php';
 
-/*require_once __DIR__ . '/lib/SimplePie/SimplePieAutoLoader.php';
-require_once __DIR__ . '/lib/SimplePie/SimplePie.php';*/
-require_once __DIR__ . '/lib/simplepie.php';
-require_once __DIR__ . '/lib/humble-http-agent/HumbleHttpAgent.php';
-require_once __DIR__ . '/lib/humble-http-agent/RollingCurl.php';
-require_once __DIR__ . '/lib/humble-http-agent/CookieJar.php';
+/*require_once INITDIR . '/lib/SimplePie/SimplePieAutoLoader.php';
+require_once INITDIR . '/lib/SimplePie/SimplePie.php';*/
+require_once INITDIR . '/lib/simplepie.php';
+require_once INITDIR . '/lib/humble-http-agent/HumbleHttpAgent.php';
+require_once INITDIR . '/lib/humble-http-agent/RollingCurl.php';
+require_once INITDIR . '/lib/humble-http-agent/CookieJar.php';
+require_once INITDIR . '/lib/readability/readability.php';
 
 
