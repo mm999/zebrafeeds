@@ -80,7 +80,7 @@ switch ($zfaction) {
 <!DOCTYPE html>
 	<html>
 	<head>
-	<title>ZebraFeeds admin panel</title>
+	<title>ZebraFeeds</title>
 	<link rel="stylesheet" type="text/css" href="res/css/admin.css"/>
 	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>
