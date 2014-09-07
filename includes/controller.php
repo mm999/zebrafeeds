@@ -23,58 +23,8 @@ if (!defined('ZF_VER')) exit;
 
 
 /*
-parameters dictionary
-======================
-q : query type. Values:
- - item: a single new item, with article view
- - channel: we want channel news, sorted by date
- - tag: feeds tagged with a certain tag
- - subs (subs being tagged with specified tag, all if no tag specified) JSON only
- - tags (all tags available in subscriptions) JSON output only
- - force-refresh: force refresh a feed to cache. No output. Only for internal use
- - refresh-all: force refresh all feeds of a tag to cache. No output. Only for internal use
-
-other parameters
-----------------
-tag: use only subscription with this tag. default empty. applicable only for
-	q=subs and q=tag
-
-id: id of the channel to deal with. only for q=channel
-
-itemid : the news item unique id for lookup. only for q=item
-
-f: output type (json, html, innerhtml)
-   if json: 'sort' param ignored. always by date, feeds aggregated
-   innerhtml: won't output header section of template. suitable for JS calls
-   default to html
-
-mode: feed update mode. applicable only for q=channel
-	- auto: according to config's refresh time (default)
-	- none: force from cache
-	- force: force refresh feed from source
-
-sum: if 1 then summary included in news item header, 0 no summary (default)
-	 Applicable only when q=channel or q=tag
-
-trim: how to shorten the number of items when getting feeds to get only news
-	  or the last hour, since 4 days...
-	  valid when q=tag or q=channel
-      none: return all
-      auto: default, if q=channel then use Xnews (subscription setting).
-                     if q=tag then use config values for trim
-      <N>news
-	  <N>days
-	  <N>hours
-
-onlynew: default to 0. If 1 will show only newly fetched items. Valid for q=tag or channel
-
-sort: feed or date. only for q=tag AND for html output (f=html or innerhtml)
-	  if trim is set, param ignored and forced to 'date'
-
-decoration: if (q=channel AND f=html) only
-			default to 0. if 1, will output channel header
- */
-
+parameters reference: see reference documentation page
+*/
 
 
 

@@ -227,9 +227,9 @@ $defaultUrl = dirname(getZfUrl());
 
 	if ($ok && saveConfig($config)) {
 		displayStatus('Basic configuration saved.');
-		echo 'You must now go to the administration panel to complete the installation<br/><br/>';
+		echo 'Please go to the <a href="index.php?zfaction=config">configuration page</a> to complete the installation<br/><br/>';
 		echo 'For security reasons, make sure to delete the file <code>install.php</code><br/><br/>';
-		echo 'Check out the <a href="embed-demo.php">Embed demo page</a> or to to the <a href="index.php?zfaction=config">configuration page</a>.';
+		echo 'Have a look at the <a href="embed-demo.php">Embed demo page</a> to embed feeds on your site.';
 
 	} else {
 		echo "Cannot continue the installation";
