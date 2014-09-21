@@ -3,12 +3,10 @@
  * Feed cache class for ZebraFeeds.
 
 
- Borrowed from MagpieRSS:
+ Borrowed and extended from MagpieRSS (Kellan Elliott-McCrea <kellan@protest.net>
 
- * Author:		Kellan Elliott-McCrea <kellan@protest.net>
- * Version:		0.51
- * License:		GPL
- *
+ License:		GPL
+
  */
 
 if (!defined('ZF_VER')) exit;
@@ -54,7 +52,7 @@ class FeedCache {
 	Input:		url from wich the rss file was fetched
 	Output:		true on sucess
 \*=======================================================================*/
-	public function set ($key, $rss) {
+	private function set ($key, $rss) {
 		$cache_file = $this->file_name( $key );
 		$fp = @fopen( $cache_file, 'w' );
 
@@ -79,7 +77,7 @@ class FeedCache {
 	Input:		url from wich the rss file was fetched
 	Output:		cached object on HIT, false on MISS
 \*=======================================================================*/
-	public function get ($key) {
+	private function get ($key) {
 		$cache_file = $this->file_name( $key );
 
 		if ( ! file_exists( $cache_file ) ) {
@@ -113,7 +111,7 @@ class FeedCache {
 				MAX_AGE to check against
 	Output:		HIT, STALE or MISS
 \*=======================================================================*/
-	public function check_cache ( $key ) {
+	private function check_cache ( $key ) {
 
 		$age = $this->cache_age($key);
 
@@ -133,7 +131,7 @@ class FeedCache {
 		}
 	}
 
-	public function cache_age( $key ) {
+	private function cache_age( $key ) {
 		$filename = $this->file_name($key);
 		if ( file_exists( $filename ) ) {
 			$mtime = filemtime( $filename );
@@ -172,6 +170,13 @@ class FeedCache {
 
 
 
+	/* force update the cache for a single feed
+		ZebraFeeds addition
+
+	$subscription: a subscription object
+
+		returns: nothing
+	*/
 	public function updateSingle($sub) {
 		zf_debug('fetching remote file: '.$sub->title, DBG_FEED);
 		$feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
@@ -189,9 +194,11 @@ class FeedCache {
 	}
 
 
-	/* update the cache for the array of subscriptions provided
-		updateMode: force, none, auto
+	/* update the cache for multiple feeds, in parallel
 		ZebraFeeds addition
+
+	$subscriptions: array of subscription objects
+	$updateMode: force, none, auto
 
 		returns: nothing
 	*/
@@ -207,7 +214,6 @@ class FeedCache {
 			$needsRefresh = ($status == 'STALE') || ($status == 'MISS');
 
 			if ($updateMode == 'force' || ($needsRefresh && $updateMode == 'auto') ) {
-				//$this->updateSingle($sub);
 				$subsToRefresh[] = $sub;
 			}
 

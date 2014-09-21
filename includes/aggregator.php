@@ -41,22 +41,39 @@ class aggregator {
 	}
 
 
+	/*
+	get a single NewsItem object from cache
+	 */
 	public function getItem($channelId, $itemId) {
 		return $this->cache->getItem($channelId, $itemId);
 	}
 
+	/*
+	get a single NewsItem object downloaded by Readability reader by FiveFilters
+	 */
 	public function downloadItem($channelId, $itemId) {
 		$item = $this->cache->getItem($channelId, $itemId);
 		$html = file_get_contents($item->link);
 		$reader = new Readability($html, $item->link);
 		if ($reader->init()) {
 			$item->description = $reader->articleContent->innerHTML;
+			// save the downloaded content to cache, just in case
 			$this->cache->setItem($channelId, $item);
 		}
 		return $item;
 
 	}
 
+	/*
+	get feeds for a tag
+
+	$tag: get feeds matching this tag
+	$aggregate: if true, merge all feeds into one, sorted by date.
+	$trim: shorten the news list to Xnews; Xdays or Xhours, or auto (=config or subscription setting).
+	$onlyNew: if true, will keep only new items
+
+	$result: array of feeds, single element if $aggregate = true, one element per subscription otherwise
+	 */
 	public function getFeedsForTag($tag, $aggregate, $trim, $onlyNew) {
 
 		$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
@@ -86,6 +103,16 @@ class aggregator {
 	}
 
 
+	/*
+	get all news for a single channel feed
+
+	$channelId: identifier (from subscription list)
+	$updateMode: force, none, auto
+	$trim: shorten the news list to Xnews; Xdays or Xhours, or auto (=config or subscription setting).
+	$onlyNew: if true, will keep only new items
+
+	$result: single feed
+	 */
 	public function getChannelFeed($channelId, $updateMode, $trim, $onlyNew) {
 
 		$sub = SubscriptionStorage::getInstance()->getSubscription($channelId);
@@ -105,11 +132,14 @@ class aggregator {
 
 
 	/*
-	feeds: array of feeds to handle
-	trim: trim parameters on request. if auto use subscription settings
-	onlyNew: if true, will keep only new items
+	process each single feed after cache update
+	in this case, feeds haven't been merged/aggregated into one
 
-	$result: feed or array of feeds, in function of aggregate
+	$feeds: array of feeds to handle
+	$trim: trim parameters on request. if auto use subscription settings
+	$onlyNew: if true, will keep only new items
+
+	$result: array of feeds
 	 */
 	private function processSingleFeeds($feeds, $trim, $onlyNew) {
 

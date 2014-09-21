@@ -32,6 +32,7 @@ parameters reference: see reference documentation page
 function handleRequest() {
 
 	$type = param('q', 'tag');
+	$outputType = param('f','html');
 
 
 	switch ($type) {
@@ -41,7 +42,7 @@ function handleRequest() {
 			//refresh: always from cache
 			$zf_aggregator = new Aggregator();
 			$item = $zf_aggregator->getItem(param('id'), param('itemid'));
-			$view = zf_createView();
+			$view = zf_createView($outputType);
 			$view->renderArticle($item);
 			break;
 
@@ -50,7 +51,7 @@ function handleRequest() {
 			//refresh: always from cache
 			$zf_aggregator = new Aggregator();
 			$item = $zf_aggregator->downloadItem(param('id'), param('itemid'));
-			$view = zf_createView();
+			$view = zf_createView($outputType);
 			$view->renderArticle($item);
 			break;
 
@@ -59,7 +60,7 @@ function handleRequest() {
 			//refresh: always from cache
 			$zf_aggregator = new Aggregator();
 			$item = $zf_aggregator->getItem(param('id'), param('itemid'));
-			$view = zf_createView();
+			$view = zf_createView($outputType);
 			$view->renderSummary($item);
 			break;
 
@@ -75,7 +76,7 @@ function handleRequest() {
 					param('trim', 'auto'),
 					int_param('onlynew', 0)
 					);
-			$view = zf_createView();
+			$view = zf_createView($outputType);
 			$view->renderFeed($feed, array(
 				'groupbyday' => false,
 				'decoration' => int_param('decoration'),
@@ -91,6 +92,7 @@ function handleRequest() {
 			// if html output & sorted by feed, trim every single item
 			// according to subcription's settings
 			$sort = param('sort', ZF_SORT);
+
 			if ($sort == 'feed' && strstr($outputType, 'html')) {
 				$groupbyday = false;
 				$aggregate = false;
@@ -110,7 +112,7 @@ function handleRequest() {
 
 			zf_debugRuntime("before rendering");
 
-			$view = zf_createView();
+			$view = zf_createView($outputType);
 			$view->renderFeedList($feeds, array(
 				'groupbyday' => $groupbyday,
 				'summary' => (int_param('sum', 1)==1),
@@ -156,9 +158,8 @@ function handleRequest() {
 
 }
 
-function zf_createView() {
+function zf_createView($outputType) {
 
-	$outputType = param('f','html');
 	if (strstr($outputType,'html')) {
 		$view = new TemplateView(param('zftemplate', ZF_TEMPLATE), $outputType == 'innerhtml');
 	} else {
