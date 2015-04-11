@@ -28,7 +28,7 @@ define('DBG_FILTER', 256); // item filtering
 define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
-define('ZF_DEBUG', 0 );
+define('ZF_DEBUG', 0);
 
 // debug output 1=console otherwise stdout
 define('ZF_DEBUG_CONSOLE', 0);
