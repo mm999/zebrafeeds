@@ -295,8 +295,8 @@ $storage = SubscriptionStorage::getInstance();
 		<?php
 			echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=addnew\">Add new</a> :: ";
 			//echo "<a href=\"" . $_SERVER['PHP_SELF'] . "?zfaction=importlist\">Import feed list</a> :: ";
+			// for later <a href=" echo $storage->getOPMLURL(); ">Export OPML file</a>
 		?>
-				<a href="<?php echo $storage->getOPMLURL(); ?>">Export OPML file</a>
 			</div>
 				<div id="chanlist">
 					<?php displayChannelList($sortedChannels);?>

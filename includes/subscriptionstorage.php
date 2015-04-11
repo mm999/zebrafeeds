@@ -191,7 +191,7 @@ class SubscriptionStorage {
 	}
 
 	public function getOPMLURL() {
-		return '../data/zebrafeeds.opml';
+		return 'data/zebrafeeds.opml';
 	}
 
 
