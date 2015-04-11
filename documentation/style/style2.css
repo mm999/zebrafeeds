@@ -1,8 +1,9 @@
 body {
 	color: #333;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
 	margin : 0;
 	padding : 0;
+	font-size: 14px;
 }
 
 #warning {
@@ -12,20 +13,36 @@ body {
 	border: dashed 1px #000;
 }
 
+.container {
+	width: 70%;
+	margin: 0 auto;
+}
+
 .top{
-	text-align: left;
-	height: 5em;
+	margin-top: 40px;
+	text-align: center;
 	padding-left: 10px;
 	padding-right: 10px;
 	padding-top: 10px;
 	padding-bottom: 0px;
-	border-bottom: 1px solid #000;
-	background: #ddd url(bgtop.png) repeat-x;
+	/* background: #ddd url(bgtop.png) repeat-x; */
 }
 
 #menu{
 	text-align: left;
 	padding: 10px;
+	margin-bottom: 80px;
+}
+
+#menu ul {
+	display: table;
+	margin: 0 auto;
+	padding: 0;
+}
+
+#menu li {
+	display: table-cell;
+	padding: 010px;
 }
 #menu h1{
 	font-size: 20px;
@@ -46,15 +63,34 @@ body {
 	font-family: Arial;
 }
 
+#wrapper {
+	padding: 0 10px;
+	/* width: calc(100% - 300px); */
+	/* float: left; */
+
+}
+
+#twitter-feed {
+	/* float: right; */
+	padding-top: 5px;
+	width: 100%;
+	/* padding: 10px; */
+}
+#twitter-feed iframe {
+	width: 100% !important;
+}
 
 .section{
-	border: 1px solid #DED080;
+	border-bottom: 1px solid #ddd;
 	border-radius: 2px;
-	margin: 10px;
 	padding-left: 10px;
 	padding-right: 10px;
 	padding-top: 5px;
 	padding-bottom: 15px;
+	margin: 10px 0;
+}
+.section:last-of-type {
+	border-bottom: none;
 }
 .text a{
 	color: #FF7200;
@@ -77,4 +113,81 @@ h3 {
 		margin: 20px;
 		padding: 2px;
 
+}
+
+.doc code {
+	background-color: #eee;
+	padding: 2px 5px;
+	border-radius: 4px;
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+}
+.doc pre {
+	background-color: #000;
+	color: #fff;
+	border-radius: 6px;
+	padding: 12px;
+}
+
+.doc-table {
+	font-size: 13px;
+	width: 100%;
+	border-collapse: collapse;
+	margin: 10px 0;
+
+}
+.doc-table td, .doc-table th {
+	border: 1px solid #CCC;
+	padding: 5px;
+}
+.doc-table td {
+}
+.doc .doc-table td code {
+	color: #8C2418;
+	border: none;
+	background-color: transparent;
+}
+.doc-table th.sep {
+	background-color: #eee;
+}
+
+
+@media screen and (max-width: 768px) {
+	.container {
+		width: 90%;
+	}
+	#wrapper {
+		margin-right: 0;
+		padding: 0;
+	}
+
+	#tw-feed {
+		float: none;
+		margin: 0;
+		width: 100%;
+	}
+
+	.section {
+		font-size: 12px;
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	#menu {
+		margin-bottom: 0;
+	}
+
+	#menu li {
+		text-align: center;
+		padding: 3px 0;
+		display: block;
+	}
+
+	pre, .table-wrapper {
+		overflow-x: auto;
+	}
+
+	ul, ol {
+		padding-left: 20px;
+	}
 }

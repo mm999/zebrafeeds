@@ -4,382 +4,528 @@
 		<title>ZebraFeeds reference documentation</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
-		<link rel="stylesheet" type="text/css" href="style/style2.css"></head><body>
-		<div class="top"><img src="style/logo.png" alt=""></div>
-		<div id="menu">
-			<h2>Reference documentation</h2>
+		<link rel="stylesheet" type="text/css" href="style/style2.css">
+	</head>
+	<body>
 
-			<a href="#install">Installation</a> ::
-			<a href="#embed">Embed on your site</a> ::
-			<a href="#features">Features setup</a> ::
-			<a href="#templates">Template reference</a> ::
-			<a href="#api">API reference</a> ::
-			<a href="#config">Configuration file reference</a>
+		<div class="container doc">
+			<header class="top">
+				<a href="../">
+					<img src="style/logo-new.png" alt="ZebraFeeds">
+				</a>
+				<h2>Reference documentation</h2>
+			</header>
 
-		</div>
-		<div class="section">
-			<div class="text"> This is the <a href="http://www.cazalet.org/zebrafeeds">ZebraFeeds</a>
-				reference documentation page.<br/>
-			</div>
-		</div>
-		<div class="section">
-			<h2><a name="install">Installation</a></h2>
-			<div class="text">
-				<ol>
-					<li>Uncompress the package</li>
-					<li>Upload the zebrafeeds directory to your web server</li>
-					<li><strong>Run the installation script</strong>.
-					Surf to <em>&lt;yoursite.com&gt;/zebrafeeds/install.php</em>.<br/>
-					ZebraFeeds implements two login mechanisms. Either:
- 					<ul>
- 						<li>server - HTTP Server Basic Auth (has limitations on several
-					webservers such as the ones that run PHP as CGI; sends user password
-					base64 encoded; when you logout you need to press cancel when
-					the authentication box appears)</li>
-						<li>session - PHP sessions (depends on your webhost's php.ini
-					configuration and can use cookies; sends user password in clear text)</li>
-					</ul>
-					Default user login is <em>admin</em>, password is <em>admin</em>.
-					Change this during the installation.</li>
-					<li>Point your browser to <em>&lt;yoursite.com&gt;/zebrafeeds</em> to start 
-					using ZebraFeeds.</li>
-					<li>If you need to embed the aggregated feeds on your page, check out the 
-					<a href="#embed">"Embed feeds on your site" section</a> or open 
-					<code>demo.php</code> in your browser or in an editor to find out how to embed 
-					ZebraFeeds on your page (short version: include 
-					<code>zebrafeeds/embed/feeds.php</code>).
-					Also select a provided template, either as is or customized or make your own.</li>
+			<nav id="menu">
+				<ul>
+					<li><a href="#install">Installation</a></li>
+					<li><a href="#features">Features setup</a></li>
+					<li><a href="#embed">Embed on your site</a></li>
+					<li><a href="#templates">Template reference</a></li>
+					<li><a href="#api">API reference</a></li>
+					<li><a href="#config">Configuration file reference</a></li>
 				</ul>
+			</nav>
 
+			<div class="section">
+				<div class="text"> This is the <a href="http://www.cazalet.org/zebrafeeds">ZebraFeeds</a>
+					reference documentation page.<br/>
+				</div>
 			</div>
-		</div>
-		<div class="section">
-			<h2><a name="embed">Embed feeds on your site</a></h2>
-			<div class="text">You must include the main script in the
-				&lt;body&gt; section and the header script in the &lt;head&gt; section of the page 
-				on which the feeds are to be displayed.
-				<br/>
-				The header script handles thre template's CSS and javascript, while the
-				main script renders the aggregated feeds.<br/><em>Note: if your template has no 
-				templateHeader section (that is, no style sheet),
-				the header script may not be necessary.</em><br/>
-				<br/>
-				Here is an example of a minimal page: <br/>
 
-				<pre>
-&lt;html&gt; 
-&lt;head&gt;	
-	&lt;?php include('zebrafeeds/embed/header.php'); ?&gt; 
-&lt;/head&gt; 
-&lt;body&gt;  
-	&lt;?php include('zebrafeeds/embed/feeds.php'); ?&gt;
+			<div class="section" id="install">
+				<h2>Installation</h2>
+				<div class="text">
+					<ol>
+						<li>Uncompress the package</li>
+						<li>Upload the zebrafeeds directory to your web server</li>
+						<li><strong>Run the installation script</strong>.
+						Surf to <em>&lt;yoursite.com&gt;/zebrafeeds/install.php</em>.<br/>
+						ZebraFeeds implements two login mechanisms. Either:
+	 					<ul>
+	 						<li>server - HTTP Server Basic Auth (has limitations on several
+						webservers such as the ones that run PHP as CGI; sends user password
+						base64 encoded; when you logout you need to press cancel when
+						the authentication box appears)</li>
+							<li>session - PHP sessions (depends on your webhost's php.ini
+						configuration and can use cookies; sends user password in clear text)</li>
+						</ul>
+						Default user login is <em>admin</em>, password is <em>admin</em>.
+						Change this during the installation.</li>
+						<li>Point your browser to <em>&lt;yoursite.com&gt;/zebrafeeds</em> to start
+						using ZebraFeeds.</li>
+						<li>If you need to embed the aggregated feeds on your page, check out the
+						<a href="#embed">"Embed feeds on your site" section</a> or open
+						<code>embed-demo.php</code> in your browser or in an editor to find out how to embed
+						ZebraFeeds on your page (short version: include
+						<code>zebrafeeds/embed/feeds.php</code>).
+						Also select a provided template, either as is or customized or make your own.</li>
+					</ol>
+
+				</div>
+			</div>
+			<div class="section" id="embed">
+				<h2>Embed feeds on your site</h2>
+				<div class="text">You must include the main script in the
+					&lt;body&gt; section and the header script in the &lt;head&gt; section of the page
+					on which the feeds are to be displayed.
+					<br/>
+					The header script handles thre template's CSS and javascript, while the
+					main script renders the aggregated feeds.<br/><em>Note: if your template has no
+					templateHeader section (that is, no style sheet),
+					the header script may not be necessary.</em><br/>
+					<br/>
+					Here is an example of a minimal page: <br/>
+
+					<pre>
+&lt;html&gt;
+&lt;head&gt;
+&nbsp;&nbsp;&lt;?php include('zebrafeeds/embed/header.php'); ?&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&nbsp;&nbsp;&lt;?php include('zebrafeeds/embed/feeds.php'); ?&gt;
 &lt;/body&gt;
-&lt;/html&gt;
-				</pre>
+&lt;/html&gt;</pre>
 
-			</div>
-		</div>
-
-		<div class="section">
-			<h2><a name="features">Features setup</a></h2>
-
-			<h3>Refreshing feeds</h3>
-			<div class="text">
-				By default ZebraFeeds refreshes the feed on page generation, that is, whenever 
-				needed. In the settings, refresh mode must be set to "automatic". <br/>
-				This requires no extra configuration (but can severely slow down the page loading. 
-				The next section describes how to use a cron job to schedule the refresh.
-			</div>
-			<h4>Refreshing feeds via a cronjob</h4>
-			<div class="text">
-				ZebraFeeds allows setting up an external automated task (a.k.a. cron job) in order 
-				to regularly refresh feeds, and provided a private refresh link to place in your 
-				automated task.<br/>
-				The private link can be found in the settings pages.<br/>
-				You might also want to set refresh mode must be set to "manual". <br/>
-				<br/>
-				Please note that each feed's refresh time still applies.
-				If you configure a service to call the refresh link every 30 minutes, it means
-				that the feeds will be checked for expiration that often.
-				It doesn't mean that the feeds will be fetched from the publisher every 30 minutes.
-
-
-				<br/>The link will change
-				whenever the admin user name or password changes.
+				</div>
 			</div>
 
-			<h3>Marking "new" items</h3>
-			<div class="text">
-				ZebraFeeds can optionally highlight news items which are more recent that the
-				visitor's last visit. It applies to all visitors indistinctly. It requires no
-				additional change on your page since the time is stored in the data subdirectory.
-				To mark new items on the generated html content, you have to use the template tag 
-				{isnew} in your template (see below).<br/>
-				Please note this feature does not keep track of the <em>unread</em> items, it just 
-				highlights the items not yet published in the last visit. <br/>
-				This works by means of "sessions". Sessions last by default 15 minutes 
-				(see constant named <code>ZF_SESSION_DURATION</code> in <code>globals.php</code>). After 15 minutes without 
-				any activity (access to feeds), the session is closed, and all items in the cache 
-				get marked as "not new". <br/>
-				This is equivalent to marking all items as "read" every time you stop reading your 
-				feeds in ZebraFeeds.<br/>
-				How to tag new items in the template?<br/>
-				<ul>
-					<li>use the <code>{isnew}</code> template tag. This tag will be replaced by a static string if 
-					the item is new (not already seen in last refresh), by an empty string otherwise.
-					</li>
-					<li>ZebraFeeds uses the value defined in the string <code>ZF_ISNEW_STRING</code> in 
-					<code>globals.php</code>. at the time of content generation</li> 
-					<li>Default value is "newclass" intented to be placed in an element's CSS class 
-					declaration. See the example templates</li>
-				</ul>
-				
-			</div>
-		</div>
-		<div class="section">
-			<h2><a name="templates">Template reference</a></h2>
+			<div class="section" id="features">
+				<h2>Features setup</h2>
 
-			<div class="text">
-				You can customize the look of the aggregated feeds by editing the
-				templates or creating new ones.<br/>
+				<h3>Refreshing feeds</h3>
+				<div class="text">
+					By default ZebraFeeds refreshes the feed on page generation, that is, whenever
+					needed. In the settings, refresh mode must be set to "automatic". <br/>
+					This requires no extra configuration (but can severely slow down the page loading.
+					The next section describes how to use a cron job to schedule the refresh.
+				</div>
+				<h4>Refreshing feeds via a cronjob</h4>
+				<div class="text">
+					ZebraFeeds allows setting up an external automated task (a.k.a. cron job) in order
+					to regularly refresh feeds, and provided a private refresh link to place in your
+					automated task.<br/>
+					The private link can be found in the settings pages.<br/>
+					You might also want to set refresh mode must be set to "manual". <br/>
+					<br/>
+					Please note that each feed's refresh time still applies.
+					If you configure a service to call the refresh link every 30 minutes, it means
+					that the feeds will be checked for expiration that often.
+					It doesn't mean that the feeds will be fetched from the publisher every 30 minutes.
 
-				A template is a file that contains HTML/XHTML code.
-				<ul>
-					<li>Templates file names have must have the html extension to be recognised.</li>
-					<li>File must contain delimited sections</li>
-					<li>Sections must use special tags</li>
-				</ul>
 
-				<h4>Template sections</h4>
-				<ul>
-					<li>templateHeader: before any channel display. use it to include
-					javascript, css... Is included in the HEAD section of the page 
-					(if <code>zebrafeeds/embed/header.php</code> is included).</li>
-					<li>header: header before channel header. It is not parsed for any tag.</li>
-					<li>channel: prints the channel header. Use it to show channel logo,
-					title...</li>
-					<li>channelFooter: formats the channel footer. Not parsed for any tag.</li>
-					<li>news: formats a news item when sorted by channel. Parsed for tags.</li>
-					<li>newsByDate: formats a news items when sorted by date. Parsed for tags.</li>
-					<li>newsDay: printed at every new day when items are sorted by date. Use
-					<code>{date}</code> tag to print the date (see below).</li>
-					<li>newsdayFooter: formats the day footer. Not parsed for any tag.</li>
-					<li>article: Used when rendering a single news item in a full page. Parsed for tags.</li>
-				</ul>
-				<h4>How sections are rendered in HTML</h4>
-				When sorted by feed, the HTML output is generated this way:
-				<blockquote style="border-left: 1px dotted rgb(51, 51, 51); padding-left: 4px;">
+					<br/>The link will change
+					whenever the admin user name or password changes.
+				</div>
+
+				<h3>Marking "new" items</h3>
+				<div class="text">
+					ZebraFeeds can optionally highlight news items which are more recent that the
+					visitor's last visit. It applies to all visitors indistinctly. It requires no
+					additional change on your page since the time is stored in the data subdirectory.
+					To mark new items on the generated html content, you have to use the template tag
+					{isnew} in your template (see below).<br/>
+					Please note this feature does not keep track of the <em>unread</em> items, it just
+					highlights the items not yet published in the last visit. <br/>
+					This works by means of "sessions". Sessions last by default 15 minutes
+					(see constant named <code>ZF_SESSION_DURATION</code> in <code>globals.php</code>). After 15 minutes without
+					any activity (access to feeds), the session is closed, and all items in the cache
+					get marked as "not new". <br/>
+					This is equivalent to marking all items as "read" every time you stop reading your
+					feeds in ZebraFeeds.<br/>
+					How to tag new items in the template?<br/>
 					<ul>
-						<li><code>header</code></li>
-						<li>For each feed
+						<li>use the <code>{isnew}</code> template tag. This tag will be replaced by a static string if
+						the item is new (not already seen in last refresh), by an empty string otherwise.
+						</li>
+						<li>ZebraFeeds uses the value defined in the string <code>ZF_ISNEW_STRING</code> in
+						<code>globals.php</code>. at the time of content generation</li>
+						<li>Default value is "newclass" intented to be placed in an element's CSS class
+						declaration. See the example templates</li>
+					</ul>
+
+				</div>
+			</div>
+			<div class="section" id="templates">
+				<h2>Template reference</h2>
+
+				<div class="text">
+					You can customize the look of the aggregated feeds by editing the
+					templates or creating new ones.<br/>
+
+					A template is a file that contains HTML/XHTML code.
+					<ul>
+						<li>Templates file names have must have the html extension to be recognised.</li>
+						<li>File must contain delimited sections</li>
+						<li>Sections must use special tags</li>
+					</ul>
+
+					<h4>Template sections</h4>
+					<ul>
+						<li>templateHeader: before any channel display. use it to include
+						javascript, css... Is included in the HEAD section of the page
+						(if <code>zebrafeeds/embed/header.php</code> is included).</li>
+						<li>header: header before channel header. It is not parsed for any tag.</li>
+						<li>channel: prints the channel header. Use it to show channel logo,
+						title...</li>
+						<li>channelFooter: formats the channel footer. Not parsed for any tag.</li>
+						<li>news: formats a news item when sorted by channel. Parsed for tags.</li>
+						<li>newsByDate: formats a news items when sorted by date. Parsed for tags.</li>
+						<li>newsDay: printed at every new day when items are sorted by date. Use
+						<code>{date}</code> tag to print the date (see below).</li>
+						<li>newsdayFooter: formats the day footer. Not parsed for any tag.</li>
+						<li>article: Used when rendering a single news item in a full page. Parsed for tags.</li>
+					</ul>
+					<h4>How sections are rendered in HTML</h4>
+					When sorted by feed, the HTML output is generated this way:
+					<blockquote style="border-left: 1px dotted rgb(51, 51, 51); padding-left: 4px;">
 						<ul>
-							<li><code>channel</code></li>
-							<li>for each news item
+							<li><code>header</code></li>
+							<li>For each feed
 							<ul>
-								<li><code>news</code></li>
+								<li><code>channel</code></li>
+								<li>for each news item
+								<ul>
+									<li><code>news</code></li>
+								</ul>
+								</li>
+								<li><code>channelFooter</code></li>
 							</ul>
 							</li>
-							<li><code>channelFooter</code></li>
+							<li><code>footer</code></li>
 						</ul>
-						</li>
-						<li><code>footer</code></li>
-					</ul>
-				</blockquote>
-				It's a bit different when sorted by date. It's like having only one channel to 
-				display, but news are broken down by day: <br/>
-				<br/>
-				<blockquote style="border-left: 1px dotted rgb(51, 51, 51); padding-left: 4px;">
-					<ul>
-						<li><code>header</code></li>
-						<li>For each day
+					</blockquote>
+					It's a bit different when sorted by date. It's like having only one channel to
+					display, but news are broken down by day: <br/>
+					<br/>
+					<blockquote style="border-left: 1px dotted rgb(51, 51, 51); padding-left: 4px;">
 						<ul>
-							<li><code>newsDay</code>
-							</li><li>For each news item
+							<li><code>header</code></li>
+							<li>For each day
 							<ul>
-								<li><code>newsByDate</code> (or <code>news</code> if empty)</li>
+								<li><code>newsDay</code>
+								</li><li>For each news item
+								<ul>
+									<li><code>newsByDate</code> (or <code>news</code> if empty)</li>
+								</ul></li>
+								<li><code>newsDayFooter</code></li>
 							</ul></li>
-							<li><code>newsDayFooter</code></li>
-						</ul></li>
-						<li><code>footer</code></li>
+							<li><code>footer</code></li>
+						</ul>
+					</blockquote>
+					A list of supported tags is presented below. Due to the linear way of processing
+					templates, some tags will be relevant in certain contexts depending on
+					the section they are included in:<br/>
+
+					<h4>The article section</h4>
+					The article section will be used to print the full news items in the article
+					view.<br/>
+					The article view embeds the news item at the location where feeds are embedded on
+					your site. (It shows one article where it would show the list of news and channels.)
+					This is meant to display the news content once clicked on the title, nicely
+					integrated in your page.<br/>
+					The link to view a news item in the Article view can be displayed in the news list
+					thanks to the <code>{articleurl}</code> template tag.
+
+					<h4>Channel tags</h4>
+					<ul>
+						<li><code>{chanlink}</code> is replaced with URL to the channel</li>
+						<li><code>{chandesc}</code> is replaced with the channel description</li>
+						<li><code>{chantitle}</code> is replaced with the channel title</li>
+						<li><code>{chanid}</code> is replaced with an unique ID of the channel
+						(feed) being displayed</li>
+						<li><code>{lastupdated}</code> is replaced with the time/date when the feed was last fetched,
+						according to date format</li>
+						<li><code>{feedurl}</code> is replaced with the RSS feed url</li>
 					</ul>
-				</blockquote>
-				A list of supported tags is presented below. Due to the linear way of processing
-				templates, some tags will be relevant in certain contexts depending on
-				the section they are included in:<br/>
+					<h4>News item and article tags</h4>
+					<ul>
+						<li><code>{title}</code> is replaced with the news title</li>
+						<li><code>{link}</code> is replaced with the URL to the news page</li>
+						<li><code>{link_encoded}</code> is replaced with the URL to the news page, encoded to be used
+						as parameter in an hypertext link</li>
+						<li><code>{pubdate}</code> is replaced with the news publication date if
+						available, formatted according to configuration</li>
+						<li><code>{relativedate}</code> relative news item date "1h ago", "3d ago"...</li>
+						<li><code>{description}</code> is replaced with the available news
+						description (full-length content as provided by the source). </li>
+						<li><code>{summary}</code> the news summary as truncated by ZebraFeeds</li>
+						<li><code>{enclosures}</code> the list of external enclosures of the news, if any.
+						Autodetection of audio and video content, printed with relevant icons.</li>
+						<li><code>{itemid}</code> unique news item ID</li>
+						<li><code>{isnew}</code> string to insert if the news hasn't been seen before (string must
+						be changed manually in <code>globals.php</code>, variable
+						<code>ZF_ISNEWSTRING</code>), empty otherwise (if configured in settings)</li>
 
-				<h4>The article section</h4>
-				The article section will be used to print the full news items in the article 
-				view.<br/>
-				The article view embeds the news item at the location where feeds are embedded on 
-				your site. (It shows one article where it would show the list of news and channels.)
-				This is meant to display the news content once clicked on the title, nicely 
-				integrated in your page.<br/>
-				The link to view a news item in the Article view can be displayed in the news list 
-				thanks to the <code>{articleurl}</code> template tag.
+						<li><code>{articleurl}</code> link to show the entire news item in a the article view, a
+						full page formatted header and the article content, using the <em>article</em>
+						template section</li>
+						<li><code>{download}</code> link to fetch the full content of the article from the news
+						item's link provided by the publisher (using FiveFilter's
+						readability implementation). The content will be cached and presented using
+						the <em>article</em> template section.</li>
 
-				<h4>Channel tags</h4>
-				<ul>
-					<li>{chanlink} is replaced with URL to the channel</li>
-					<li>{chandesc} is replaced with the channel description</li>
-					<li>{chantitle} is replaced with the channel title</li>
-					<li>{chanid} is replaced with an unique ID of the channel
-					(feed) being displayed</li>
-					<li>{lastupdated} is replaced with the time/date when the feed was last fetched,
-					according to date format</li>
-					<li>{feedurl} is replaced with the RSS feed url</li>
-				</ul>
-				<h4>News item and article tags</h4>
-				<ul>
-					<li>{title} is replaced with the news title</li>
-					<li>{link} is replaced with the URL to the news page</li>
-					<li>{link_encoded} is replaced with the URL to the news page, encoded to be used
-					as parameter in an hypertext link</li>
-					<li>{pubdate} is replaced with the news publication date if
-					available, formatted according to configuration</li>
-					<li>{relativedate} relative news item date "1h ago", "3d ago"...</li>
-					<li>{description} is replaced with the available news
-					description (full-length content as provided by the source). </li>
-					<li>{summary} the news summary as truncated by ZebraFeeds</li>
-					<li>{enclosures} the list of external enclosures of the news, if any. 
-					Autodetection of audio and video content, printed with relevant icons.</li>
-					<li>{itemid} unique news item ID</li>
-					<li>{isnew} string to insert if the news hasn't been seen before (string must 
-					be changed manually in <code>globals.php</code>, variable 
-					<code>ZF_ISNEWSTRING</code>), empty otherwise (if configured in settings)</li>
+					</ul>
+					<h4>News day tags</h4>
+					<ul>
+						<li><code>{date}</code> is replaced with the date of the news items displayed beneath.</li>
+					</ul>
+					<h4> Special tags</h4>
+					<ul>
+						<li><code>{scripturl}</code> is replaced with the url to ZebraFeeds</li>
+						<li><code>{tag}</code> is replaced with the name of the current feed tag, if applicable</li>
+					</ul>
+					<h4>Built-in styles</h4>
+					ZebraFeeds generates some output that have forced CSS attributes.
+					Proper styling using CSS helps a seamless integration on your site.<br/>
+					This sections lists all CSS elements that you can add to your style sheet
+					<ul>
+						<li><em>generator</em> CSS ID: the credit line that is added after the feeds
+						rendering carries this ID.</li>
+					</ul>
 
-					<li>{articleurl} link to show the entire news item in a the article view, a 
-					full page formatted header and the article content, using the <em>article</em> 
-					template section</li>
-					<li>{download} link to fetch the full content of the article from the news 
-					item's link provided by the publisher (using FiveFilter's 
-					readability implementation). The content will be cached and presented using 
-					the <em>article</em> template section.</li>
-
-				</ul>
-				<h4>News day tags</h4>
-				<ul>
-					<li>{date} is replaced with the date of the news items displayed beneath.</li>
-				</ul>
-				<h4> Special tags</h4>
-				<ul>
-					<li>{scripturl} is replaced with the url to ZebraFeeds</li>
-					<li>{tag} is replaced with the name of the current feed tag, if applicable</li>
-				</ul>
-				<h4>Built-in styles</h4>
-				ZebraFeeds generates some output that have forced CSS attributes.
-				Proper styling using CSS helps a seamless integration on your site.<br/>
-				This sections lists all CSS elements that you can add to your style sheet
-				<ul>
-					<li><em>generator</em> CSS ID: the credit line that is added after the feeds 
-					rendering carries this ID.</li>
-				</ul>
+				</div>
 
 			</div>
 
-		</div>
+			<div class="section" id="api">
+				<h2>API and parameters reference</h2>
+				<div class="table-wrapper">
+					<table class="doc-table">
+						<thead>
+							<tr>
+								<th>Parameter</th>
+								<th>Description</th>
+								<th>Default</th>
+								<th colspan="2">Possible values</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr><th class="sep" colspan="5">Main parameters</th></tr>
+							<tr>
+								<td rowspan="8">
+									<code>q</code>
+								</td>
+								<td rowspan="8">
+									query type
+								</td>
+								<td rowspan="8">
+									<code>tag</code>
+								</td>
+							</tr>
+							<tr>
+								<td><code>item</code></td>
+								<td>a single new item, with article view</td>
+							</tr>
+							<tr>
+								<td><code>channel</code></td>
+								<td>we want channel news, sorted by date</td>
+							</tr>
+							<tr>
+								<td><code>tag</code></td>
+								<td>feeds tagged with a certain tag</td>
+							</tr>
+							<tr>
+								<td><code>subs</code></td>
+								<td>(subs being tagged with specified tag, all if no tag specified) JSON only</td>
+							</tr>
+							<tr>
+								<td><code>tags</code></td>
+								<td>(all tags available in subscriptions) JSON output only</td>
+							</tr>
+							<tr>
+								<td><code>download-item</code></td>
+								<td>get full article content if possible</td>
+							</tr>
+							<tr>
+								<td><code>summary</code></td>
+								<td>only the summary of an article</td>
+							</tr>
+							<tr>
+								<td rowspan="4"><code>f</code></td>
+								<td rowspan="4">output type</td>
+								<td rowspan="4"><code>html</code></td>
+							</tr>
+							<tr>
+								<td><code>json</code></td>
+								<td>JSON output, and 'sort' param ignored. always by date, feeds aggregated.</td>
+							</tr>
+							<tr>
+								<td><code>html</code></td>
+								<td>HTML output in regular page, with header section.</td>
+							</tr>
+							<tr>
+								<td><code>innerhtml</code></td>
+								<td>HTML output, but won't output header section of template. suitable for JS calls</td>
+							</tr>
+							<tr><th class="sep" colspan="5">Additional parameters</th></tr>
+						</tbody>
+					</table>
+				</div>
 
-		<div class="section">
-			<h2><a name="api">API and parameters reference</a></h2>
-			<h3>Main parameters</h3>
-				<p>
-					q : query type. Values:
-					<ul>
-						<li>item: a single new item, with article view</li>
-						<li>channel: we want channel news, sorted by date</li>
-						<li>tag: feeds tagged with a certain tag</li>
-						<li>subs (subs being tagged with specified tag, all if no tag specified) JSON only</li>
-						<li>tags (all tags available in subscriptions) JSON output only</li>
-						<li>download-item: get article content using FiveFilter's readability implementation</li>
-						<li>summary: only the summary of an article</li>
-					</ul>
-				   defaults to 'tag'
-				</p>
-				<p>
-					f: output type (json, html, innerhtml)
-					<ul>
-						<li>json: JSON output, and 'sort' param ignored. always by date, feeds aggregated.</li>
-						<li>html: HTML output in regular page, with header section.</li>
-						<li>innerhtml: HTML output, but won't output header section of template. suitable for JS calls</li>
-					</ul>
-				   defaults to 'html'
-				</p>
+				<p><code>tag</code>: use only subscription with this tag. Default: empty. applicable only for
+					<code>q=subs</code> and <code>q=tag</code></p>
 
-			<h3>complementary parameters</h3>
-			<p>tag: use only subscription with this tag. Default: empty. applicable only for
-				q=subs and q=tag</p>
+				<p><code>id</code>: id of the channel to deal with. Needed for <code>q=item</code>, <code>q=download-item</code>, <code>q=channel</code>, <code>q=summary</code></p>
 
-			<p>id: id of the channel to deal with. Needed for q=item, q=download-item, q=channel, q=summary</p>
+				<p><code>itemid</code>: the news item unique id for lookup. Needed for <code>q=item</code>, <code>q=download-item</code>, <code>q=summary</code></p>
 
-			<p>itemid : the news item unique id for lookup. Needed for q=item, q=download-item, q=summary</p>
-
-			<p>mode: feed update mode. applicable only for q=channel
+				<p><code>mode</code>: feed update mode. applicable only for <code>q=channel</code></p>
 				<ul>
-				<li>auto: according to config's refresh time (default)</li>
-				<li>none: force from cache</li>
-				<li>force: force refresh feed from source</li>
+					<li><code>auto</code>: according to config's refresh time (default)</li>
+					<li><code>none</code>: force from cache</li>
+					<li><code>force</code>: force refresh feed from source</li>
 				</ul>
-			</p>
-			<p>sum: if 1 then summary included in news item header, 0 no summary (default)<br/>
-				 Applicable only when q=channel or q=tag</p>
 
-			<p>trim: how to shorten the number of items when getting feeds to get only news
-				  or the last hour, since 4 days...<br/>
-				  valid when q=tag or q=channel<br/>
-				<ul>
-					<li>none: return all</li>
-					<li>auto: default, if q=channel then use Xnews (subscription setting).
-									 if q=tag then use config values for trim</li>
-					<li>Nnews</li>
-					<li>Ndays</li>
-					<li>Nhours</li>
-				</ul>
-			</p>
-			<p>onlynew: default to 0. If 1 will show only newly fetched items. Valid for q=tag, q=channel</p>
+				<p><code>sum</code>: if 1 then summary included in news item header, 0 no summary (default)<br/>
+					 Applicable only when <code>q=channel</code> or <code>q=tag</code></p>
 
-			<p>sort: feed or date. Only for q=tag AND for html output (f=html or innerhtml)</p>
+				<p><code>trim</code>: how to shorten the number of items when getting feeds to get only news
+					  or the last hour, of the last 4 days...<br/>
+					  valid when <code>q=tag</code> or <code>q=channel</code><br/>
+					<ul>
+						<li>none: return all</li>
+						<li>auto: default, if <code>q=channel</code> then use Xnews (subscription setting).
+										 if <code>q=tag</code> then use config values for trim</li>
+						<li>Nnews</li>
+						<li>Ndays</li>
+						<li>Nhours</li>
+					</ul>
+				</p>
+				<p><code>onlynew</code>: default to 0. If 1 will show only newly fetched items. Valid for <code>q=tag</code>, <code>q=channel</code></p>
 
-			<p>decoration: if (q=channel AND f=html) only<br/>
-						defaults to 0. if 1, will output channel header</p>
-		</div>
+				<p><code>sort</code>: feed or date. Only for <code>q=tag</code> AND for html output (<code>f=html</code> or <code>q=innerhtml</code>)</p>
 
-		<div class="section">
-			<h2><a name="config">Configuration file reference</a></h2>
+				<p><code>decoration</code>: if (<code>q=channel</code> AND <code>f=html</code>) only<br/>
+							defaults to 0. if 1, will output channel header</p>
+			</div>
 
-			<div class="text">
-				This section lists the options available in <code>config.php</code> file as well as 
-				through the settings page.<br/>
-				<h4>General options</h4>
-				ZF_LOGINTYPE: server - server HTTP auth; session - PHP sessions auth<br/>
-				ZF_ADMINNAME: admin username<br/>
-				ZF_ADMINPASS: crypted (md5) admin password, default password is "admin".
-				<em>If set to empty, the admin pages authentication is disabled, and anyone can get 
-				to the config page and save a new password. It's a way of resetting	the password. 
-				Caution with that.</em><br/>
-				<h4>Feeds options</h4>
-				ZF_HOMETAG: name of the tag of feeds to be displayed by default (taken from the 
-				subscriptions directory which holds the subscriptions data)<br/>
-				ZF_REFRESHMODE: "automatic" to let ZebraFeeds refresh feeds upon page generation, or
-				"request", to allow automatic refresh as well as using cron job or webpage checker 
-				service<br/>
-				<h4>General display options</h4>
-				ZF_TEMPLATE: the default templates used to display the news (file name from templates 
-				directory)<br/>
-				ZF_DISPLAYERROR: if yes then when a feed cannot be read (or has errors) formatted 
-				error message shows in {description}<br/>
-				<h4>Localization options</h4>
-				ZF_ENCODING: character encoding for output. Example: UTF-8, ISO-8859-1...<br/>
-				ZF_LOCALE: language to use for dates, system messages. Depends on your PHP installation<br/>
-				ZF_PUBDATEFORMAT: format passed to strftime to convert dates got from feeds<br/>
-				ZF_DATEFORMAT: format passed to strftime to display the date of the day when displaying news sorted by date<br/>
-				<h4>Hidden options</h4>
-				These options are not editable through the settings page, but directly editing <code>globals.php</code><br/>
+			<div class="section" id="config">
+				<h2>Configuration file reference</h2>
 
-				ZF_DEFAULT_NEWS_COUNT: when subscribing to a new feed, default value for number of news<br/>
-				ZF_DEFAULT_REFRESH_TIME: when subscribing to a new feed, default value for refresh time<br/>
-				ZF_SESSION_DURATION: time in seconds before unmarking items as new (default 900)<br/>
-				ZF_GROUP_BY_DAY: 'yes' will group items by day in non-per-channel views<br/>
-				ZF_SHOWCREDITS: 'yes' (default) or 'no'. If no, will not append the credit line. <br/>
-				ZF_ISNEW_STRING: string being substituted for the {isnew} template tag<br/>
+				<div class="text">
+					This section lists the options available in <code>config.php</code> file as well as
+					through the settings page.<br/>
+					<div class="table-wrapper">
+						<table class="doc-table">
+							<thead>
+								<tr>
+									<th>Parameter</th>
+									<th>Description</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th class="sep" colspan="2">
+										General options
+									</th>
+								</tr>
+								<tr>
+									<td><code>ZF_LOGINTYPE</code></td>
+									<td>server - server HTTP auth; session - PHP sessions auth</td>
+								</tr>
+								<tr>
+									<td><code>ZF_ADMINNAME</code></td>
+									<td>admin username</td>
+								</tr>
+								<tr>
+									<td><code>ZF_ADMINPASS</code></td>
+									<td>
+										crypted (md5) admin password, default password is "admin".
+										<br>
+										<em>If set to empty, the admin pages authentication is disabled, and anyone can get
+										to the config page and save a new password. It's a way of resetting	the password.
+										Caution with that.</em>
+									</td>
+								</tr>
+								<tr>
+									<th class="sep" colspan="2">Feeds options</th>
+								</tr>
+								<tr>
+									<td><code>ZF_HOMETAG</code></td>
+									<td>name of the tag of feeds to be displayed by default (taken from the
+									subscriptions directory which holds the subscriptions data)</td>
+								</tr>
+								<tr>
+									<td><code>ZF_REFRESHMODE</code></td>
+									<td>"automatic" to let ZebraFeeds refresh feeds upon page generation, or
+									"request", to allow automatic refresh as well as using cron job or webpage checker
+									service</td>
+								</tr>
+								<tr>
+									<th class="sep" colspan="2">General display options</th>
+								</tr>
+								<tr>
+									<td><code>ZF_TEMPLATE</code></td>
+									<td>the default templates used to display the news (file name from templates
+									directory)</td>
+								</tr>
+								<tr>
+									<td><code>ZF_DISPLAYERROR</code></td>
+									<td>
+										if yes then when a feed cannot be read (or has errors) formatted
+										error message shows in {description}
+									</td>
+								</tr>
+								<tr>
+									<th class="sep" colspan="2">
+										Localization options
+									</th>
+								</tr>
+								<tr>
+									<td><code>ZF_ENCODING</code></td>
+									<td>character encoding for output. Example: UTF-8, ISO-8859-1...</td>
+								</tr>
+								<tr>
+									<td><code>ZF_LOCALE</code></td>
+									<td>language to use for dates, system messages. Depends on your PHP installation</td>
+								</tr>
+								<tr>
+									<td><code>ZF_PUBDATEFORMAT</code></td>
+									<td>format passed to strftime to convert dates got from feeds</td>
+								</tr>
+								<tr>
+									<td><code>ZF_DATEFORMAT</code></td>
+									<td>format passed to strftime to display the date of the day when displaying news sorted by date</td>
+								</tr>
+								<tr>
+									<th class="sep" colspan="2">
+										Hidden options<br>
+										These options are not editable through the settings page, but directly editing <code>globals.php</code>
+									</th>
+								</tr>
+								<tr>
+									<td><code>ZF_DEFAULT_NEWS_COUNT</code></td>
+									<td>when subscribing to a new feed, default value for number of news</td>
+								</tr>
+								<tr>
+									<td><code>ZF_DEFAULT_REFRESH_TIME</code></td>
+									<td>when subscribing to a new feed, default value for refresh time</td>
+								</tr>
+								<tr>
+									<td><code>ZF_SESSION_DURATION</code></td>
+									<td>time in seconds before unmarking items as new (default 900)</td>
+								</tr>
+								<tr>
+									<td><code>ZF_GROUP_BY_DAY</code></td>
+									<td>'yes' will group items by day in non-per-channel views</td>
+								</tr>
+								<tr>
+									<td><code>ZF_SHOWCREDITS</code></td>
+									<td>'yes' (default) or 'no'. If no, will not append the credit line.</td>
+								</tr>
+								<tr>
+									<td><code>ZF_ISNEW_STRING</code></td>
+									<td>string being substituted for the {isnew} template tag</td>
+								</tr>
+								<tr>
+									<td><code>ZF_DEFAULT_ADMIN_VIEW</code></td>
+									<td>first page shown when going to the admin area if not specified. 'subscriptions' (if feeds embedded on another page, ZebraFeeds not used as feed reader) or 'feeds' (suited if ZebraFeeds used as personal feed reader)</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 	</body>

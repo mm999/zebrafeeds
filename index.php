@@ -27,17 +27,21 @@ require_once('init.php');
 require_once('includes/adminfuncs.php');
 
 
-$zfaction = param('zfaction', 'feeds');
+$zfaction = param('zfaction', ZF_DEFAULT_ADMIN_VIEW);
 
 zf_debug('zfaction is '.$zfaction);
 
-
+// another quick thing to fix later. 
+// if zfaction default is subscriptions, we never get to 
+// see the article page when clicked from the feeds page
+$q = param('q', '');
+if (strlen($q) >0) $zfaction='feeds';
 
 
 
 zfLogin();
 
-//dirty... treat async first to avoid page header etc
+//dirty... treat async calls first to avoid page header etc
 switch ($zfaction) {
 	case 'store':
 		Header('Content-Type: text/html; charset='.ZF_ENCODING);
@@ -90,9 +94,11 @@ switch ($zfaction) {
 	<body>
 
 
-<div id="header">
-			<ul class="tabs">
-		<li><a href="http://cazalet.org/zebrafeeds"><img src="res/img/logo_admin.png" alt="ZebraFeeds"/></a></li>
+	<header class="top">
+		<a href="http://cazalet.org/zebrafeeds"><img src="documentation/style/logo-new.png" alt="ZebraFeeds"></a>
+	</header>
+	<nav id="menu">
+		<ul>
 		<?php echo "<li"; if ($zfaction == "feeds") echo " class=\"active\""; echo ">" ?>
 			<a href="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=feeds';?>">Feeds</a>
 		</li>
@@ -108,7 +114,7 @@ switch ($zfaction) {
 		</ul>
 
 
-</div>
+	</nav>
 <?php
 // after the normal header for all admin pages, select now what we gonna show
 

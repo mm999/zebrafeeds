@@ -1,10 +1,10 @@
 /* ZebraFeeds admin panel style sheet */
-html, body{
-	margin: 0;
-	padding: 0;
-	background: #FFFFFF;
-	font-size: 12px;
-	font-family: Verdana, Arial, Helvetica, sans-serif
+body{
+	color: #333;
+	font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
+	margin : 0;
+	padding : 0;
+	font-size: 14px;
 }
 
 
@@ -48,6 +48,16 @@ a:active {
 	font-size: 80%;
 	font-family: sans-serif;
 }
+
+code {
+	background-color: #eee;
+	padding: 2px 5px;
+	border-radius: 4px;
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+}
+
+
 #top {
 	margin-top: 10px;
 }
@@ -115,10 +125,71 @@ a:active {
 	margin: 0 auto 20px auto;
 	width: 85%;
 	height: 20px;
-	/*           border: 1px solid #666;
-	border-width: 0 0 2px;*/
 }
 
+.top{
+	margin-top: 40px;
+	text-align: center;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 10px;
+	padding-bottom: 0px;
+}
+#menu{
+	text-align: left;
+	padding: 10px;
+	margin-bottom: 45px;
+}
+
+#menu ul {
+	display: table;
+	margin: 0 auto;
+	padding: 0;
+}
+
+#menu li {
+	display: table-cell;
+	padding: 010px;
+}
+#menu h1{
+	font-size: 20px;
+	margin: 0px;
+}
+
+#menu a{
+	color: #000;
+	font-weight: bold;
+	text-decoration: none;
+	font-family: Arial;
+}
+
+#menu a:hover{
+	color: #444;
+	font-weight: bold;
+	text-decoration: none;
+	font-family: Arial;
+}
+
+
+/* ----------- login form */
+
+#loginform {
+	margin: 0 auto;
+	padding: 20px 40px;
+	max-width: 400px;
+/*	background: #fff;*/
+}
+#user,#pass {
+	margin: 0 auto 30px auto;
+}
+#user input, #pass input {
+	width: 200px;
+}
+.accessdenied {
+	font-size: 1.5em;
+	font-weight: bold;
+	color: #F00;
+}
 
 /* Subscription list
 ------------------------ */
@@ -127,27 +198,20 @@ a:active {
 	padding: 15px;
 	margin: 0 auto;
 	max-width: 350px;
-	/*border: 2px solid #dbca95;*/
 	border: 1px solid #333333;
-
-	/*border-radius: 3px;*/
 }
 
 
 .frame {
-	/*border-radius: 3px;*/
-	/*border: 2px solid #dbca95;*/
 	border-left: 2px solid #333333;
-	/*margin: 5px;
-	margin-bottom: 20px;*/
-	padding-left: 10px;
+	padding-left: 16px;
 }
+
 
 #listsettings {
 	margin: 5px;
 	padding: 10px;
 	margin-bottom: 5px;
-	/*border-bottom: 1px solid #dbca95;*/
 	border-bottom: 1px solid #333333;
 }
 
@@ -165,7 +229,6 @@ a:active {
 	padding-left: 15px;
 	padding-bottom: 15px;
 	padding-top: 15px;
-	/*background: #dbca95;*/
 }
 
 .savepanel {
@@ -185,7 +248,7 @@ a:active {
 
 
 .sub-line {
-	border: 1px solid #FFB15A;
+	border: 1px solid #CCC;
 	border-radius: 2px;
 	padding: 4px;
 	margin: 5px;
@@ -204,6 +267,7 @@ a:active {
 .unsubscribed {
 	font-style: italic;
 	font-size: 100%;
+	color: #AAA;
 }
 .subscribed {
 	font-size: 120%;
@@ -230,101 +294,6 @@ a:active {
 /* Main menu
 -------------------------------------------------------- */
 
-#header {
-	font-size:90%;
-	width: 85%;
-	margin: 0 auto;
-	padding-bottom:25px;
-}
-
-ul.tabs {
-
-	clear: both;
-	background-color: transparent;
-	padding: 5px 0 0 0;
-	height: 22px;
-	margin: 0 auto 10 -20px;
-	list-style: none;
-}
-
-ul.tabs li {
-	float: left;
-/*	background: transparent url(../images/right.png) no-repeat right top;*/
-}
-
-ul.tabs li {
-	text-align: center;
-/*	background: transparent url(../images/left.png) no-repeat left top;*/
-	margin:0 auto 0 auto;
-	padding: 0 2px 0 4px;
-}
-
-ul.tabs a {
-	display:block;
-/*	background: url(../images/left.png) no-repeat left top;*/
-	padding: 5px 15px 4px;
-}
-ul.tabs a:hover {
-	text-decoration: underline;
-	color: #000;
-}
-ul.tabs a:visited {
-	text-decoration: none;
-	color: #000;
-}
-
-ul.tabs .active{
-	/* background-image: url(../images/right_on.png);*/
-	background: #FFB15A;
-}
-
-
-ul.tabs .active a {
-	/* background-image: url(../images/left_on.png); */
-	background: #FFB15A;
-
-	color: #000;
-	padding-bottom:5px;
-}
-
-
-ul.tabs a, ul.tabs strong, ul.tabs span {
-	display:block;
-	padding:5px 15px 4px 6px;
-}
-
-
-
-ul.tabs .active a {
-	padding-bottom:5px;
-}
-
-ul.tabs a {
-	display:block;
-	padding:5px 15px 4px 6px;
-}
-
-ul.tabs a {
-	display:block;
-	padding:5px 6px 4px 5px;
-	text-decoration:none;
-	font-weight:bold;
-	color:#000;
-}
-
-/* Le hack de l'antislash commenté
-cache cette règle à IE5-Mac \*/
-
-ul.tabs a {float:none;}
-/* End IE5-Mac hack */
-
-
-
-ul.tabs a {
-	/* Pour IE Mac uniquement \*//*/
-	float:left;
-	/**/
-}
 /* Config form
 --------------------------------------*/
 .twocols {
