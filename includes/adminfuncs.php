@@ -66,11 +66,11 @@ function zfLogin() {
 		if ($_SESSION['logged_in'] != 1) {
 			echo "<!DOCTYPE html";
 			echo "<head><title>ZebraFeeds Authentication</title>";
-			echo '<link rel="stylesheet" type="text/css" href="res/css/login.css" />
+			echo '<link rel="stylesheet" type="text/css" href="res/css/admin.css" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>';
 			echo "</head><body>";
-			echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"res/img/logo_admin.png\" border=\"0\" alt=\"ZebraFeeds\"/></a>";
+			echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"res/img/logo-new.png\" border=\"0\" alt=\"ZebraFeeds\"/></a>";
 			echo "<h3>Login</h3></div><form action=\"{$_SERVER['PHP_SELF']}\" method=\"post\">";
 			echo "<div id=\"loginform\">";
 				echo "<div id=\"user\"><label for=\"username\">Username</label>";

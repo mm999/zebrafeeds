@@ -264,8 +264,8 @@ if($_POST['dosave']=='Save')
 
 	<?php
 		$refreshurl = ZF_URL.'/pub/refresh.php?key='.md5(ZF_ADMINNAME . ZF_ADMINPASS);
-		echo 'Your personal ZebraFeeds refresh link to refresh all feeds via cron job:<br/><br/>
-			  '.$refreshurl.' <br/><br/><br/>
+		echo 'Your personal ZebraFeeds refresh link to refresh all feeds via cron job:<br/>
+			<textarea style="width: 100%; margin-top: 10px; margin-bottom: 10px;">'.$refreshurl.'</textarea><br/>
 			  <em>Note: this link changes whenever you change the admin user or password.</em>';
 	?>
 	</div>
