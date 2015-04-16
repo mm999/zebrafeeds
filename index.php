@@ -31,8 +31,8 @@ $zfaction = param('zfaction', ZF_DEFAULT_ADMIN_VIEW);
 
 zf_debug('zfaction is '.$zfaction);
 
-// another quick thing to fix later. 
-// if zfaction default is subscriptions, we never get to 
+// another quick thing to fix later.
+// if zfaction default is subscriptions, we never get to
 // see the article page when clicked from the feeds page
 $q = param('q', '');
 if (strlen($q) >0) $zfaction='feeds';
@@ -95,7 +95,7 @@ switch ($zfaction) {
 
 
 	<header class="top">
-		<a href="http://cazalet.org/zebrafeeds"><img src="documentation/style/logo-new.png" alt="ZebraFeeds"></a>
+		<a href="http://cazalet.org/zebrafeeds"><img src="res/img/logo-new.png" alt="ZebraFeeds"></a>
 	</header>
 	<nav id="menu">
 		<ul>
