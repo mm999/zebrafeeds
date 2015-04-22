@@ -28,7 +28,7 @@ if(zfAuth()==false) {
 
 
 
-if($_POST['dosave']=='Save')
+if(isset($_POST['dosave']) && $_POST['dosave']=='Save')
 {
 	if($_POST['newpassword'] == $_POST['confirmpassword'] && $_POST['newpassword']!='') {
 		$_POST['adminpassword'] = md5($_POST['newpassword']);

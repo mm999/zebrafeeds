@@ -17,7 +17,7 @@ if ($_GET['key'] != md5(ZF_ADMINNAME.ZF_ADMINPASS)) {
 
 $subs = SubscriptionStorage::getInstance()->getActiveSubscriptions();
 FeedCache::getInstance()->update($subs);
-
+echo 'complete';
 
 
 ?>

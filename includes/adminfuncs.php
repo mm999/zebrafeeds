@@ -52,7 +52,7 @@ function zfLogin() {
 		}
 	} elseif(ZF_LOGINTYPE=='session') {
 		session_start(); // needed if authentication mechanism is session
-		if ($_POST['submit_login'] == 'Log In!')
+		if (isset($_POST['submit_login']) && $_POST['submit_login'] == 'Log In!')
 		{
 			if (($_POST['admin_user'] != ZF_ADMINNAME || md5($_POST['admin_pass']) != ZF_ADMINPASS) && (ZF_ADMINPASS!=''))
 			{
