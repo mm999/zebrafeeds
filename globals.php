@@ -44,11 +44,8 @@ define("ZF_DATADIR", INITDIR.'/data');
 define("ZF_OPMLFILE", ZF_DATADIR.'/zebrafeeds.opml');
 define("ZF_TEMPLATESDIR", INITDIR.'/templates');
 define("ZF_HISTORYDIR", ZF_DATADIR.'/history');
-
-// full path
 define("ZF_CACHEDIR", ZF_DATADIR.'/cache');
-// only simplepie supported;
-define("ZF_RSSPARSER", "simplepie");
+
 define ('SSL_PORT', 443);
 define('ZF_VER', '2.0');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
