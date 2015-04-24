@@ -142,7 +142,7 @@ switch ($zfaction) {
 			break;
 
 		case 'cleanold':
-			$size = clearOldData(ZF_DATADIR, 60*60*24*14, "hst");
+			$size = clearOldData(ZF_HISTORYDIR, 60*60*24*14, "hst");
 			$size += clearOldData(ZF_CACHEDIR, 60*60*24*14);
 			echo '<div id="core"><h3>Clean up</h3>';
 			echo "Cleared cache and history files older than 2 weeks.<br/>";
@@ -152,7 +152,7 @@ switch ($zfaction) {
 			break;
 
 		case 'flush':
-			$size = clearOldData(ZF_DATADIR, 0, "hst");
+			$size = clearOldData(ZF_HISTORYDIR, 0, "hst");
 			$size += clearOldData(ZF_CACHEDIR, 0);
 			echo '<div id="core"><h3>Clean up</h3>';
 			echo "Flushed cache and history files.<br/>";
