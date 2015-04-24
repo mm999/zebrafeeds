@@ -1,64 +1,17 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>ZebraFeeds installation</title>
- <style type="text/css">
-  <!--
-body {
-	color: #000;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 80%;
-	margin : 0;
-	padding : 0;
-}
+	<html>
+	<head>
+	<title>ZebraFeeds</title>
+	<link rel="stylesheet" type="text/css" href="res/css/admin.css"/>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>
+	</head>
+	<body>
 
-#header{
-border-bottom: 1px solid #dbca95;
-padding: 10px;
-}
 
-#core {
-
-padding: 10px;
-
-}
-.twocols {
-	margin-left: 10%;
-	margin-bottom: 40px;
-	position : static;
-}
-.twocols h2 {
-	border: 2px solid #000;
-	color: #0084ff;
-}
-.twocols .col1 {
-	width : 49%;
-	margin-left : 1%;
-	float : left;
-	text-align: left;
-}
-.twocols .col1, .col2:first-child {
-	width : 30%;
-	margin-left : 0;
-
-}
-
-.col1 p {
-	height: 5em;
-	padding: 0 5em 0 5em;
-}
-.smallprint {
-	color: #ff9000;
-	font-size: 80%;
-	font-family: sans-serif;
-}
-  -->
-  </style>
-</head>
-<body>
-<div id="header">
-<a href="http://cazalet.org/zebrafeeds"><img src="res/img/logo_admin.png" border="0" alt="ZebraFeeds logo"/></a>  Installation
-</div>
+	<header class="top">
+		<a href="http://cazalet.org/zebrafeeds"><img src="res/img/logo-new.png" alt="ZebraFeeds"></a>
+	</header>
 <?php
 
 require_once(__DIR__.'/init.php');
@@ -184,7 +137,7 @@ $defaultUrl = dirname(getZfUrl());
 			  <option value="server" <?php if(ZF_LOGINTYPE=='server') echo 'selected="selected"';?>>server</option>
 			  <option value="session" <?php if(ZF_LOGINTYPE=='session') echo 'selected="selected"';?>>session</option>
 			</select>
-			<span class="smallprint">session: will use cookies. server: requires .htaccess and .htpasswd on server</span>
+			<span class="smallprint">session: uses PHP session. server: requires .htaccess and .htpasswd on server</span>
 	</div>
 	</div>
 	<input type="submit" name="dosave" value="Complete your installation"/>
@@ -200,7 +153,7 @@ $defaultUrl = dirname(getZfUrl());
 
 	$ok = true;
 	if($_POST['newpassword']==$_POST['confirmpassword'] && $_POST['newpassword']!='') {
-		$config['adminpassword'] = md5($_POST['newpassword']);
+		$config['adminpassword'] = crypt($_POST['newpassword']);
 	} else {
 		if (defined("ZF_ADMINPASS")) {
 			$config['adminpassword'] = ZF_ADMINPASS;
@@ -227,7 +180,7 @@ $defaultUrl = dirname(getZfUrl());
 
 	if ($ok && saveConfig($config)) {
 		displayStatus('Basic configuration saved.');
-		echo 'Please go to the <a href="index.php?zfaction=config">configuration page</a> to complete the installation<br/><br/>';
+		echo '<br/>Please go to the <a href="index.php?zfaction=config">configuration page</a> to complete the installation<br/><br/>';
 		echo 'For security reasons, make sure to delete the file <code>install.php</code><br/><br/>';
 		echo 'Have a look at the <a href="embed-demo.php">Embed demo page</a> to embed feeds on your site.';
 
