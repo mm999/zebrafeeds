@@ -1,6 +1,6 @@
 #Changelog for ZebraFeeds
 
-### Release 2.0 - April 20, 2015
+### Release 2.0 - April 26, 2015
 
 Major update
 
@@ -9,18 +9,19 @@ Major update
 - One single subscription list, preliminary support for tags of feeds
 - API with JSON and HTML output
 - Many changes in template tags
-- Fetches 5 feeds simultaneously during auto-refresh (thanks FiveFilters)
-
+- Fetches 5 feeds simultaneously during refresh (thanks Fivefilters)
 
 Shortcomings and known problems
 
-- OPML import/export via admin page not functional (workaround possible
+- no OPML import/export via admin page (workaround possible
   since subscriptions stored in an OPML file)
 - no automatic upgrade from 1.X
+- display error config setting has no effect
 - JSON API not fully tested
 - libraries imports not optimized
 - Client-side javascript functions not finished/tested and suck a lot
 - Templates are old and outdated (styles and features)
+
 
 ### Release 1.3 - September 29, 2012
 

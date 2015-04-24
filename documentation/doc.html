@@ -27,12 +27,6 @@
 				</ul>
 			</nav>
 
-			<div class="section">
-				<div class="text"> This is the <a href="http://www.cazalet.org/zebrafeeds">ZebraFeeds</a>
-					reference documentation page.<br/>
-				</div>
-			</div>
-
 			<div class="section" id="install">
 				<h2>Installation</h2>
 				<div class="text">
@@ -61,7 +55,17 @@
 						<code>zebrafeeds/embed/feeds.php</code>).
 						Also select a provided template, either as is or customized or make your own.</li>
 					</ol>
-
+				</div>
+				<h3>Upgrade from 1.X</h3>
+				<div class="text">
+					On upgrading from ZebraFeeds 1.X, the configuration file - most of the settings
+					and the admin user/password - can <strong>not</strong> be reused in ZebraFeeds 2.0<br/>
+					Recovering the feeds subscriptions is possible but alas requires a bit of
+					manual work, since subscriptions are now stored in a single OPML file.<br/>
+					Merge each OPML file into <code>/data/zebrafeeds.opml</code>
+					after the installation: From each OPML file, copy all
+						lines starting with <code>&lt;outline&gt;</code> to the <code>body</code> section of
+						<code>/zebrafeeds/data/zebrafeeds.opml</code>.
 				</div>
 			</div>
 			<div class="section" id="embed">
@@ -106,13 +110,12 @@
 					to regularly refresh feeds, and provided a private refresh link to place in your
 					automated task.<br/>
 					The private link can be found in the settings pages.<br/>
-					You might also want to set refresh mode must be set to "manual". <br/>
+					You might also want to set refresh mode to "manual". <br/>
 					<br/>
 					Please note that each feed's refresh time still applies.
 					If you configure a service to call the refresh link every 30 minutes, it means
 					that the feeds will be checked for expiration that often.
 					It doesn't mean that the feeds will be fetched from the publisher every 30 minutes.
-
 
 					<br/>The link will change
 					whenever the admin user name or password changes.
@@ -124,12 +127,12 @@
 					visitor's last visit. It applies to all visitors indistinctly. It requires no
 					additional change on your page since the time is stored in the data subdirectory.
 					To mark new items on the generated html content, you have to use the template tag
-					{isnew} in your template (see below).<br/>
+					<code>{isnew}</code> in your template (see below).<br/>
 					Please note this feature does not keep track of the <em>unread</em> items, it just
-					highlights the items not yet published in the last visit. <br/>
+					highlights the items that had not been fetched yet at the time of the last visit. <br/>
 					This works by means of "sessions". Sessions last by default 15 minutes
 					(see constant named <code>ZF_SESSION_DURATION</code> in <code>globals.php</code>). After 15 minutes without
-					any activity (access to feeds), the session is closed, and all items in the cache
+					any activity (access to feeds), the session expires, and all items in the cache
 					get marked as "not new". <br/>
 					This is equivalent to marking all items as "read" every time you stop reading your
 					feeds in ZebraFeeds.<br/>
