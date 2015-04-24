@@ -34,6 +34,7 @@ class ItemTracker {
 	/* array of News id => { timestamp first time seen, current -ie seen in last fetch} */
 	private $_timestamps;
 	private $since;
+	private $saveNeeded;
 
 	// id of subscription for which tracker is loaded
 	private $loadedId = '';
@@ -48,12 +49,21 @@ class ItemTracker {
 
 	private function __construct() {
 
-		// array index: item id
-		// data, array of "timestamp of first seen", "just seen" flag
+		/* array index: item id
+		 array of
+		- seen: timestamp of first seen by user
+		- current: boolean flag if item found in feed in last refresh (for purging)
+		*/
 		$this->_timestamps = array();
 		$this->now = time();
+		$this->saveNeeded = false;
 
+	}
 
+	private function __destruct() {
+		if ($this->saveNeeded) {
+			$this->save();
+		}
 	}
 
 	public function setLastSessionEnd($end) {
@@ -62,9 +72,11 @@ class ItemTracker {
 
 	protected function fileName($subId) {
 		return ZF_HISTORYDIR.'/'.$subId.'.hst';
-
 	}
 
+	protected function invalidateCache() {
+		$this->saveNeeded = true;
+	}
 
 	protected function save(){
 		$filename = $this->fileName($this->loadedId);
@@ -80,6 +92,7 @@ class ItemTracker {
 		fwrite( $fp, $data );
 		fclose( $fp );
 		zf_debug( "tracker file saved", DBG_SESSION);
+		$this->saveNeeded = false;
 	}
 
 
@@ -88,6 +101,11 @@ class ItemTracker {
 		if ($this->loadedId == $subId) {
 			zf_debug( "Tracker file in cache for $subId", DBG_SESSION);
 			return;
+		} else if ($this->saveNeeded) {
+			zf_debug( "Invalidated cache for $subId, saving", DBG_SESSION);
+			// if we need to load history for another feed, make sure that
+			// we save the previous one if the cache had been invalidated
+			$this->save();
 		}
 
 
@@ -132,7 +150,7 @@ class ItemTracker {
 
 
 
-	/* record the presence of the item, and set its date if needed
+	/* record the presence of the item in the recently fetched feed, and set its date if needed
 	 */
 	public function checkIn($subId, $item) {
 		zf_debug('Checking in item- '. $item->id. ' sub '. $subId, DBG_SESSION);
@@ -141,18 +159,19 @@ class ItemTracker {
 
 		if (!isset($this->_timestamps[$item->id])) {
 
-			zf_debug('New item '.$item->id.' (storing date of first time seen)', DBG_SESSION);
+			zf_debug('New item '.$item->id.': tracking started', DBG_SESSION);
+			$this->_timestamps[$item->id]['seen'] = 0; // never seen
 
-			$this->_timestamps[$item->id]['ts'] = time();
 		} else {
 			zf_debug('Item is known, already logged.', DBG_SESSION);
 		}
-		// whatever case, mark this news as current, we saw it in the feed
+		// whatever case, mark this news as current not to purge it, since we saw it in the feed
 		$this->_timestamps[$item->id]['current'] = true;
+		$this->invalidateCache();
 
 		if ($item->date_timestamp == 0) {
 			zf_debug('Item has no date. Fixing this', DBG_SESSION);
-			$item->date_timestamp = $this->_timestamps[$item->id]['ts'];
+			$item->date_timestamp = $this->now;
 		}
 
 	}
@@ -172,9 +191,15 @@ class ItemTracker {
 			// found in our tracker DB
 			// it's new if it appeared after our since time stamp reference
 
-			zf_debug('item last checked in on '.date('dS F Y h:i:s A', $this->_timestamps[$id]['ts']), DBG_SESSION);
+			zf_debug('item first seen on '.date('dS F Y h:i:s A', $this->_timestamps[$id]['seen']), DBG_SESSION);
 
-			if ($this->_timestamps[$id]['ts'] - $this->since > 0 ) {
+
+			if (!isset($this->_timestamps[$id]) || $this->_timestamps[$id]['seen'] == 0) {
+				$this->_timestamps[$id]['seen'] = $this->now;
+				$this->invalidateCache();
+			}
+
+			if ($this->_timestamps[$id]['seen'] > $this->since ) {
 				zf_debug($id.' => NEW', DBG_SESSION);
 				$item->isNew = true;
 			} else {
@@ -184,8 +209,12 @@ class ItemTracker {
 
 
 		} else {
-			/* should happen only if items have no date */
+			/* should happen only if items have no date, or if history has been cleared */
 			zf_debug('/!\ item not found '.$item->title, DBG_SESSION);
+			$this->_timestamps[$id]['current'] = false; // we are neither fetching nor going to purge, so init to false.
+			$this->_timestamps[$id]['seen'] = $this->now;
+			$item->isNew = true;
+			$this->invalidateCache();
 
 		}
 
