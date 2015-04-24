@@ -18,43 +18,22 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-
-function zfAuth() {
-	if (defined('ZF_ADMINLOGGED') && (ZF_ADMINLOGGED == 'yes')) {
-		if (ZF_LOGINTYPE == 'server') {
-			if (($_SERVER['PHP_AUTH_USER'] != ZF_ADMINNAME || md5($_SERVER['PHP_AUTH_PW']) != ZF_ADMINPASS) && (ZF_ADMINPASS!='')) {
-				return false;
-			} else{
-				return true;
-			}
-		} elseif (ZF_LOGINTYPE == 'session') {
-			if (($_SESSION['admin_user'] != ZF_ADMINNAME || md5($_SESSION['admin_pass']) != ZF_ADMINPASS) && (ZF_ADMINPASS!='')) {
-				return false;
-			} else {
-				return true;
-			}
-		}
-	} else {
-		return false;
-	}
-}
+if (!defined('ZF_VER')) exit;
 
 /* checks for authentication, and gives a login form if needed */
 function zfLogin() {
 
 	if(ZF_LOGINTYPE=='server') {
-		if (($_SERVER['PHP_AUTH_USER'] != ZF_ADMINNAME || md5($_SERVER['PHP_AUTH_PW']) != ZF_ADMINPASS) && (ZF_ADMINPASS!='')) {
+		if (($_SERVER['PHP_AUTH_USER'] != ZF_ADMINNAME || crypt($_SERVER['PHP_AUTH_PW'], ZF_ADMINPASS) != ZF_ADMINPASS) && (ZF_ADMINPASS!='')) {
 			header("WWW-Authenticate: Basic realm=\"ZebraFeeds Authentication\"");
 			header("HTTP/1.0 401 Unauthorized");
 			zfLoginFailed();
-		} else {
-			define('ZF_ADMINLOGGED', "yes");
 		}
 	} elseif(ZF_LOGINTYPE=='session') {
 		session_start(); // needed if authentication mechanism is session
 		if (isset($_POST['submit_login']) && $_POST['submit_login'] == 'Log In!')
 		{
-			if (($_POST['admin_user'] != ZF_ADMINNAME || md5($_POST['admin_pass']) != ZF_ADMINPASS) && (ZF_ADMINPASS!=''))
+			if (($_POST['admin_user'] != ZF_ADMINNAME || crypt($_POST['admin_pass'], ZF_ADMINPASS) != ZF_ADMINPASS) && (ZF_ADMINPASS!=''))
 			{
 				zfLoginFailed();
 			} else	{
@@ -70,22 +49,20 @@ function zfLogin() {
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>';
 			echo "</head><body>";
-			echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"res/img/logo-new.png\" border=\"0\" alt=\"ZebraFeeds\"/></a>";
-			echo "<h3>Login</h3></div><form action=\"{$_SERVER['PHP_SELF']}\" method=\"post\">";
-			echo "<div id=\"loginform\">";
+			echo "<header class=\"top\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"res/img/logo-new.png\" border=\"0\" alt=\"ZebraFeeds\"/></a></header>";
+			echo "<div id=\"core\"><form action=\"{$_SERVER['PHP_SELF']}\" method=\"post\">";
+			echo "<div id=\"loginform\"><h3>Login</h3>";
 				echo "<div id=\"user\"><label for=\"username\">Username</label>";
 			echo "<br/><input type=\"text\" id=\"username\" name=\"admin_user\" /><br/><br/>";
 				echo "<div id=\"pass\"><label for=\"password\">Password</label>";
 			echo "<br/><input type=\"password\" id=\"password\" name=\"admin_pass\" /></div>";
 				echo "</div><input type=\"submit\" name=\"submit_login\" value=\"Log In!\" />";
-			echo "</div>";
+			echo "</div></div>";
 			echo "</form></body></html>";
 			exit;
-		} else {
-			define('ZF_ADMINLOGGED', "yes");
 		}
 	} else {
-		echo "<html><head><title>ZebraFeeds - auth not set</title></head><body><div align=\"center\"><br/><h3>Authentication mechanism not configured !</h3></div></body></html>";
+		echo "<html><head><title>ZebraFeeds - auth not set</title></head><body><div align=\"center\"><br/><h3>Authentication method not set!</h3></div></body></html>";
 		exit;
 	}
 }
@@ -95,14 +72,12 @@ function zfLogin() {
 function zfLoginFailed() {
 	echo "<!DOCTYPE html";
 	echo "<head><title>Unauthorized Access</title>";
-	echo '<link rel="stylesheet" type="text/css" href="login.css" />
+	echo '<link rel="stylesheet" type="text/css" href="res/css/admin.css" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>';
 	echo "</head><body>";
-	echo "<br/>";
-	echo "<div class=\"normaltext\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"res/img/logo_admin.png\" border=\"0\" alt=\"ZebraFeeds\"/></a></div>";
-	echo "<div style=\"padding: 20px\"><span class=\"accessdenied\">ACCESS DENIED</span><br/><br/>";
-	echo "Sorry, you have no access to administration area. ";
+	echo "<header class=\"top\"><a href=\"http://cazalet.org/zebrafeeds\"><img src=\"res/img/logo-new.png\" border=\"0\" alt=\"ZebraFeeds\"/></a></header>";
+	echo "<div id=\"core\"><span class=\"accessdenied\">ACCESS DENIED</span><br/><br/>";
 	echo "<a href=\"./\">Please login</a></div>";
 	echo "</body></html>";
 	exit;
@@ -139,32 +114,31 @@ function saveConfig(&$config) {
 	if($fp) {
 		fwrite($fp,"<?php\n// ZebraFeeds ".ZF_VER." - copyright (c) Laurent Cazalet\n");
 		fwrite($fp,"// configuration file\n\n\n");
-		fwrite($fp,"define(\"ZF_CONFIGVERSION\",\"".ZF_VER."\");\n");
+		fwrite($fp,"define('ZF_CONFIGVERSION','".ZF_VER."');\n");
 		fwrite($fp,"// general configuration options //\n\n");
-		fwrite($fp,"define(\"ZF_URL\",\"".$config['zfurl']."\"); // URL of ZebraFeeds folder\n");
-		fwrite($fp,"define(\"ZF_LOGINTYPE\",\"".$config['zflogintype']."\"); // server - server HTTP auth; session - PHP sessions auth\n");
-		fwrite($fp,"define(\"ZF_ADMINNAME\",\"".$config['adminname']."\"); // admin username\n");
-		fwrite($fp,"define(\"ZF_ADMINPASS\",\"".$config['adminpassword']."\"); // crypted admin password, default is \"admin\" (without quotes). Leave empty to reset.\n");
+		fwrite($fp,"define('ZF_URL','".$config['zfurl']."'); // URL of ZebraFeeds folder\n");
+		fwrite($fp,"define('ZF_LOGINTYPE','".$config['zflogintype']."'); // server - server HTTP auth; session - PHP sessions auth\n");
+		fwrite($fp,"define('ZF_ADMINNAME','".$config['adminname']."'); // admin username\n");
+		fwrite($fp,"define('ZF_ADMINPASS','".$config['adminpassword']."'); // crypted admin password. Leave empty to reset.\n");
 		fwrite($fp,"\n\n// Aggregator options //\n\n");
-		fwrite($fp,"define(\"ZF_HOMETAG\",\"".$config['subtag']."\"); // tag for the default list of subscriptions\n");
-		fwrite($fp,"define(\"ZF_REFRESHMODE\",\"".$config['refreshmode']."\"); // automatic: feeds are refreshed when page is generated. request: use a refresh link. see admin page for details\n");
-		fwrite($fp,"define(\"ZF_SORT\",\"".$config['sortmode']."\"); // \n");
-		fwrite($fp,"define(\"ZF_TRIMTYPE\",\"".$config['trimtype']."\"); // \n");
-		fwrite($fp,"define(\"ZF_TRIMSIZE\",\"".$config['trimsize']."\"); // \n");
-		fwrite($fp,"define(\"ZF_NOFUTURE\",\"".$config['nofuture']."\"); // if yes then does not show news with a timestamp from the future\n");
+		fwrite($fp,"define('ZF_HOMETAG','".$config['subtag']."'); // tag for the default list of subscriptions\n");
+		fwrite($fp,"define('ZF_REFRESHMODE','".$config['refreshmode']."'); // automatic: feeds are refreshed when page is generated. request: use a refresh link. see admin page for details\n");
+		fwrite($fp,"define('ZF_SORT','".$config['sortmode']."'); // \n");
+		fwrite($fp,"define('ZF_TRIMTYPE','".$config['trimtype']."'); // \n");
+		fwrite($fp,"define('ZF_TRIMSIZE','".$config['trimsize']."'); // \n");
+		fwrite($fp,"define('ZF_NOFUTURE','".$config['nofuture']."'); // if yes then does not show news with a timestamp from the future\n");
 		fwrite($fp,"\n\n// Template options //\n\n");
-		fwrite($fp,"define(\"ZF_TEMPLATE\",\"".$config['template']."\"); // the default templates used to display the news (subdirectory name from templates directory)\n");
-		fwrite($fp,"define(\"ZF_DISPLAYERROR\",\"".$config['displayerror']."\"); // if yes then when a feed cannot be read (or has errors) formatted error message shows in {description}\n");
+		fwrite($fp,"define('ZF_TEMPLATE','".$config['template']."'); // the default templates used to display the news (subdirectory name from templates directory)\n");
+		fwrite($fp,"define('ZF_DISPLAYERROR','".$config['displayerror']."'); // if yes then when a feed cannot be read (or has errors) formatted error message shows in {description}\n");
 		fwrite($fp,"\n\n// Localization options //\n\n");
-		fwrite($fp,"define(\"ZF_ENCODING\",\"".$config['encoding']."\"); // character encoding for output\n");
-		fwrite($fp,"define(\"ZF_LOCALE\",\"".$config['locale']."\"); // language for dates, system messages\n");
-		fwrite($fp,"define(\"ZF_PUBDATEFORMAT\",\"".$config['pubdateformat']."\"); // format passed to strftime to convert dates got from RSS feeds\n");
-		fwrite($fp,"define(\"ZF_DATEFORMAT\",\"".$config['dateformat']."\"); // format passed to strftime to display date when displaying news grouped by date\n");
+		fwrite($fp,"define('ZF_ENCODING','".$config['encoding']."'); // character encoding for output\n");
+		fwrite($fp,"define('ZF_LOCALE','".$config['locale']."'); // language for dates, system messages\n");
+		fwrite($fp,"define('ZF_PUBDATEFORMAT','".$config['pubdateformat']."'); // format passed to strftime to convert dates got from RSS feeds\n");
+		fwrite($fp,"define('ZF_DATEFORMAT','".$config['dateformat']."'); // format passed to strftime to display date when displaying news grouped by date\n");
 		fwrite($fp,"\n\n//////END OF CONFIGURATION///////////////////////////////////////////////////\n\n");
 		fwrite($fp,"\n\n?>");
 		fclose($fp);
 
-//TODO: save viewmode, trimtype/trimsize
 		return true;
 	} else return false;
 

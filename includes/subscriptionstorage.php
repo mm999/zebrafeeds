@@ -146,11 +146,11 @@ class SubscriptionStorage {
 		$fp = fopen($this->opmlfilename, "w");
 		if ($fp) {
 			if (ZF_OWNERNAME != '')
-				$ownername = "\n\t\t<ownerName>" . htmlspecialchars(ZF_OWNERNAME,ENT_QUOTES) . "</ownerName>\n";
+				$ownername = "\n\t\t<ownerName></ownerName>\n";
 			else
 				$ownername = '';
 			if (ZF_OWNEREMAIL != '')
-				$owneremail = "\n\t\t<ownerEmail>" . htmlspecialchars(ZF_OWNEREMAIL,ENT_QUOTES) . "</ownerEmail>\n";
+				$owneremail = "\n\t\t<ownerEmail></ownerEmail>\n";
 			else
 				$owneremail = '';
 			$dateModified = "\n\t\t<dateModified>" . gmdate("D, d M Y H:i:s \G\M\T") . "</dateModified>\n";

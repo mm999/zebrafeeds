@@ -20,9 +20,9 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-if(zfAuth()==false) {
-	exit;
-} elseif(!is_writable(ZF_CONFIGFILE)) {
+if (!defined('ZF_VER')) exit;
+
+if(!is_writable(ZF_CONFIGFILE)) {
 	displayStatus('config.php is not writable (you cannot save changes)!');
 }
 
@@ -31,7 +31,7 @@ if(zfAuth()==false) {
 if(isset($_POST['dosave']) && $_POST['dosave']=='Save')
 {
 	if($_POST['newpassword'] == $_POST['confirmpassword'] && $_POST['newpassword']!='') {
-		$_POST['adminpassword'] = md5($_POST['newpassword']);
+		$_POST['adminpassword'] = crypt($_POST['newpassword']);
 	} else {
 		$_POST['adminpassword'] = ZF_ADMINPASS;
 	}

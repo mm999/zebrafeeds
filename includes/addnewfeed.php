@@ -18,9 +18,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-if (zfAuth()==false) exit;
-
-
+if (!defined('ZF_VER')) exit;
 
 function simple_fetch($url, &$resultString) {
 	$rss = zf_xpie_basic_fetch($url);
@@ -132,8 +130,8 @@ function getRSSLocation($html, $location)
     }
 }
 
-$siteurl = $_REQUEST['siteurl'];
-$feedurl = $_REQUEST['feedurl'];
+$siteurl = isset($_REQUEST['siteurl'])?$_REQUEST['siteurl']:'';
+$feedurl = isset($_REQUEST['feedurl'])?$_REQUEST['feedurl']:'';
 
 
 /* this is the form that displays the parsed feed information */
