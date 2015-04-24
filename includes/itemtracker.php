@@ -52,6 +52,7 @@ class ItemTracker {
 		/* array index: item id
 		 array of
 		- seen: timestamp of first seen by user
+		- fetched: timestamp of first fetch, to assign to dateless items
 		- current: boolean flag if item found in feed in last refresh (for purging)
 		*/
 		$this->_timestamps = array();
@@ -161,18 +162,21 @@ class ItemTracker {
 
 			zf_debug('New item '.$item->id.': tracking started', DBG_SESSION);
 			$this->_timestamps[$item->id]['seen'] = 0; // never seen
+			$this->_timestamps[$item->id]['fetched'] = $this->now;
 
 		} else {
 			zf_debug('Item is known, already logged.', DBG_SESSION);
 		}
+
+		if ($item->date_timestamp == 0) {
+			zf_debug('Item has no date. Fixing this', DBG_SESSION);
+			$item->date_timestamp = $this->_timestamps[$item->id]['fetched'];
+		}
+
 		// whatever case, mark this news as current not to purge it, since we saw it in the feed
 		$this->_timestamps[$item->id]['current'] = true;
 		$this->invalidateCache();
 
-		if ($item->date_timestamp == 0) {
-			zf_debug('Item has no date. Fixing this', DBG_SESSION);
-			$item->date_timestamp = $this->now;
-		}
 
 	}
 
