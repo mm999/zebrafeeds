@@ -1,6 +1,6 @@
 #Changelog for ZebraFeeds
 
-### Release 2.0 - April 26, 2015
+### Release 2.0 - April 27, 2015
 
 Major update
 
