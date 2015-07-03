@@ -69,6 +69,7 @@ abstract class AbstractFeed {
 	}
 
 	public function filter($chain) {
+		zf_debug("Filtering feed ".count($this->getItems()).' items', DBG_AGGR);
 		if ($chain && sizeof($chain)>0) {
 			$this->items = $chain->filter($this->items);
 		}
@@ -144,7 +145,7 @@ class AggregatedFeed extends AbstractFeed {
 			*/
 			$itemsToMerge = $pubfeed->getItems();
 			$this->items = array_merge($this->items, $itemsToMerge);
-			zf_debug("Merged ".$pubfeed->subscriptionId, DBG_AGGR);
+			zf_debug("Merged ".count($pubfeed->getItems()).' items from '.$pubfeed->title.' - '.$pubfeed->subscriptionId, DBG_AGGR);
 		}
 		$this->sortItems();
 		$this->filter($filterChain);

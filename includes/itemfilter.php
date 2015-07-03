@@ -19,6 +19,8 @@ class FilterChain{
 		$result = array();
 
 		foreach($items as $item) {
+			zf_debug('Filter check on '.$item->title, DBG_FILTER);
+
 			$accept = $this->acceptItem($item);
 			if ($accept) {
 				// TODO annoying that the inner implementation of feed->items is used here
@@ -41,14 +43,15 @@ class FilterChain{
 		if (preg_match("/([0-9]+)(.*)/",$trim, $matches)) {
             $trimType = $matches[2];
             $trimSize = $matches[1];
+
+			//zf_debug("Preparing TRIM filter $trimSize $trimType", DBG_FILTER);
+			if ($trimType !== 'news') {
+				$this->addFilter(new AgeFilter($trimType, $trimSize));
+			} else {
+				$this->maxSize = $trimSize;
+			}
         }
 
-		//zf_debug("Preparing TRIM filter $trimSize $trimType", DBG_FILTER);
-		if ($trimType !== 'news') {
-			$this->addFilter(new AgeFilter($trimType, $trimSize));
-		} else {
-			$this->maxSize = $trimSize;
-		}
 	}
 
 	public function acceptItem($item) {
@@ -59,6 +62,7 @@ class FilterChain{
 				break;
 			}
 		}
+		zf_debug('Filter '. get_class($filter). ($accept?' accepts ':' rejects ').$item->title, DBG_FILTER);
 		return $accept;
 
 
