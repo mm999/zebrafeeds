@@ -164,6 +164,9 @@ class aggregator {
 	private function makeFilterChain($trim, $onlyNew){
 
 		$chain = new FilterChain();
+		// always add the 'mark new' filter
+		$chain->addFilter(new MarkNewItemFilter());
+
 		if ($onlyNew) {
 			$chain->addFilter(new OnlyNewFilter());
 		}
@@ -171,8 +174,6 @@ class aggregator {
 		if ($trim !== 'none') {
 			$chain->setFeedTrim($trim);
 		}
-		// always add the 'mark new' filter
-		$chain->addFilter(new MarkNewItemFilter());
 
 		return $chain;
 	}
