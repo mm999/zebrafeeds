@@ -1,10 +1,14 @@
 /* ZebraFeeds admin panel style sheet */
+
+html {
+	font-size: 16px;
+}
+
 body{
 	color: #333;
 	font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
 	margin : 0;
 	padding : 0;
-	font-size: 14px;
 }
 
 
@@ -38,7 +42,6 @@ a:active {
 .normaltext {
 	color: #000;
 	font-size: 100%;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
 	margin: 0 40px 0 40px;
 
 }
@@ -137,8 +140,9 @@ code {
 }
 #menu{
 	text-align: left;
-	padding: 10px;
-	margin-bottom: 45px;
+	margin-top: 10px;
+	margin-bottom: 15px;
+	font-size: 0.9em;
 }
 
 #menu ul {
@@ -160,14 +164,12 @@ code {
 	color: #000;
 	font-weight: bold;
 	text-decoration: none;
-	font-family: Arial;
 }
 
 #menu a:hover{
 	color: #444;
 	font-weight: bold;
 	text-decoration: none;
-	font-family: Arial;
 }
 
 
