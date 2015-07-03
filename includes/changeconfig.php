@@ -131,7 +131,7 @@ if(isset($_POST['dosave']) && $_POST['dosave']=='Save')
 					</a>:
 				</div>
 				<div class="col2">
-					<input type="text" name="trimsize" id="trimsize" size="5" value="<?php echo ZF_TRIMSIZE;?>"/>
+					<input type="text" name="trimsize" id="trimsize" pattern="[0-9]*" size="5" value="<?php echo ZF_TRIMSIZE;?>"/>
 					<select name="trimtype" id="trimtype" >
 						<option value="news" <?php if(ZF_TRIMTYPE=='news') echo 'selected="selected"';?>>latest news</option>
 						<option value="days" <?php if(ZF_TRIMTYPE=='days') echo 'selected="selected"';?>>days</option>

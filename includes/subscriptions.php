@@ -83,7 +83,7 @@ function displayChannelList($subs) {
 				<label for="chantitle{i}">Title:</label>&nbsp;<br/>
 				<input type="text" class="desc" name="chantitle" id="chantitle{i}" value="{chantitle}" /><br/>
 				<label for="xmlurl{i}"> feed URL:</label><br/>
-				<input type="text" class="desc2" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
+				<input type="url" class="desc2" id="xmlurl{i}" name="xmlurl" value="{xmlurl}" />
 				<a href="javascript:open('{xmlurl}')" title="Open the feed in a new window" onclick="window.open('{xmlurl}'); return false;"><img class="icon" src="res/img/feed.png" alt="RSS/ATOM feed"/></a>
 				<br/>
 				<label for="description{i}">Description</label><br/>
@@ -91,8 +91,8 @@ function displayChannelList($subs) {
 			</div>
 			<div>
 				<div><label for="tags{i}">Tag(s):</label><br/><input name="tags" id="tags{i}" type="text" size="20" value="{tags}"/></div>
-				<div><label for="shownitems{i}">Displayed items in feed view:</label><br/><input name="shownitems" id="shownitems{i}" type="text" size="4" value="{shownitems}"/></div>
-				<div><label for="position{i}">position:</label> <input name="position" id="position{i}" type="text" size="3" value="{position}"/></div>
+				<div><label for="shownitems{i}">Displayed items in feed view:</label><br/><input name="shownitems" id="shownitems{i}" type="text" pattern="[0-9]*" size="4" value="{shownitems}"/></div>
+				<div><label for="position{i}">position:</label> <input name="position" id="position{i}" type="text" size="3" pattern="[0-9]*" value="{position}"/></div>
 
 				<div class="savepanel">
 					<input type="button" name="save" value="Save" onclick="saveChannel('{i}', this.form); return false;"/>&nbsp;

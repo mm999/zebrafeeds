@@ -166,7 +166,7 @@ $htmldata = <<<EOD
 
 	<div class="col1"><label for="shownnews">In feed view mode, display :</label></div>
 	<div class="col2">
-        	<input name="shownnews" type="text" id="shownnews" size="4" value="{shownitems}"/>&nbsp;news.
+        	<input name="shownnews" type="text" pattern="[0-9]*" id="shownnews" size="4" value="{shownitems}"/>&nbsp;news.
 	</div>
 	<div class="col1"><label for="isactive">Active :</label></div>
 	<div class="col2">
@@ -262,7 +262,7 @@ echo '</div>';
 		<br/>
 		<form name="form1" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=addnew'?>" method="post">
 		  Site URL :
-		  <input name="siteurl" type="text" size="40"/>
+		  <input name="siteurl" type="url" size="40"/>
 		  <input type="submit" name="submitsiteurl" value="go"/>
 		  </form>
 		  (ex: http://cazalet.org/zebrafeeds)
@@ -272,7 +272,7 @@ echo '</div>';
 		  <br/>
 		  <form name="form2" action="<?php echo $_SERVER['PHP_SELF'] . '?zfaction=addnew'?>" method="post">
 			Feed URL :
-			<input name="feedurl" type="text" size="40"/>
+			<input name="feedurl" type="url" size="40"/>
 			<input type="submit" name="submitfeedurl" value="go"/>
 		  </form>
 		  (ex: http://cazalet.org/zebrafeeds/feed)
