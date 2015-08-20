@@ -57,10 +57,11 @@ function zf_xpie_fetch_feed($subId, $url, &$resultString) {
 
         // TODO support logo $myfeed->publisher->logo = $SP_feed->get_image_url();
 
-		$items = $SP_feed->get_items();
+		$items = array_slice($SP_feed->get_items(), 0, ZF_MAXFEEDITEMS, true);
         foreach( $items as $item) {
         	$pubitem = new NewsItem($myfeed, $item->get_permalink(), $item->get_title(), $item->get_date('U'), $item->get_id(false));
 		    $pubitem->description = $item->get_content();
+		    $pubitem->summary = $item->get_description();
 
             $encidx = 0;
             $enc = $item->get_enclosures();

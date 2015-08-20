@@ -7,13 +7,15 @@ define('ZF_DEFAULT_NEWS_COUNT', 3);
 define('ZF_DEFAULT_REFRESH_TIME', 120);
 define('ZF_SESSION_DURATION', 900); // 15 minutes before unmarking items as new
 define('ZF_GROUP_BY_DAY', 'yes'); // if yes, items are grouped by day when multiple channels sorted by date
-define('ZF_MAX_SUMMARY_LENGTH', 300); // if description is longer (tags-stripped), let's truncate to make the summary
+define('ZF_MAX_SUMMARY_LENGTH', 600); // if description is longer (tags-stripped), let's truncate to make the summary
 define('ZF_SUMMARY_TRUNCATED_LENGTH', 300); // if truncate to summary, here's the remaining length
 define('ZF_SHOWCREDITS', 'no');
 // ideally, this should be defined in the template
 //define('ZF_ISNEW_STRING', '<img src="'.ZF_URL.'res/img/new.png" border="0" title="is new since last visit" alt="New"/>');
 define('ZF_ISNEW_STRING', 'newclass');
 define('ZF_DEFAULT_ADMIN_VIEW', 'subscriptions');
+define('ZF_MAXFEEDITEMS', '25'); // maximum number of feed items to keep in cache
+
 
 /*--------------------------*/
 /* bit debug values for ZF_DEBUG */
