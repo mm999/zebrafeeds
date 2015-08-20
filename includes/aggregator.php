@@ -81,7 +81,7 @@ class aggregator {
 
 		zf_debug('processing '.sizeof($subs).' subs for tag '.$tag, DBG_AGGR);
 
-		$this->cache->update($subs, 'auto');
+		$this->cache->update($subs, ((ZF_REFRESHMODE=='automatic')?'auto':'none'));
 
 		$feeds = $this->cache->getFeeds($subs);
 
