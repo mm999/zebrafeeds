@@ -205,23 +205,26 @@ class FeedCache {
 	public function update($subscriptions, $updateMode = 'auto') {
 
 		$subsToRefresh = array();
+		if ($updateMode !== 'none') {
+			foreach ($subscriptions as $sub) {
 
-		foreach ($subscriptions as $sub) {
+				zf_debug("Checking cache for $sub->title", DBG_FEED);
+				$status = $this->check_cache($sub->id);
+				zf_debug("status: $status", DBG_FEED);
+				$needsRefresh = ($status == 'STALE') || ($status == 'MISS');
 
-			zf_debug("Checking cache for $sub->title", DBG_FEED);
-			$status = $this->check_cache($sub->id);
-			zf_debug("status: $status", DBG_FEED);
-			$needsRefresh = ($status == 'STALE') || ($status == 'MISS');
+				if ($needsRefresh) {
+					$subsToRefresh[] = $sub;
+				}
 
-			if ($updateMode == 'force' || ($needsRefresh && $updateMode == 'auto') ) {
-				$subsToRefresh[] = $sub;
 			}
-
-		}
-		if (sizeof($subsToRefresh)>0) {
-			$this->updateAllParallel($subsToRefresh);
+			if (sizeof($subsToRefresh)>0) {
+				$this->updateAllParallel($subsToRefresh);
+			} else {
+				zf_debug('nothing to refresh', DBG_FEED);
+			}
 		} else {
-			zf_debug('nothing to refresh', DBG_FEED);
+				zf_debug('update mode is none, no refresh', DBG_FEED);
 		}
 	}
 

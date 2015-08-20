@@ -72,7 +72,7 @@ function handleRequest() {
 			$zf_aggregator = new Aggregator();
 			$feed = $zf_aggregator->getChannelFeed(
 					param('id'),
-					param('mode', 'auto'),
+					param('mode', ((ZF_REFRESHMODE=='automatic')?'auto':'none')),
 					param('trim', 'auto'),
 					int_param('onlynew', 0)
 					);
