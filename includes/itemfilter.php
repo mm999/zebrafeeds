@@ -141,7 +141,7 @@ class SummaryNormalizerFilter extends ItemFilter{
 
 		if ((strlen($item->title) > 0) ) {
 			$strsum = strip_tags($item->summary);
-			zf_debug(strlen($strsum). ' chars in summary, was '. strlen($item->summary), DBG_FILTER);
+			zf_debug(strlen($strsum). ' chars in stripped summary, unstripped: '. strlen($item->summary), DBG_FILTER);
 
 	        //strip out inline css and simplify style tags
 	        $search = array('#<(strong|b)[^>]*>(.*?)</(strong|b)>#isu', '#<(em|i)[^>]*>(.*?)</(em|i)>#isu', '#<u[^>]*>(.*?)</u>#isu');
@@ -150,13 +150,14 @@ class SummaryNormalizerFilter extends ItemFilter{
 
 			$item->isTruncated = false;
 			if (strlen($strsum) > ZF_MAX_SUMMARY_LENGTH ) {
+				zf_debug('truncating summary', DBG_FILTER);
 				$strsum = substr($strsum, 0, ZF_SUMMARY_TRUNCATED_LENGTH);
 				// don't chop words. chop at the last space character found
 				$lastspace = strrpos($strsum, ' ');
 				$strsum = substr($strsum, 0, $lastspace).'...';
 				$item->isTruncated = true;
+				$item->summary = $strsum;
 			}
-			$item->summary = $strsum;
 		}
 
 		return true;
