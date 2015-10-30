@@ -270,8 +270,8 @@ class template {
 			$sdesc = $feed->description;
 		}
 
-		$slink = htmlspecialchars($feed->link, ENT_QUOTES);
-		$sxmlurl = htmlspecialchars($feed->xmlurl, ENT_QUOTES);
+		$slink = $feed->link;
+		$sxmlurl = $feed->xmlurl;
 
 		/*TODO: logo and favicon
 		if ($feed->logo != "") {
@@ -309,7 +309,7 @@ class template {
 			$sdescription = $item->description;
 			$ssummary = $item->summary;
 		}
-		$slink = htmlspecialchars($item->link, ENT_QUOTES);
+		$slink = $item->link;
 
 		$this->_buffer = str_replace('{itemid}', $item->id, $this->_buffer);
 		$this->_buffer = str_replace('{link}', $slink, $this->_buffer);
