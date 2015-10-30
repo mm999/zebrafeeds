@@ -103,7 +103,7 @@ function zf_transcode($string, $enc='auto') {
 	// md5 of channel url+item url to avoid problem in case of
 	// duplicate items in different channels
 function zf_makeId($feedUrl, $itemLink) {
-	return md5($feedUrl . $itemLink);
+	return hash('crc32b',$feedUrl . $itemLink);
 }
 
 
