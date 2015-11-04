@@ -143,7 +143,7 @@ function handleRequest() {
 			// only internal use
 			// TODO: check API key
 			$sub = SubscriptionStorage::getInstance()->getSubscription(param('id'));
-			FeedCache::getInstance()->updateSingle($sub);
+			FeedCache::getInstance()->updateSingle($sub->source);
 			echo $sub->title. ' DONE. ';
 			break;
 

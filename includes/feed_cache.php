@@ -177,18 +177,20 @@ class FeedCache {
 
 		returns: nothing
 	*/
-	public function updateSingle($sub) {
-		zf_debug('fetching remote file: '.$sub->title, DBG_FEED);
-		$feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
+	public function updateSingle($source) {
+		zf_debug('fetching remote file: '.$source->title, DBG_FEED);
+//feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
+		$proxy = new SourceProxy();
+		$feed = $proxy->fetchFeed($source, $resultString);
 		if ( $feed ) {
-			zf_debug("Fetch successful: ".$sub->title, DBG_FEED);
+			zf_debug("Fetch successful: ".$source->title, DBG_FEED);
 
-			$feed->normalize($sub->title, $sub->link, $sub->xmlurl, $sub->description);
+			//$feed->normalize($source);
 
 			// add object to cache
-			$this->set( $sub->id, $feed );
+			$this->set( $source->id, $feed );
 		} else {
-			zf_debug('failed fetching remote file '.$sub->xmlurl, DBG_FEED);
+			zf_debug('failed fetching remote file '.$source->xmlurl, DBG_FEED);
 		}
 
 	}
@@ -208,8 +210,8 @@ class FeedCache {
 		if ($updateMode !== 'none') {
 			foreach ($subscriptions as $sub) {
 
-				zf_debug("Checking cache for $sub->title", DBG_FEED);
-				$status = $this->check_cache($sub->id);
+				zf_debug('Checking cache for '. $sub->source->title, DBG_FEED);
+				$status = $this->check_cache($sub->source->id);
 				zf_debug("status: $status", DBG_FEED);
 				$needsRefresh = ($status == 'STALE') || ($status == 'MISS');
 
@@ -236,7 +238,7 @@ class FeedCache {
 
 		$urls= array();
 		foreach ($subscriptions as $sub) {
-			$url = ZF_URL.'/pub/index.php?q=force-refresh&id='.$sub->id;
+			$url = ZF_URL.'/pub/index.php?q=force-refresh&id='.$sub->source->id;
 			$urls[] = $url;
 		}
 
@@ -263,15 +265,15 @@ class FeedCache {
 	public function getFeeds($subscriptions, $chain = null) {
 		$feeds = array();
 		foreach($subscriptions as $sub) {
-			$feed = $this->get($sub->id);
+			$feed = $this->get($sub->source->id);
 
 			if ($feed) {
 				$feed->filter($chain);
-				$feeds[$sub->id] = $feed;
+				$feeds[$sub->source->id] = $feed;
 
 			} else {
 				zf_debug('empty feed returned', DBG_FEED);
-				$feeds[$sub->id] = new PublisherFeed($sub->id);
+				$feeds[$sub->source->id] = new PublisherFeed($sub->source->id);
 			}
 
 		}

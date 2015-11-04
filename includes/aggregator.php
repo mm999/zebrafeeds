@@ -32,10 +32,11 @@ class aggregator {
 	private $cache;
 
 	public function __construct() {
+		/* does not really work 
 		$visitTracker = VisitTracker::getInstance();
 		$visitTracker->checkIn();
 		$end = $visitTracker->getLastSessionEnd();
-		ItemTracker::getInstance()->setLastSessionEnd($end);
+		ItemTracker::getInstance()->setLastSessionEnd($end);*/
 
 		$this->cache = FeedCache::getInstance();
 	}
@@ -165,11 +166,11 @@ class aggregator {
 
 		$chain = new FilterChain();
 		// always add the 'mark new' filter
-		$chain->addFilter(new MarkNewItemFilter());
+		/*$chain->addFilter(new MarkNewItemFilter());
 
 		if ($onlyNew) {
 			$chain->addFilter(new OnlyNewFilter());
-		}
+		}*/
 
 		if ($trim !== 'none') {
 			$chain->setFeedTrim($trim);

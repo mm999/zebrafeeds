@@ -27,12 +27,13 @@ function sortChannelsByName($subscriptions) {
 	/* sort channels list by setting the array key to the position */
 	$sortedchannels = array();
 	foreach($subscriptions as $i => $sub) {
-		if ($sub->xmlurl != '') {
+		$source = $sub->source;
+		if ($source->xmlurl != '') {
 			/* tackle duplicate names */
-			if (isset($sortedchannels[$sub->title]) || (strlen($sub->title)) == 0) {
-				$title = $sub->title. ' ('.$sub->position.')';
+			if (isset($sortedchannels[$source->title]) || (strlen($source->title)) == 0) {
+				$title = $source->title. ' ('.$sub->position.')';
 			} else {
-				$title = $sub->title;
+				$title = $source->title;
 			}
 			/*echo $title.' -- ';*/
 			$sortedchannels[$title] = $sub;
@@ -49,7 +50,7 @@ function sortChannelsByPosition($subscriptions) {
 	/* sort channels list by setting the array key to the position */
 	$sortedChannels = array();
 	foreach($subscriptions as $i => $sub) {
-		if ($sub->xmlurl != '') {
+		if ($sub->source->xmlurl != '') {
 			$sortedchannels[$sub->position] = $sub;
 			/* but we need to keep the original index to identify the feed, next time we need it in
 			a copy/delete operation */
@@ -110,16 +111,16 @@ EOD;
 			$tempdata = '';
 
 			/* first let's do the name line */
-			$tempdata = str_replace("{i}", $sub->id, $namehtmldata);
-			//$sub->title;
+			$tempdata = str_replace("{i}", $sub->source->id, $namehtmldata);
+
 			$class = $sub->isActive?'subscribed':'unsubscribed';
 			$tempdata = str_replace("{class}", $class, $tempdata);
-			$tempdata = str_replace("{chantitle}", $sub->title, $tempdata);
-			$tempdata = str_replace("{chantitle_enc}", addslashes($sub->title), $tempdata);
-			$tempdata = str_replace("{htmlurl}", htmlentities($sub->link), $tempdata);
+			$tempdata = str_replace("{chantitle}", $sub->source->title, $tempdata);
+			$tempdata = str_replace("{chantitle_enc}", addslashes($sub->source->title), $tempdata);
+			$tempdata = str_replace("{htmlurl}", htmlentities($sub->source->link), $tempdata);
 
-			$tempdata = str_replace("{xmlurl}", htmlspecialchars($sub->xmlurl), $tempdata);
-			$tempdata = str_replace("{description}", $sub->description, $tempdata);
+			$tempdata = str_replace("{xmlurl}", htmlspecialchars($sub->source->xmlurl), $tempdata);
+			$tempdata = str_replace("{description}", $sub->source->description, $tempdata);
 			$tempdata = str_replace("{position}", $sub->position, $tempdata);
 			$tempdata = str_replace("{shownitems}", $sub->shownItems, $tempdata);
 			$tempdata = str_replace("{tags}", implode(',', $sub->tags), $tempdata);
@@ -281,7 +282,7 @@ $storage = SubscriptionStorage::getInstance();
 					if (http.status == 200) { // OK response
 						// TODO: handle error
 						var uielement = document.getElementById('entry'+channeldata[0]);
-						uielement.innerHTML= channeldata[1] + ' <i>removed</i>';
+						uielement.innerHTML= channeldata[1] + ' <i>deleted</i>';
 						// parentNode.removeChild(uielement);
 					}
 				}

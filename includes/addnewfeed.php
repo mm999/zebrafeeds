@@ -20,6 +20,7 @@
 
 if (!defined('ZF_VER')) exit;
 
+//TODO: delete, not used anymore
 function simple_fetch($url, &$resultString) {
 	$rss = zf_xpie_basic_fetch($url);
 
@@ -44,11 +45,14 @@ function parse_feed($feedurl, $htmldata)
 
     $result = '';
 
-    $feed = simple_fetch($feedurl, $result);
+    $proxy = new SourceProxy();
+    $source = $proxy->makeSourceFromAddress($feedurl, $result);
 
-    if ($feed) {
-        if (isset($feed->logo)) {
-            $chanimg = "<a href=\"$feed->link\"><img src=\"$feed->logo\" title=\"$feed->title\" style=\"border: 0px;\" /></a>";
+    //simple_fetch($feedurl, $result);
+
+    if ($source) {
+        if (isset($source->logo)) {
+            $chanimg = "<a href=\"$source->link\"><img src=\"$source->logo\" title=\"$source->title\" style=\"border: 0px;\" /></a>";
         }
         else {
             $chanimg = '';
@@ -57,12 +61,12 @@ function parse_feed($feedurl, $htmldata)
         $htmldata = str_replace("{formaction}", $_SERVER['PHP_SELF'] . '?zfaction=addnew', $htmldata);
         $htmldata = str_replace("{feedurl}", htmlentities($feedurl), $htmldata);
         $htmldata = str_replace("{encfeedurl}", urlencode($feedurl), $htmldata);
-        $htmldata = str_replace("{htmlurl}", $feed->link, $htmldata);
+        $htmldata = str_replace("{htmlurl}", $source->link, $htmldata);
         $htmldata = str_replace("{chanimg}", $chanimg, $htmldata);
 
-        $htmldata = str_replace("{chantitle}", $feed->title, $htmldata);
-        $htmldata = str_replace("{chandesc}", $feed->description, $htmldata);
-        $htmldata = str_replace("{chanlink}", $feed->link, $htmldata);
+        $htmldata = str_replace("{chantitle}", $source->title, $htmldata);
+        $htmldata = str_replace("{chandesc}", $source->description, $htmldata);
+        $htmldata = str_replace("{chanlink}", $source->link, $htmldata);
         $htmldata = str_replace("{shownitems}", ZF_DEFAULT_NEWS_COUNT, $htmldata);
 
         return $htmldata;
@@ -198,10 +202,9 @@ echo '<div id="core">';
 
         $storage =  SubscriptionStorage::getInstance();
 
-		$sub = new Subscription($_POST['feedurl']);
-		$sub->link = stripslashes($_POST['htmlurl']);
-		$sub->title = stripslashes($_POST['chantitle']);
-		$sub->description = stripslashes($_POST['chandesc']);
+		$sub = new Subscription();
+        $source = Source::create(stripslashes($_POST['chantitle']), stripslashes($_POST['htmlurl']), stripslashes($_POST['chandesc']), $_POST['feedurl']);
+		$sub->source = $source;
 		$sub->shownItems = $_POST['shownnews'];
 		$sub->isActive = ($_POST['isactive']=='yes');
 		$sub->tags = explode(',',$_POST['tags']);

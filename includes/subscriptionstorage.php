@@ -35,10 +35,9 @@ function zf_opmlStartElement($parser, $name, $attributes) {
 		$includeIt =(isset($attributes['POSITION']) && $attributes['POSITION'] != '');
 	}
 	if ($includeIt) {
-		$subscription = new Subscription(html2specialchars($attributes['XMLURL']));
-		$subscription->initFromXMLAttributes($attributes);
-		$zf_opmlItems[$subscription->id] = $subscription;
-		zf_debug('loaded sub: '.$subscription->id.' '.$subscription->title.'| tags('. implode(',', $subscription->tags).')', DBG_OPML);
+		$subscription = Subscription::fromXMLAttributes($attributes);
+		$zf_opmlItems[$subscription->source->id] = $subscription;
+		zf_debug('loaded sub: '.$subscription->source->id.' '.$subscription->source->title.'| tags('. implode(',', $subscription->tags).')', DBG_OPML);
 	}
 
 	if (ZF_DEBUG & DBG_LIST) {
@@ -160,10 +159,10 @@ class SubscriptionStorage {
 			fwrite($fp, "\t<body>\n");
 
 			foreach ($this->subscriptions as $sub) {
-				$temptitle = stripslashes($sub->title);
-				$tempdesc = stripslashes($sub->description);
-				$temphtmlurl = stripslashes($sub->link);
-				$tempxmlurl = stripslashes($sub->xmlurl);
+				$temptitle = stripslashes($sub->source->title);
+				$tempdesc = stripslashes($sub->source->description);
+				$temphtmlurl = stripslashes($sub->source->link);
+				$tempxmlurl = stripslashes($sub->source->xmlurl);
 				fwrite($fp, "\t\t<outline type=\"rss\"" .
 									" position=\"" . $sub->position .
 									"\" text=\"" . htmlspecialchars($temptitle, ENT_QUOTES) .
@@ -239,10 +238,10 @@ class SubscriptionStorage {
 			$newpos = $this->getNextPosition();
 			$sub->position = $newpos;
 		}
-		if (isset($this->subscriptions[$sub->id])) {
-			unset($this->subscriptions[$sub->id]);
+		if (isset($this->subscriptions[$sub->source->id])) {
+			unset($this->subscriptions[$sub->source->id]);
 		}
-		$this->subscriptions[$sub->id] = $sub;
+		$this->subscriptions[$sub->source->id] = $sub;
 		return $this->save();
 	}
 
@@ -262,7 +261,7 @@ class SubscriptionStorage {
 			// we want only those matching tag if relevant, and subscribed if requested
 			if ( (($tag=='')?true:array_search($tag, $sub->tags)>-1) && ($onlySubscribed?$sub->isActive:true) ) {
 				//zf_debug('found subscription '. $sub->title);
-				$result[$sub->id] = $sub;
+				$result[$sub->source->id] = $sub;
 			}
 		}
 		return $result;

@@ -97,28 +97,13 @@ can be trimmed to "shownitems" */
 class PublisherFeed extends AbstractFeed {
 
 	public $from_cache;
-	public $subscriptionId;
-	public $title;
-	public $xmlurl;
-	public $link;
-	public $description;
-
-	public function __construct($subId) {
+	public $source;
+	public function __construct($source) {
 		parent::__construct();
-		$this->subscriptionId = $subId;
+		$this->source = $source;
 	}
 
 
-	/* make sure our channel array has all what we need
-	 this data will get cached, so this function is called only once,
-	 right after the feed is fetched over http */
-	public function normalize($title, $link, $xmlurl, $description){
-		$this->title = $title;
-		$this->description = $description;
-		$this->xmlurl = $xmlurl;
-		$this->link = $link;
-
-	}
 
 }
 

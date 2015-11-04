@@ -62,6 +62,7 @@ defaultConfig('ZF_TRIMSIZE', 3);
 
 require_once INITDIR.'/includes/controller.php';
 require_once INITDIR.'/includes/classes.php';
+require_once INITDIR.'/includes/sourceproxy.php';
 require_once INITDIR.'/includes/aggregator.php';
 require_once INITDIR.'/includes/feed_cache.php';
 require_once INITDIR.'/includes/feed.php';
@@ -70,7 +71,6 @@ require_once INITDIR.'/includes/subscriptionstorage.php';
 require_once INITDIR.'/includes/itemtracker.php';
 require_once INITDIR.'/includes/visittracker.php';
 require_once INITDIR.'/includes/template.php';
-require_once INITDIR.'/includes/simplepie_fetch.php';
 require_once INITDIR.'/includes/itemfilter.php';
 
 /*require_once INITDIR . '/lib/SimplePie/SimplePieAutoLoader.php';

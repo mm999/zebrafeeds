@@ -6,6 +6,49 @@
 */
 class Subscription {
 
+	public $source;
+
+	// number of items to show for this subs
+	public $shownItems = ZF_DEFAULT_NEWS_COUNT;
+
+	public $position = -1;
+	public $isActive = true;
+
+	//array of strings, one entry per tag
+	public $tags = array();
+
+	public function __construct(){
+	}
+
+	public static function fromXMLattributes(&$attributes) {
+		$instance = new Self();
+		$instance->source = Source::fromXMLattributes($attributes);
+
+		$instance->position = $attributes['POSITION'];
+
+		if ( ($attributes['SHOWNITEMS'] != '') && (is_numeric($attributes['SHOWNITEMS'])) ) {
+			$instance->shownItems = $attributes['SHOWNITEMS'];
+		}
+
+		if ( ($attributes['TAGS'] != '') ) {
+			$instance->tags = array_unique(explode(',',html2specialchars($attributes['TAGS'])));
+			//print_r($this->tags);
+		}
+
+		$instance->isActive = ($attributes['ISSUBSCRIBED'] == 'yes');
+
+		return $instance;
+	}
+
+	public function __toString(){
+		return $this->source->xmlurl;
+	}
+
+}
+
+
+class Source {
+
 	public $id;
 
 	//feed title
@@ -20,51 +63,49 @@ class Subscription {
 	//URL of the subscription file - feed
 	public $xmlurl;
 
-	// number of items to show for this subs
-	public $shownItems = ZF_DEFAULT_NEWS_COUNT;
-
-	public $position = -1;
-	public $isActive = true;
-
-	//array of strings, one entry per tag
-	public $tags = array();
-
-	public function __construct($address){
-		$this->xmlurl = $address;
-		$this->id = zf_makeId($this->xmlurl, '');
+	public function __construct(){
 	}
 
-	public function initFromXMLattributes(&$attributes) {
-		$this->position = $attributes['POSITION'];
+
+	public static function create($title, $link, $description, $xmlurl) {
+		$instance = new Self();
+		$instance->xmlurl = $xmlurl;
+		$instance->link = $link;
+		$instance->description = $description;
+		$instance->title = $title;
+		$instance->id = zf_makeId($instance->xmlurl, '');
+		return $instance;
+	}
+
+
+	public static function fromXMLattributes(&$attributes) {
+
+		$instance = new Self();
 
 		if ($attributes['TITLE'] != '') {
-			$this->title = html2specialchars($attributes['TITLE']);
+			$instance->title = html2specialchars($attributes['TITLE']);
 		}
 
 		if ($attributes['HTMLURL'] != '') {
-			$this->link = html2specialchars($attributes['HTMLURL']);
+			$instance->link = html2specialchars($attributes['HTMLURL']);
+		}
+
+		if ($attributes['XMLURL'] != '') {
+			$instance->xmlurl = html2specialchars($attributes['XMLURL']);
 		}
 
 		if ($attributes['DESCRIPTION'] != '') {
-			$this->description = html2specialchars($attributes['DESCRIPTION']);
+			$instance->description = html2specialchars($attributes['DESCRIPTION']);
 		}
-
-		if ( ($attributes['SHOWNITEMS'] != '') && (is_numeric($attributes['SHOWNITEMS'])) ) {
-			$this->shownItems = $attributes['SHOWNITEMS'];
-		}
-
-		if ( ($attributes['TAGS'] != '') ) {
-			$this->tags = array_unique(explode(',',html2specialchars($attributes['TAGS'])));
-			//print_r($this->tags);
-		}
-
-		$this->isActive = ($attributes['ISSUBSCRIBED'] == 'yes');
-
+		$instance->id = zf_makeId($instance->xmlurl, '');
+		return $instance;
 	}
 
-	public function __toString(){
-		return $this->xmlurl;
+	public static function fromAddress($xmlurl){
+		$proxy = new SourceProxy($xmlurl);
+		return $proxy->makeSourceFromAddress($xmlurl);
 	}
+
 
 }
 
@@ -88,11 +129,12 @@ class NewsItem {
 	public $date_timestamp;
 
 	public $feed;
+	public $source;
 
 	//array of enclosure objects
 	public $enclosures;
 
-	public function __construct($feed, $link, $title, $date, $id='') {
+	public function __construct($feed, $source, $link, $title, $date, $id='') {
 		$this->enclosures = array();
 		$this->isTruncated = false;
 		$this->isNew = false;
@@ -106,8 +148,9 @@ class NewsItem {
 		} else {
 			$key = $this->link.$this->title;
 		}
-		$this->id = zf_makeId($feed->subscriptionId, $key);
+		$this->id = zf_makeId($source->id, $key);
 		$this->feed = $feed;
+		$this->source = $source;
 	}
 
 
