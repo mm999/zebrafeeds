@@ -73,9 +73,7 @@ require_once INITDIR.'/includes/visittracker.php';
 require_once INITDIR.'/includes/template.php';
 require_once INITDIR.'/includes/itemfilter.php';
 
-/*require_once INITDIR . '/lib/SimplePie/SimplePieAutoLoader.php';
-require_once INITDIR . '/lib/SimplePie/SimplePie.php';*/
-require_once INITDIR . '/lib/simplepie.php';
+require_once INITDIR . '/lib/simplepie/autoloader.php';
 require_once INITDIR . '/lib/humble-http-agent/HumbleHttpAgent.php';
 require_once INITDIR . '/lib/humble-http-agent/RollingCurl.php';
 require_once INITDIR . '/lib/humble-http-agent/CookieJar.php';
