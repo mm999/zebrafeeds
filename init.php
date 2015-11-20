@@ -79,4 +79,5 @@ require_once INITDIR . '/lib/humble-http-agent/HumbleHttpAgent.php';
 require_once INITDIR . '/lib/humble-http-agent/RollingCurl.php';
 require_once INITDIR . '/lib/humble-http-agent/CookieJar.php';
 require_once INITDIR . '/lib/readability/Readability.php';
+require_once INITDIR . '/lib/htmLawed/htmLawed.php';
 require_once INITDIR . '/lib/medoo.min.php';

@@ -50,7 +50,8 @@ class Source {
 		if ($attributes['DESCRIPTION'] != '') {
 			$instance->description = html2specialchars($attributes['DESCRIPTION']);
 		}
-		$instance->id = zf_makeId($instance->xmlurl, '');
+		$instance->id = (string)zf_makeId($instance->xmlurl, '');
+
 		return $instance;
 	}
 
