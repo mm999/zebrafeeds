@@ -70,7 +70,7 @@ class SubscriptionStorage {
 	private static $instance = NULL;
 
 	public static function getInstance() {
-		if (self::$instance == NULL) {
+		if (self::$instance === NULL) {
 			self::$instance = new SubscriptionStorage();
 		}
 		return self::$instance;
@@ -260,7 +260,7 @@ class SubscriptionStorage {
 		foreach ($this->subscriptions as $sub) {
 			// we want only those matching tag if relevant, and subscribed if requested
 			if ( (($tag=='')?true:array_search($tag, $sub->tags)>-1) && ($onlySubscribed?$sub->isActive:true) ) {
-				//zf_debug('found subscription '. $sub->title);
+				//zf_debug('found subscription '. $sub->source->title);
 				$result[$sub->source->id] = $sub;
 			}
 		}
