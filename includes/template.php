@@ -340,10 +340,10 @@ class template {
 		$hasSummary = strpos($this->_buffer, '{summary}');
 		$this->_buffer = str_replace('{summary}', $ssummary, $this->_buffer);
 
-		$zfarticleurl = '?q=item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->source->id;
+		$zfarticleurl = '?q=item&amp;zftemplate='.$this->name.'&amp;itemid='.$item->id;
 		$this->_buffer = str_replace('{articleurl}', $zfarticleurl, $this->_buffer);
 
-		$zfdownloadcontent = '?q=download-item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->source->id;
+		$zfdownloadcontent = '?q=download-item&amp;zftemplate='.$this->name.'&amp;itemid='.$item->id;
 		$this->_buffer = str_replace('{download}', $zfdownloadcontent, $this->_buffer);
 
 
