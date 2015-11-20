@@ -30,9 +30,11 @@ class NewsItem {
 	}
 
 	public static function createFromFlatArray($source, $item, $isNewSpot = 0xFFFFFFFF) {
-		zf_debug('cached item'); if (ZF_DEBUG && DBG_FEED) var_dump($item);
+		zf_debug('processing cached item', DBG_ITEM | DBG_FEED);
+		if (ZF_DEBUG & DBG_ITEM) var_dump($item);
 		$feedItem = new NewsItem($source);
 
+		zf_debug("new spot: $isNewSpot impressed on: ".$item['ts_impress'], DBG_ITEM | DBG_FEED);
 		$feedItem->isNew = $isNewSpot < $item['ts_impress'];
 		$enclosures = json_decode($item['enclosures']);
 		/* remove fields we dont need anymore */
@@ -57,7 +59,7 @@ class NewsItem {
         	}
         }
 
-		zf_debug('processed cached item'); if (ZF_DEBUG && DBG_FEED) var_dump($feedItem);
+		zf_debug('cached item after processing', DBG_FEED | DBG_ITEM); if (ZF_DEBUG & DBG_ITEM) var_dump($feedItem);
 
 	    return $feedItem;
 	}

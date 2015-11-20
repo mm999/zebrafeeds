@@ -39,9 +39,7 @@ class DBProxy {
 	protected $db;
 
 	public static function getInstance() {
-		zf_debug("calling DBProxy::getInstance", DBG_DB);
 		if (self::$instance === NULL) {
-			zf_debug("constructing new instance" . self::$instance, DBG_DB);
 			self::$instance = new DBProxy();
 		}
 		return self::$instance;
@@ -64,7 +62,7 @@ class DBProxy {
 	*/
 	public function getItems($sources, $max, $sincePubdate, $impressedSince) {
 		zf_debug("fetching $max items since $sincePubdate impressed since $impressedSince", DBG_DB);
-		if (ZF_DEBUG && DBG_DB) var_dump($sources);
+		if (ZF_DEBUG & DBG_DB) var_dump($sources);
 		$entries = $this->db->select(
 								'items',
 								array(  "enclosures",
@@ -85,8 +83,8 @@ class DBProxy {
 										'source_id' => $sources),
 										'ORDER'=>'pubdate DESC',
 										'LIMIT' => $max));
-		if (ZF_DEBUG && DBG_DB) {
-			var_dump($this->db->log());
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
 			var_dump($this->db->error());
 		}
 		return $entries;
@@ -108,6 +106,10 @@ class DBProxy {
 										'image',
 										'saved' ),
 								array( 'saved' => 1, 'ORDER'=>'pubdate DESC'));
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+		}
 		return $entries;
 	}
 
@@ -126,6 +128,10 @@ class DBProxy {
 										'image',
 										'saved' ),
 								array( 'id' => $id));
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+		}
 		if (isset($entries[0]))
 			return $entries[0];
 		else
@@ -140,6 +146,10 @@ class DBProxy {
 								'items',
 								array( 'id'),
 								array(	'source_id' => $sourceId));
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+		}
 		return $entries;
 
 	}
@@ -148,40 +158,84 @@ class DBProxy {
 	public function purgeOldItems($oldestPubdate) {
 		$entries = $this->db->delete('items', array('AND' => array( 'saved' => 0, 'pubdate[<]'=>$oldestPubdate)));
 		// maybe overkill $this->db->execute('vacuum');
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+			zf_debug ("$entries items deleted");
+		}
 	}
 
 	/* clean up source's item except the keepers (ie those still in the feed) */
 	public function purgeSourceItems($sourceId, $keepers) {
 		$entries = $this->db->delete('items', array('AND' => array( 'source_id' => $sourceId, 'id[!]'=>$keepers)));
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+			zf_debug ("$entries items deleted");
+		}
 		// maybe overkill $this->db->execute('vacuum');
 	}
 
 	public function setItemSaved($itemId, $savedFlag) {
 		$entries = $this->db->update('items', array('saved' => $savedFlag?1:0), array( 'id' => $itemId ));
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+		}
 
 	}
 
 	public function getLastUpdated($sourceId) {
 		$value = $this->db->max('items', 'ts_fetch', array( 'source_id' => $sourceId ));
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+		}
 		return $value;
 	}
 
 	// $item: IngestableItem object
 	public function recordItem($item){
 		$last_id = $this->db->insert('items', $item->data);
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+			zf_debug ("$last_id added");
+		}
 	}
 
 	/* useful after item has been fully dowloaded on demand */
 	public function recordItemDescription($itemId, $newDesc) {
-		$this->db->update('items', array('description' => $newDesc), array('id'=>$itemId));
+		$entries = $this->db->update('items', array('description' => $newDesc), array('id'=>$itemId));
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+		}
 	}
 
 	public function markItemsAsImpressed($itemIds, $ts=-1) {
 		if ($ts == -1) $ts = time();
-		$this->db->update('items',
+		$entries = $this->db->update('items',
 							array('ts_impress' => $ts),
 							array('AND' => array('id'=>$itemIds, 'ts_impress' => 0xFFFFFFFF))
 						);
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+			zf_debug ("$entries items updated");
+		}
+	}
+	public function recordItemFetchTime($itemIds, $ts=-1) {
+		if ($ts == -1) $ts = time();
+		$entries = $this->db->update('items',
+							array('ts_fetch' => $ts),
+							array('id'=>$itemIds)
+						);
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+			zf_debug ("$entries items updated");
+		}
 	}
 
 
