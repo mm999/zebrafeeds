@@ -11,20 +11,23 @@ class IngestableItem {
 
 	public function __construct($sourceId, $itemId, $spItem) {
 		$this->data = array(
-			'id' => $itemId,
-			'source_id' => $sourceId,
+			'id' => (string)$itemId,
+			'source_id' => (string)$sourceId,
 			'title' => $spItem->get_title(),
 			'link' => $spItem->get_permalink(),
 			'description' => $spItem->get_content(),
 			'summary' => $spItem->get_description(),
 			'pubdate' => $spItem->get_date('U'),
-			'ts_fetch' => time(),
 			'ts_impress' => 0xFFFFFFFF );
 
 		$this->makeSummary();
 		$this->makeEnclosures($spItem->get_enclosures());
 
 		//TODO: purify the description, search for 1st image
+		$this->cleanBody();
+
+		zf_debug("item to ingest ",DBG_ITEM);
+		if (ZF_DEBUG & DBG_ITEM) var_dump($this->data);
 
 	}
 
@@ -65,6 +68,18 @@ class IngestableItem {
 										'type' => $enclosure->get_type());
 			}
 		}
+
+	}
+
+	private function cleanBody(){
+
+	$this->data['description'] = htmLawed($this->data['description'], 
+						array(
+							'comment'=>1,
+							'valid_xhtml'=>1,
+							'tidy' => 1,
+							'safe' => 1,
+							));
 
 	}
 
