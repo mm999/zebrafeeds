@@ -87,7 +87,7 @@ switch ($zfaction) {
 	<title>ZebraFeeds</title>
 	<link rel="stylesheet" type="text/css" href="res/css/admin.css"/>
 	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>
+	<meta name="viewport" content="initial-scale=1.0"/>
 <?php include('embed/header.php'); ?>
 
 	</head>
@@ -95,7 +95,7 @@ switch ($zfaction) {
 
 
 	<header class="top">
-		<a href="http://cazalet.org/zebrafeeds"><img src="res/img/logo-new.png" alt="ZebraFeeds"></a>
+		<a href="<?echo $_SERVER['PHP_SELF'];?>"><img src="res/img/logo-new.png" alt="ZebraFeeds"></a>
 	</header>
 	<nav id="menu">
 		<ul>
@@ -125,7 +125,16 @@ switch ($zfaction) {
 			break;
 
 		case 'feeds':
+			// here: show tags menu
+			$tags = SubscriptionStorage::getInstance()->getTags();
+			echo '<div id="core">';
+			echo '<div style="margin: 25px auto; max-width: 750px;">Tag: ';
+			foreach ($tags as $tag) {
+				echo '<a href="?zfaction=feeds&amp;tag='.rawurlencode($tag).'">'.$tag.'</a>&nbsp;';
+			}
+			echo '</div>';
 			include('embed/feeds.php');
+			echo '</div>';//core
 			break;
 
 		case 'subscriptions':
