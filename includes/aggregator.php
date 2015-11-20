@@ -32,12 +32,6 @@ class aggregator {
 	private $cache;
 
 	public function __construct() {
-		/* does not really work 
-		$visitTracker = VisitTracker::getInstance();
-		$visitTracker->checkIn();
-		$end = $visitTracker->getLastSessionEnd();
-		ItemTracker::getInstance()->setLastSessionEnd($end);*/
-
 		$this->cache = FeedCache::getInstance();
 	}
 
@@ -45,21 +39,25 @@ class aggregator {
 	/*
 	get a single NewsItem object from cache
 	 */
-	public function getItem($channelId, $itemId) {
-		return $this->cache->getItem($channelId, $itemId);
+	public function getItem($sourceId, $itemId) {
+		//get source object from subscription...
+		$sub = SubscriptionStorage::getInstance()->getSubscription($sourceId);
+		return $this->cache->getItem($sub->source, $itemId);
 	}
 
 	/*
 	get a single NewsItem object downloaded by Readability reader by FiveFilters
 	 */
-	public function downloadItem($channelId, $itemId) {
-		$item = $this->cache->getItem($channelId, $itemId);
+	public function downloadItem($sourceId, $itemId) {
+		// get source object from subscriptions...
+		$sub = SubscriptionStorage::getInstance()->getSubscription($sourceId);
+		$item = $this->cache->getItem($sub->source, $itemId);
 		$html = file_get_contents($item->link);
 		$reader = new Readability($html, $item->link);
 		if ($reader->init()) {
 			$item->description = $reader->articleContent->innerHTML;
 			// save the downloaded content to cache, just in case
-			$this->cache->setItem($channelId, $item);
+			$this->cache->saveItemDescription($item);
 		}
 		return $item;
 
@@ -80,23 +78,39 @@ class aggregator {
 		$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
 		zf_debugRuntime("before feeds update");
 
-		zf_debug('processing '.sizeof($subs).' subs for tag '.$tag, DBG_AGGR);
+		zf_debug('processing '.sizeof($subs).' subs for tag '.$tag, DBG_AGGR); 
+		if (ZF_DEBUG && DBG_AGGR) var_dump($subs);
 
 		$this->cache->update($subs, ((ZF_REFRESHMODE=='automatic')?'auto':'none'));
 
-		$feeds = $this->cache->getFeeds($subs);
+
+		$feeds = array();
+
+		$params1 = array();
+		if ($onlyNew)
+			$params1['impressedSince'] = time() - 1800;
+
 
 		if ($aggregate) {
-			// aggregate all feeds in one: use global trim setting if auto is set
 			if ($trim == 'auto') {
 				$trim = ZF_TRIMSIZE.ZF_TRIMTYPE;
 			}
-			$feeds = array(new AggregatedFeed($feeds, $this->makeFilterChain($trim, $onlyNew)));
+
+			$params= array_merge($params1, $this->buildLimiterParam($trim));
+
+			$feeds[] = $this->cache->getFeed($subs, $params);
 
 		} else {
 			// keeps feed separate (no aggregation): use individual subscription trim setting if auto is set
-			$feeds = $this->processSingleFeeds($feeds, $trim, $onlyNew);
+			foreach ($subs as $id => $sub) {
+				if ($trim == 'auto') {
+					$trim = $sub->shownItems.'news';
+				}
+				$params = array_merge($params1, $this->buildLimiterParam($trim));
+				$feeds[] = $this->cache->getFeed($sub, $params);
+			}
 		}
+
 		zf_debugRuntime("after feeds update and aggr");
 		zf_debug('returning '.sizeof($feeds).' feeds for tag '.$tag, DBG_AGGR);
 
@@ -114,72 +128,59 @@ class aggregator {
 
 	$result: single feed
 	 */
-	public function getChannelFeed($channelId, $updateMode, $trim, $onlyNew) {
+	public function getPublisherFeed($sourceId, $updateMode, $trim, $onlyNew) {
 
-		$sub = SubscriptionStorage::getInstance()->getSubscription($channelId);
+		$sub = SubscriptionStorage::getInstance()->getSubscription($sourceId);
 
 		$this->cache->update(array($sub->id => $sub), $updateMode);
 
-		// create filters
-		$chain = $this->makeFilterChain($trim, $onlyNew);
-		$feeds = $this->cache->getFeeds(array($sub->id => $sub), $chain);
-
-		$feeds = $this->processSingleFeeds($feeds, $trim, $onlyNew);
-		$feed = array_pop($feeds);
+		if ($trim == 'auto') {
+			$trim = $sub->shownItems.'news';
+		}
+		$params1 = array();
+		if ($onlyNew)
+			$params1['impressedSince'] = time() - 1800;
+		$params = array_merge($params1, $this->buildLimiterParam($trim));
+		$feed = $this->cache->getFeed($sub, $param);
 
 		return $feed;
 
 	}
 
+	private function buildLimiterParam($trim) {
+		zf_debug("handling trim string $trim", DBG_AGGR);
 
-	/*
-	process each single feed after cache update
-	in this case, feeds haven't been merged/aggregated into one
+		$result = array();
 
-	$feeds: array of feeds to handle
-	$trim: trim parameters on request. if auto use subscription settings
-	$onlyNew: if true, will keep only new items
+		if (preg_match("/([0-9]+)(.*)/",$trim, $matches)) {
+            $type = $matches[2];
+            $size = $matches[1];
 
-	$result: array of feeds
-	 */
-	private function processSingleFeeds($feeds, $trim, $onlyNew) {
+			// get timestamp we don't want to go further
+			switch ($type) {
+				case 'hours':
+				// earliest is the timestamp before which we should ignore news
+				$result['sincePubdate'] = time() - (3600 * $size);
+				break;
+			case 'days':
+				// earliest is the timestamp before which we should ignore news
 
+				// get timestamp of today at 0h00
+				$todayts = strtotime(date("F j, Y"));
 
-		foreach($feeds as $feed) {
+				// substract x-1 times 3600*24 seconds from that
+				// x-1 because the current day counts, in the last x days
+				$result['sincePubdate'] = $todayts -  (3600*24*($size-1));
+				break;
 
-			// use the subscription setting if auto
-			// keep the trim parameter if not auto
-			if ($trim == 'auto') {
-				//$trim = get subscription settings
-				$sub = SubscriptionStorage::getInstance()->getSubscription($feed->subscriptionId);
-				$trim = $sub->shownItems.'news';
+			case 'news':
+				$result['max'] = $size;
+				break;
 			}
-			$chain = $this->makeFilterChain($trim, $onlyNew);
-			$feed->sortItems();
-			$feed->filter($chain);
+
 		}
-		return $feeds;
+		return $result;
 	}
-
-
-	private function makeFilterChain($trim, $onlyNew){
-
-		$chain = new FilterChain();
-		// always add the 'mark new' filter
-		/*$chain->addFilter(new MarkNewItemFilter());
-
-		if ($onlyNew) {
-			$chain->addFilter(new OnlyNewFilter());
-		}*/
-
-		if ($trim !== 'none') {
-			$chain->setFeedTrim($trim);
-		}
-
-		return $chain;
-	}
-
-
 
 }
 

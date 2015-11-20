@@ -61,22 +61,22 @@ defaultConfig('ZF_TRIMTYPE', 'days');
 defaultConfig('ZF_TRIMSIZE', 3);
 
 require_once INITDIR.'/includes/controller.php';
-require_once INITDIR.'/includes/classes.php';
-require_once INITDIR.'/includes/sourceproxy.php';
+require_once INITDIR.'/includes/Subscription.php';
+require_once INITDIR.'/includes/Source.php';
+require_once INITDIR.'/includes/NewsItem.php';
+require_once INITDIR.'/includes/IngestableItem.php';
+require_once INITDIR.'/includes/SourceProxy.php';
+require_once INITDIR.'/includes/DBProxy.php';
 require_once INITDIR.'/includes/aggregator.php';
 require_once INITDIR.'/includes/feed_cache.php';
 require_once INITDIR.'/includes/feed.php';
 require_once INITDIR.'/includes/view.php';
 require_once INITDIR.'/includes/subscriptionstorage.php';
-require_once INITDIR.'/includes/itemtracker.php';
-require_once INITDIR.'/includes/visittracker.php';
 require_once INITDIR.'/includes/template.php';
-require_once INITDIR.'/includes/itemfilter.php';
 
 require_once INITDIR . '/lib/simplepie/autoloader.php';
 require_once INITDIR . '/lib/humble-http-agent/HumbleHttpAgent.php';
 require_once INITDIR . '/lib/humble-http-agent/RollingCurl.php';
 require_once INITDIR . '/lib/humble-http-agent/CookieJar.php';
 require_once INITDIR . '/lib/readability/Readability.php';
-
-
+require_once INITDIR . '/lib/medoo.min.php';

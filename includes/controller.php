@@ -70,7 +70,7 @@ function handleRequest() {
 
 			//refresh: user defined
 			$zf_aggregator = new Aggregator();
-			$feed = $zf_aggregator->getChannelFeed(
+			$feed = $zf_aggregator->getPublisherFeed(
 					param('id'),
 					param('mode', ((ZF_REFRESHMODE=='automatic')?'auto':'none')),
 					param('trim', 'auto'),
@@ -126,7 +126,7 @@ function handleRequest() {
 			//only JSON
 			$subs = SubscriptionStorage::getInstance()->getSortedActiveSubscriptions(param('tag',''));
 			if (!headers_sent()) header('Content-Type: application/json; charset='.ZF_ENCODING);
-			echo json_encode($subs);
+			echo json_encode($subs, JSON_FORCE_OBJECT);
 			break;
 
 
@@ -134,7 +134,7 @@ function handleRequest() {
 
 			$tags = SubscriptionStorage::getInstance()->getTags();
 			if (!headers_sent()) header('Content-Type: application/json; charset='.ZF_ENCODING);
-			echo json_encode($tags);
+			echo json_encode($tags, JSON_FORCE_OBJECT);
 			break;
 
 
@@ -144,7 +144,7 @@ function handleRequest() {
 			// TODO: check API key
 			$sub = SubscriptionStorage::getInstance()->getSubscription(param('id'));
 			FeedCache::getInstance()->updateSingle($sub->source);
-			echo $sub->title. ' DONE. ';
+			echo $sub->source->title. ' DONE. ';
 			break;
 
 		case 'refresh-all':

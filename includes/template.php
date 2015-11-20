@@ -150,7 +150,7 @@ class template {
 	public function printNews($item) {
 		$this->_buffer = $this->news;
 		$this->_formatCommon();
-		$this->_formatChannel($item->feed);
+		$this->_formatChannel($item->source);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 
@@ -159,7 +159,7 @@ class template {
 	public function printNewsByDate($item) {
 		$this->_buffer = $this->newsByDate;
 		$this->_formatCommon();
-		$this->_formatChannel($item->feed);
+		$this->_formatChannel($item->source);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 	}
@@ -169,7 +169,7 @@ class template {
 	public function printArticle($item) {
 		$this->_buffer = $this->article;
 		$this->_formatCommon();
-		$this->_formatChannel($item->feed);
+		$this->_formatChannel($item->source);
 		$this->_formatNews($item);
 		$this->_printBuffer();
 	}
@@ -200,7 +200,7 @@ class template {
 
 		$this->_buffer = $this->channel;
 		$this->_formatCommon();
-		$this->_formatChannel($feed);
+		$this->_formatChannel($feed->source);
 
 		/* now, replace the channel header specific tags */
 
@@ -260,18 +260,18 @@ class template {
 
 	/* process channel-related template tags
 	*/
-	protected function _formatChannel($feed) {
+	protected function _formatChannel($source) {
 
 		if ($this->name == 'SYSTEM.rss') {
-			$stitle = htmlspecialchars($feed->title, ENT_QUOTES);
-			$sdesc = htmlspecialchars($feed->description, ENT_QUOTES);
+			$stitle = htmlspecialchars($source->title, ENT_QUOTES);
+			$sdesc = htmlspecialchars($source->description, ENT_QUOTES);
 		} else {
-			$stitle = $feed->title;
-			$sdesc = $feed->description;
+			$stitle = $source->title;
+			$sdesc = $source->description;
 		}
 
-		$slink = $feed->link;
-		$sxmlurl = $feed->xmlurl;
+		$slink = $source->link;
+		$sxmlurl = $source->xmlurl;
 
 		/*TODO: logo and favicon
 		if ($feed->logo != "") {
@@ -288,8 +288,8 @@ class template {
 			$this->_buffer = str_replace('{chanfavicon}', '', $this->_buffer);
 		}*/
 
-		$this->_buffer = str_replace('{chanlink}', $feed->link, $this->_buffer);
-		$this->_buffer = str_replace('{chanid}', $feed->subscriptionId, $this->_buffer);
+		$this->_buffer = str_replace('{chanlink}', $source->link, $this->_buffer);
+		$this->_buffer = str_replace('{chanid}', $source->id, $this->_buffer);
 		$this->_buffer = str_replace('{chandesc}', $sdesc, $this->_buffer);
 
 		$this->_buffer = str_replace('{chantitle}', $stitle, $this->_buffer);
@@ -314,18 +314,18 @@ class template {
 		$this->_buffer = str_replace('{itemid}', $item->id, $this->_buffer);
 		$this->_buffer = str_replace('{link}', $slink, $this->_buffer);
 		$this->_buffer = str_replace('{link_encoded}', urlencode($slink), $this->_buffer);
-		if ($item->date_timestamp != -1) {
+		if ($item->pubdate != -1) {
 			if ($this->name == 'SYSTEM.rss') {
-				$pubdate = date('r', $item->date_timestamp);
+				$pubdate = date('r', $item->pubdate);
 			} else {
-				$pubdate = zf_transcode(strftime(ZF_PUBDATEFORMAT, date($item->date_timestamp)));
+				$pubdate = zf_transcode(strftime(ZF_PUBDATEFORMAT, date($item->pubdate)));
 			}
 		} else {
 			$pubdate = $item->pubdate;
 		}
 
 		$this->_buffer = str_replace('{pubdate}', $pubdate, $this->_buffer);
-		$this->_buffer = str_replace('{relativedate}', getRelativeTime($item->date_timestamp), $this->_buffer);
+		$this->_buffer = str_replace('{relativedate}', getRelativeTime($item->pubdate), $this->_buffer);
 		$this->_buffer = str_replace('{title}', $stitle, $this->_buffer);
 
 		$newvalue = ($item->isNew)? ZF_ISNEW_STRING: '';
@@ -340,10 +340,10 @@ class template {
 		$hasSummary = strpos($this->_buffer, '{summary}');
 		$this->_buffer = str_replace('{summary}', $ssummary, $this->_buffer);
 
-		$zfarticleurl = '?q=item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->feed->subscriptionId;
+		$zfarticleurl = '?q=item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->source->id;
 		$this->_buffer = str_replace('{articleurl}', $zfarticleurl, $this->_buffer);
 
-		$zfdownloadcontent = '?q=download-item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->feed->subscriptionId;
+		$zfdownloadcontent = '?q=download-item&zftemplate='.$this->name.'&itemid='.$item->id.'&id='.$item->source->id;
 		$this->_buffer = str_replace('{download}', $zfdownloadcontent, $this->_buffer);
 
 

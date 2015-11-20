@@ -25,78 +25,27 @@
 if (!defined('ZF_VER')) exit;
 
 
-abstract class AbstractFeed {
+
+class Feed {
 	// aggregated, normalized items
 	// if we aggregate several feeds, index is numeric position in the array
-	protected $items;
-	public $last_fetched = 0;
+	public $items;
 
 	public function __construct() {
 		$this->items = array();
 	}
-
-	public function addItem($item, $filterChain = null) {
-		if ($filterChain) {
-			if ($filterChain->acceptItem($item)) {
-				$this->items[$item->id]= $item;
-			}
-		} else {
-			$this->items[$item->id]= $item;
-		}
+	
+	public function addItem($item) {
+		$this->items[] = $item;
 	}
-
-	public function getItems($filterChain=null) {
-		if ($filterChain) {
-			$result = $filterChain->filter($this->items);
-		} else {
-			$result = $this->items;
-		}
-		return $result;
-	}
-
-	public function getItem($itemid, $filter=null) {
-
-		if (isset($this->items[$itemid])) {
-			$item = $this->items[$itemid];
-			if ($filter) {
-				// ignore return, we are not rejecting items in this case
-				$item = $filter->accept($item);
-			}
-		} else {
-			$item = NULL;
-		}
-		return $item;
-	}
-
-	public function filter($chain) {
-		zf_debug("Filtering feed ".count($this->getItems()).' items', DBG_AGGR);
-		if ($chain && sizeof($chain)>0) {
-			$this->items = $chain->filter($this->items);
-		}
-	}
-
-	public function setItem($item) {
-		$this->items[$item->id] = $item;
-	}
-
-
-	/* sort our items */
-	public function sortItems() {
-		zf_debug('sorting items', DBG_AGGR);
-
-		/* sort by timestamp */
-		usort($this->items, 'zf_compareItemsDate');
-
-	}
-
 
 }
 
 /* publisher feed is obtained from the RSS/ATOM parser
 can be trimmed to "shownitems" */
-class PublisherFeed extends AbstractFeed {
+class PublisherFeed extends Feed {
 
-	public $from_cache;
+	public $last_fetched = 0;
 	public $source;
 	public function __construct($source) {
 		parent::__construct();
@@ -104,71 +53,7 @@ class PublisherFeed extends AbstractFeed {
 	}
 
 
-
 }
 
-/* AggregatedFeed is made of publisher feeds, er... aggregated
-can be trimmed to last X [news|days|hours] */
-class AggregatedFeed extends AbstractFeed {
-
-
-	/* this feed is an aggregation of feeds from a list
-	   this method initializes this
-	 */
-	public function __construct($feeds, $filterChain) {
-
-		parent::__construct();
-
-		foreach($feeds as $pubfeed) {
-	  		/* multiple approaches for merging
-
-			loop here, accept individual items
-			loop here, accept in the addItem method
-			in-place filter feed to be merged, add all items in one go to items array
-			get from feed filtered items list and append to array
-
-			*/
-			$itemsToMerge = $pubfeed->getItems();
-			$this->items = array_merge($this->items, $itemsToMerge);
-			zf_debug("Merged ".count($pubfeed->getItems()).' items from '.$pubfeed->title.' - '.$pubfeed->subscriptionId, DBG_AGGR);
-		}
-		$this->sortItems();
-		$this->filter($filterChain);
-
-	}
-
-
-}
 /* end of Feed classes */
-
-/* compare the date of two news items
-used as callback in the sorting items call*/
-
-function zf_compareItemsDate($a, $b) {
-	return $a->date_timestamp < $b->date_timestamp;
-}
-
-/* completely empirical function to try to cope with exotic date formats
-in order to have them accepted by strtotime (and get a real nice timestamp)
-it works for feeds I read
-
-2006-02-14T14:50:04Z -> 2006-02-14T14:50:04
-2006-02-15T23:25:00+00:00 -> 2006-02-15T23:25:00
-2006-02-15T23:25:00-08:00 -> 2006-02-15T23:25:00
-
-sometimes you also see:
-2006-02-15T23:25:00.736+01:00 -> 2006-02-15T23:25:00
-
-drawback: it discards Timezone information
-
-input: a date string with unhandled format
-output: a unix timestamp of this date, coming from strtotime
-*/
-function zf_cleanupDate($datestr) {
-	$search = array("/\.[0-9]+Z$/", "/Z$/", "/\.[0-9]+[\+-][0-9]+:[0-9]+/", "/[\+-][0-9]+:[0-9]+/");
-	$replace = array(" ");
-	$newdate = preg_replace($search, $replace, $datestr);
-	return strtotime($newdate);
-
-}
 

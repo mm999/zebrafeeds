@@ -1,6 +1,7 @@
 <?php
 
 
+if (!defined('ZF_VER')) exit;
 
 class SourceProxy {
 
@@ -45,46 +46,18 @@ class SourceProxy {
 
 	public function fetchFeed($source, &$resultString){
 		$this->init($source->xmlurl);
-	    $filterChain = new FilterChain();
-	    $trackerFilter = new DateTrackerFilter();
-	    $filterChain->addFilter($trackerFilter);
-	    $filterChain->addFilter(new SummaryNormalizerFilter());
+
 		$myfeed = null;
 	    if ($this->sp->data) {
-	        $myfeed = new PublisherFeed($source);
-	        $myfeed->xmlurl = $source->xmlurl;
-
-	        // TODO support logo $myfeed->publisher->logo = $this->sp->get_image_url();
-
-			$items = array_slice($this->sp->get_items(), 0, ZF_MAXFEEDITEMS, true);
-	        foreach( $items as $item) {
-	        	$pubitem = new NewsItem($myfeed, $source, $item->get_permalink(), $item->get_title(), $item->get_date('U'), $item->get_id(false));
-			    $pubitem->description = $item->get_content();
-			    $pubitem->summary = $item->get_description();
-
-	            $encidx = 0;
-	            $enc = $item->get_enclosures();
-	            if (is_array($enc)) {
-					foreach ($enc as $enclosure) {
-						$newenc = new Enclosure();
-						$newenc->link = $enclosure->get_link();
-						$newenc->length = $enclosure->get_length();
-						$newenc->type = $enclosure->get_type();
-						$pubitem->addEnclosure($newenc);
-	            	}
-	            }
-	            $myfeed->addItem($pubitem, $filterChain);
-	        }
-
-	        /* metadata */
-	        $myfeed->last_fetched = time();
+	        $myfeed = $this->sp; 
+	        // PublisherFeed::createFromSPFeed($source, $this->sp); //new PublisherFeed($source);
 	    } else {
 			if ($this->sp->error()) {
 				$resultString = $this->sp->error() . " on ".$source->xmlurl;
 			} else
 				$resultString = 'Error fetching or parsing '.$source->xmlurl;
 		}
-		$this->cleanUp();
+		//only for PHP <5.3 $this->cleanUp();
 
 		return $myfeed;
 	}

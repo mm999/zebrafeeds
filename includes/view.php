@@ -45,22 +45,17 @@ class JSONView extends AbstractFeedView {
 
 		$out = array();
 		// foreach item of the feed
-		$items = $feed->getItems();
-		foreach ($items as $item) {
+		foreach ($feed->items as $item) {
 			//   add JSON friendly object to array
-			$classname = get_class($feed);
-			switch ($classname) {
-				case 'PublisherFeed':
-					// get short header without publisher
-					$out[] = $item->getSerializableHeader($params['summary']);
-					break;
-				case 'AggregatedFeed':
-					// get full header with publisher info
-					$out[] = $item->getFullSerializableHeader($params['summary']);
+			if (isset($feed->source)) {
+				$out[] = $item->getSerializableHeader($params['summary']);
+			} else {
+				// get full header with publisher info
+				$out[] = $item->getFullSerializableHeader($params['summary']);
 			}
 		}
 
-		echo json_encode($out);
+		echo json_encode($out, JSON_FORCE_OBJECT);
 
 	}
 
@@ -70,7 +65,7 @@ class JSONView extends AbstractFeedView {
 	}
 
 	public function renderArticle($item) {
-		echo json_encode($item->getSerializableItem());
+		echo json_encode($item->getSerializableItem(), JSON_FORCE_OBJECT | JSON_PRETTY_PRINT);
 	}
 
 	public function RenderSummary($summary) {
@@ -156,7 +151,7 @@ class TemplateView extends AbstractFeedView{
 		//$yesterday = date('m.d.Y',strtotime("-1 day"));
 
 		//foreach item
-		$itemsList = $feed->getItems();
+		$itemsList = &$feed->items;
 		zf_debug(sizeof($itemsList).' items to render', DBG_RENDER);
 
 		$groupbyday = $params['groupbyday'];
@@ -173,7 +168,7 @@ class TemplateView extends AbstractFeedView{
 
 			if ($groupbyday) {
 
-				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item->date_timestamp)));
+				$day = zf_transcode(strftime(ZF_DATEFORMAT,date($item->pubdate)));
 				/*
 				 * non locale-friendly way...
 				 $day_std = date('m.d.Y', $item['date_timestamp']);

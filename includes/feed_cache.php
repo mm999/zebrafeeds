@@ -13,28 +13,17 @@ if (!defined('ZF_VER')) exit;
 
 
 class FeedCache {
-	private $BASE_CACHE = './cache';	// where the cache files are stored
+
+
 	public $ERROR	   = "";		   // accumulate error messages
 	private $MAX_AGE;
 
 	static private $instance = NULL;
 
 	private function __construct($base='') {
-		if ( $base ) {
-			$this->BASE_CACHE = $base;
-		}
 
 		$this->MAX_AGE = ZF_DEFAULT_REFRESH_TIME * 60;
 
-		// attempt to make the cache directory
-		if ( ! file_exists( $this->BASE_CACHE ) ) {
-			$status = @mkdir( $this->BASE_CACHE, 0755 );
-
-			// if make failed
-			if ( ! $status ) {
-				zf_error("Cache couldn't make dir '" . $this->BASE_CACHE . "'.");
-			}
-		}
 
 	}
 
@@ -46,129 +35,115 @@ class FeedCache {
 	}
 
 
-/*=======================================================================*\
-	Function:	set
-	Purpose:	add an item to the cache, keyed on url
-	Input:		url from wich the rss file was fetched
-	Output:		true on sucess
-\*=======================================================================*/
-	private function set ($key, $rss) {
-		$cache_file = $this->file_name( $key );
-		$fp = @fopen( $cache_file, 'w' );
+	/*
+	Store the new items out of a freshly fetched feed into the cache
+	input:
+	 	source id
+		SimplePie feed
 
-		if ( ! $fp ) {
-			zf_error(
-				"Cache unable to open file for writing: $cache_file"
-			);
-			return 0;
+	returns the list of ids in the cache after the ingest
+	*/
+	private function ingestFeed($sourceId, $feed) {
+		// get list of item ids, flip to get them as keys iso values, 
+		// to allow checking key existence iso searching
+		zf_debug('ingesting feed for '.$sourceId, DBG_FEED);
+		$ids = array_flip(array_column(DBProxy::getInstance()->getCacheContent($sourceId), 'id'));
+		$currentCache = array();
+
+		zf_debug('IDs in cache: ');if (ZF_DEBUG && DBG_FEED) var_dump($ids);
+		foreach ($feed->get_items() as $item) {
+			$id = zf_makeId($sourceId, $item->get_link().$item->get_title());
+			$currentCache[] = $id;
+			// if this item not already cached
+			if (!array_key_exists($id, $ids)) {
+				zf_debug('storing item '.$id, DBG_FEED);
+				// add it to the cache
+				DBProxy::getInstance()->recordItem( new IngestableItem($sourceId, $id, $item) );
+			}
 		}
-
-
-		$data = $this->serialize( $rss );
-		fwrite( $fp, $data );
-		fclose( $fp );
-
-		return $cache_file;
+		return $currentCache;
 	}
 
-/*=======================================================================*\
-	Function:	get
-	Purpose:	fetch an item from the cache
-	Input:		url from wich the rss file was fetched
-	Output:		cached object on HIT, false on MISS
-\*=======================================================================*/
-	private function get ($key) {
-		$cache_file = $this->file_name( $key );
 
-		if ( ! file_exists( $cache_file ) ) {
-			zf_debug("Cache doesn't contain: $key (cache file: $cache_file)", DBG_FEED);
-			return 0;
+	/*
+	return either feed for single source or aggregated feed for multiple source
+	$sub = Subscription object(s). if array indexed by source_id -> aggregation
+	$params
+	- max
+	- sincePubdate
+	- impressedSince
+	*/
+	public function getFeed($sub, $params) {
+		if (is_array($sub)) {
+			$max = array_key_exists('max',$params)?$params['max']:1000;
+			/*foreach($sub as $subscription) {
+				$target[] = $subscription->source->id;
+			}*/
+			$target = array_keys($sub);
+		} else {
+			$max = array_key_exists('max',$params)?$params['max']:$sub->shownItems;
+			$target = array($sub->source->id);
 		}
+		$sincePubdate = array_key_exists('sincePubdate',$params)?$params['sincePubdate']:0;
+		$impressedSince = array_key_exists('impressedSince',$params)?$params['impressedSince']:0;
 
-		$fp = @fopen($cache_file, 'r');
-		if ( ! $fp ) {
-			zf_error(
-				"Failed to open cache file for reading: $cache_file"
-			);
-			return 0;
+		$db = DBProxy::getInstance();
+
+		$items = $db->getItems($target, $max, $sincePubdate, $impressedSince);
+		$feed = new Feed();
+		if (!is_array($sub)) {
+			$feed->source = $sub->source;
+			$feed->last_fetched = $db->getLastUpdated($sub->source->id);
 		}
-
-		if ($filesize = filesize($cache_file) ) {
-			$data = fread( $fp, filesize($cache_file) );
-			$rss = $this->unserialize( $data );
-
-			return $rss;
+		foreach ($items as $item) {
+			$source = is_array($sub)?$sub[$item['source_id']]->source:$sub->source;
+			$feed->addItem( NewsItem::createFromFlatArray($source, $item, $impressedSince));
 		}
+		$db->markItemsAsImpressed(array_column($items, 'id'));
 
-		return 0;
+		return $feed;
 	}
+
+
+	public function getItem($source, $itemId) {
+		$item = NewsItem::createFromFlatArray($source, DBProxy::getInstance()->getsingleItem($itemId));
+		DBProxy::getInstance()->markItemsAsImpressed(array($itemId));
+		return $item;
+	}
+
+	public function saveItemDescription($item) {
+		DBProxy::getInstance()->recordItemDescription($item->id, $item->description);
+	}
+
 
 /*=======================================================================*\
 	Function:	check_cache
-	Purpose:	check a url for membership in the cache
-				and whether the object is older then MAX_AGE (ie. STALE)
-	Input:		url from wich the rss file was fetched
-				MAX_AGE to check against
+	Purpose:	check a feed source for membership in the cache
+				and whether the object is older than MAX_AGE (ie. STALE)
+	Input:		source id from wich the rss file was fetched
 	Output:		HIT, STALE or MISS
 \*=======================================================================*/
-	private function check_cache ( $key ) {
+	private function check_cache($sourceId){
 
-		$age = $this->cache_age($key);
+		$now = time();
+		$last = DBProxy::getInstance()->getLastUpdated($sourceId);
 
-		if ( $age > -1 ) {
-			if ( $this->MAX_AGE > $age ) {
-				// object exists and is current
+		if ($last > 0){
+			$age = $now - $last;
+			if ($this->MAX_AGE > $age){
+				// items exist and are current
 				return 'HIT';
 			}
 			else {
-				// object exists but is old
+				// items exist but are old
 				return 'STALE';
 			}
 		}
 		else {
-			// object does not exist
+			// no items in cache
 			return 'MISS';
 		}
 	}
-
-	private function cache_age( $key ) {
-		$filename = $this->file_name($key);
-		if ( file_exists( $filename ) ) {
-			$mtime = filemtime( $filename );
-			$age = time() - $mtime;
-			return $age;
-		}
-		else {
-			return -1;
-		}
-	}
-
-/*=======================================================================*\
-	Function:	serialize
-\*=======================================================================*/
-	private function serialize ( $feed ) {
-		return serialize( $feed );
-	}
-
-/*=======================================================================*\
-	Function:	unserialize
-\*=======================================================================*/
-	private function unserialize ( $data ) {
-		return unserialize( $data );
-	}
-
-/*=======================================================================*\
-	Function:	file_name
-	Purpose:	map url to location in cache
-	Input:		url from wich the rss file was fetched
-	Output:		a file name
-\*=======================================================================*/
-	private function file_name ($key) {
-		$filename = $key;
-		return join( DIRECTORY_SEPARATOR, array( $this->BASE_CACHE, $filename ) );
-	}
-
-
 
 	/* force update the cache for a single feed
 		ZebraFeeds addition
@@ -179,16 +154,16 @@ class FeedCache {
 	*/
 	public function updateSingle($source) {
 		zf_debug('fetching remote file: '.$source->title, DBG_FEED);
-//feed = zf_xpie_fetch_feed($sub->id, $sub->xmlurl, $resultString);
 		$proxy = new SourceProxy();
-		$feed = $proxy->fetchFeed($source, $resultString);
-		if ( $feed ) {
+		$SPfeed = $proxy->fetchFeed($source, $resultString);
+		if ($SPfeed) {
 			zf_debug("Fetch successful: ".$source->title, DBG_FEED);
 
-			//$feed->normalize($source);
-
 			// add object to cache
-			$this->set( $source->id, $feed );
+			$keepers = $this->ingestFeed($source->id, $SPfeed);
+			//after update, clean up old items not present in the feed, 
+			// except the savec ones
+			DBProxy::getInstance()->purgeSourceItems($source->id, $keepers);
 		} else {
 			zf_debug('failed fetching remote file '.$source->xmlurl, DBG_FEED);
 		}
@@ -261,36 +236,6 @@ class FeedCache {
 		zf_debugRuntime("End of parallel update");
 	}
 
-
-	public function getFeeds($subscriptions, $chain = null) {
-		$feeds = array();
-		foreach($subscriptions as $sub) {
-			$feed = $this->get($sub->source->id);
-
-			if ($feed) {
-				$feed->filter($chain);
-				$feeds[$sub->source->id] = $feed;
-
-			} else {
-				zf_debug('empty feed returned', DBG_FEED);
-				$feeds[$sub->source->id] = new PublisherFeed($sub->source->id);
-			}
-
-		}
-		return $feeds;
-	}
-
-
-	public function getItem($key, $itemId, $filter = null) {
-		$feed = $this->get($key);
-		return $feed->getItem($itemId, $filter);
-	}
-
-	public function setItem($key, $item, $filter = null) {
-		$feed = $this->get($key);
-		$feed->setItem($item);
-		$this->set($key, $feed);
-	}
 
 
 }

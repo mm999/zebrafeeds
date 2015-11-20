@@ -23,10 +23,9 @@ define('DBG_LIST', 2); // list handling & management
 define('DBG_AGGR', 4); // feed aggregation/merging
 define('DBG_RUNTIME', 8); // trace runtime
 define('DBG_OPML', 16); // all subscription management
-define('DBG_SESSION', 32); // history, session, cookies
 define('DBG_FEED', 64); // handling/fetching feeds
 define('DBG_RENDER', 128); // view and template rendering
-define('DBG_FILTER', 256); // item filtering
+define('DBG_DB', 256); // database layer
 define('DBG_ALL', 0xFFFFFFFFF); // very verbose
 
 // use DBG_xxx | DBG_yyy | ... to select what to see in the logs
