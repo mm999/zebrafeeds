@@ -33,7 +33,11 @@ class SourceProxy {
 		$this->init($xmlurl);
 	    $source = null;
 	    if ($this->sp->data) {
-        	$source = Source::create($this->sp->get_title(), $this->sp->get_link(), $this->sp->get_description(), $xmlurl);
+        	$source = Source::create(
+        						strip_tags($this->sp->get_title()), 
+        						$this->sp->get_link(), 
+        						strip_tags($this->sp->get_description()), 
+        						$xmlurl);
 		}  else {
 			if ($this->sp->error()) {
 				$resultString = $this->sp->error() . " on ".$xmlurl;
@@ -49,8 +53,7 @@ class SourceProxy {
 
 		$myfeed = null;
 	    if ($this->sp->data) {
-	        $myfeed = $this->sp; 
-	        // PublisherFeed::createFromSPFeed($source, $this->sp); //new PublisherFeed($source);
+	        $myfeed = $this->sp;
 	    } else {
 			if ($this->sp->error()) {
 				$resultString = $this->sp->error() . " on ".$source->xmlurl;
