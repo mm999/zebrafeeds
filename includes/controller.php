@@ -41,7 +41,7 @@ function handleRequest() {
 
 			//refresh: always from cache
 			$zf_aggregator = new Aggregator();
-			$item = $zf_aggregator->getItem(param('id'), param('itemid'));
+			$item = $zf_aggregator->getItem(param('itemid'));
 			$view = zf_createView($outputType);
 			$view->renderArticle($item);
 			break;
@@ -50,7 +50,16 @@ function handleRequest() {
 
 			//refresh: always from cache
 			$zf_aggregator = new Aggregator();
-			$item = $zf_aggregator->downloadItem(param('id'), param('itemid'));
+			$item = $zf_aggregator->downloadItem(param('itemid'));
+			$view = zf_createView($outputType);
+			$view->renderArticle($item);
+			break;
+
+		case 'save-item':
+
+			//refresh: always from cache
+			$zf_aggregator = new Aggregator();
+			$item = $zf_aggregator->saveItem(param('itemid'), param('save',1));
 			$view = zf_createView($outputType);
 			$view->renderArticle($item);
 			break;
@@ -59,7 +68,7 @@ function handleRequest() {
 
 			//refresh: always from cache
 			$zf_aggregator = new Aggregator();
-			$item = $zf_aggregator->getItem(param('id'), param('itemid'));
+			$item = $zf_aggregator->getItem(param('itemid'));
 			$view = zf_createView($outputType);
 			$view->renderSummary($item);
 			break;

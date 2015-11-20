@@ -39,19 +39,15 @@ class aggregator {
 	/*
 	get a single NewsItem object from cache
 	 */
-	public function getItem($sourceId, $itemId) {
-		//get source object from subscription...
-		$sub = SubscriptionStorage::getInstance()->getSubscription($sourceId);
-		return $this->cache->getItem($sub->source, $itemId);
+	public function getItem($itemId) {
+		return $this->cache->getItem($itemId);
 	}
 
 	/*
 	get a single NewsItem object downloaded by Readability reader by FiveFilters
 	 */
-	public function downloadItem($sourceId, $itemId) {
-		// get source object from subscriptions...
-		$sub = SubscriptionStorage::getInstance()->getSubscription($sourceId);
-		$item = $this->cache->getItem($sub->source, $itemId);
+	public function downloadItem($itemId) {
+		$item = $this->cache->getItem($itemId);
 		$html = file_get_contents($item->link);
 		$reader = new Readability($html, $item->link);
 		if ($reader->init()) {
@@ -61,6 +57,14 @@ class aggregator {
 		}
 		return $item;
 
+	}
+
+	/*
+	get a single NewsItem object downloaded by Readability reader by FiveFilters
+	 */
+	public function saveItem($itemId, $saveFlag) {
+		$this->cache->lockItem($itemId,$saveFlag);
+		return $this->cache->getItem($itemId);
 	}
 
 	/*
@@ -78,8 +82,8 @@ class aggregator {
 		$subs = SubscriptionStorage::getInstance()->getActiveSubscriptions($tag);
 		zf_debugRuntime("before feeds update");
 
-		zf_debug('processing '.sizeof($subs).' subs for tag '.$tag, DBG_AGGR); 
-		if (ZF_DEBUG && DBG_AGGR) var_dump($subs);
+		zf_debug('processing '.sizeof($subs).' subs for tag '.$tag, DBG_AGGR);
+		if (ZF_DEBUG & DBG_AGGR) var_dump($subs);
 
 		$this->cache->update($subs, ((ZF_REFRESHMODE=='automatic')?'auto':'none'));
 
@@ -88,7 +92,7 @@ class aggregator {
 
 		$params1 = array();
 		if ($onlyNew)
-			$params1['impressedSince'] = time() - 1800;
+			$params1['impressedSince'] = time() - ZF_SESSION_DURATION;
 
 
 		if ($aggregate) {
