@@ -13,6 +13,7 @@ define('ZF_SHOWCREDITS', 'no');
 // ideally, this should be defined in the template
 //define('ZF_ISNEW_STRING', '<img src="'.ZF_URL.'res/img/new.png" border="0" title="is new since last visit" alt="New"/>');
 define('ZF_ISNEW_STRING', 'newclass');
+define('ZF_ONLYNEW', 'no');
 define('ZF_DEFAULT_ADMIN_VIEW', 'subscriptions');
 define('ZF_OWNERNAME', '');
 define('ZF_OWNEREMAIL', '');

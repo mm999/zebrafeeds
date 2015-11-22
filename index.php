@@ -132,6 +132,13 @@ switch ($zfaction) {
 			foreach ($tags as $tag) {
 				echo '<a href="?zfaction=feeds&amp;tag='.rawurlencode($tag).'">'.$tag.'</a>&nbsp;';
 			}
+			$tag = param('tag',ZF_HOMETAG);
+			if (ZF_ONLYNEW!=='no') {
+				echo '| <em>showing only new</em>&nbsp;<a href="?zfaction=feeds&amp;tag='.rawurlencode($tag).'&onlynew=0">Show all</a>';
+			} else {
+				echo '| <em>showing all news</em>&nbsp;<a href="?zfaction=feeds&amp;tag='.rawurlencode($tag).'&onlynew=1">Show only new</a>';
+			}
+
 			echo '</div>';
 			include('embed/feeds.php');
 			echo '</div>';//core

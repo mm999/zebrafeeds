@@ -83,7 +83,7 @@ function handleRequest() {
 					param('id'),
 					param('mode', ((ZF_REFRESHMODE=='automatic')?'auto':'none')),
 					param('trim', 'auto'),
-					int_param('onlynew', 0)
+					int_param('onlynew', ZF_ONLYNEW=='no'?0:1)
 					);
 			$view = zf_createView($outputType);
 			$view->renderFeed($feed, array(
@@ -117,7 +117,7 @@ function handleRequest() {
 				$tag,
 				$aggregate,
 				$trim =  param('trim', 'auto'),
-				int_param('onlynew', 0));
+				int_param('onlynew', ZF_ONLYNEW=='no'?0:1));
 
 			zf_debugRuntime("before rendering");
 
