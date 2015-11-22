@@ -157,23 +157,16 @@ switch ($zfaction) {
 
 			break;
 
-		case 'cleanold':
-			$size = clearOldData(ZF_HISTORYDIR, 60*60*24*14, "hst");
-			$size += clearOldData(ZF_CACHEDIR, 60*60*24*14);
-			echo '<div id="core"><h3>Clean up</h3>';
-			echo "Cleared cache and history files older than 2 weeks.<br/>";
-			$size = sprintf("%01.2f KiloBytes",$size / 1024);
-			echo "$size recovered on server.";
-			echo '<br/><br/></div>';
+		case 'compact':
+			FeedCache::getInstance()->compact();
+			echo '<div id="core"><h3>Compact</h3>';
+			echo 'Cache compacted</div>';
 			break;
 
 		case 'flush':
-			$size = clearOldData(ZF_HISTORYDIR, 0, "hst");
-			$size += clearOldData(ZF_CACHEDIR, 0);
+			FeedCache::getInstance()->flush();
 			echo '<div id="core"><h3>Clean up</h3>';
-			echo "Flushed cache and history files.<br/>";
-			$size = sprintf("%01.2f KiloBytes",$size / 1024);
-			echo "$size recovered on server.";
+			echo "Flushed cache";
 			echo '<br/><br/></div>';
 			break;
 
