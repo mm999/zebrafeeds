@@ -1,2 +1,3 @@
 config.php
 data/db.sqlite
+data/zebrafeeds.opml

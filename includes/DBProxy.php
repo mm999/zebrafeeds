@@ -155,6 +155,15 @@ class DBProxy {
 	}
 
 	/* clean up older items */
+	public function vacuum() {
+		$this->db->query('vacuum');
+		if (ZF_DEBUG & DBG_DB) {
+			var_dump($this->db->last_query());
+			var_dump($this->db->error());
+		}
+	}
+
+	/* clean up older items */
 	public function purgeOldItems($oldestPubdate) {
 		$entries = $this->db->delete('items', array('AND' => array( 'saved' => 0, 'pubdate[<]'=>$oldestPubdate)));
 		// maybe overkill $this->db->execute('vacuum');

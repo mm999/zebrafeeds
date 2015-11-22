@@ -247,6 +247,13 @@ class FeedCache {
 		zf_debugRuntime("End of parallel update");
 	}
 
+	public function compact() {
+		DBProxy::getInstance()->vacuum();
+	}
+
+	public function flush() {
+		DBProxy::getInstance()->purgeOldItems(time());
+	}
 
 
 }
