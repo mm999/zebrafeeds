@@ -313,7 +313,7 @@ class template {
 
 		$this->_buffer = str_replace('{itemid}', $item->id, $this->_buffer);
 		$this->_buffer = str_replace('{link}', $slink, $this->_buffer);
-		$this->_buffer = str_replace('{link_encoded}', urlencode($slink), $this->_buffer);
+		$this->_buffer = str_replace('{link_encoded}', rawurlencode(str_replace('&amp;','&', $slink)), $this->_buffer);
 		if ($item->pubdate != -1) {
 			if ($this->name == 'SYSTEM.rss') {
 				$pubdate = date('r', $item->pubdate);
@@ -340,11 +340,11 @@ class template {
 		$hasSummary = strpos($this->_buffer, '{summary}');
 		$this->_buffer = str_replace('{summary}', $ssummary, $this->_buffer);
 
-		$zfarticleurl = '?q=item&amp;zftemplate='.$this->name.'&amp;itemid='.$item->id;
-		$this->_buffer = str_replace('{articleurl}', $zfarticleurl, $this->_buffer);
+		$zfarticleurl = '?q=item&zftemplate='.$this->name.'&itemid='.$item->id;
+		$this->_buffer = str_replace('{articleurl}', htmlentities($zfarticleurl), $this->_buffer);
 
-		$zfdownloadcontent = '?q=download-item&amp;zftemplate='.$this->name.'&amp;itemid='.$item->id;
-		$this->_buffer = str_replace('{download}', $zfdownloadcontent, $this->_buffer);
+		$zfdownloadcontent = '?q=download-item&zftemplate='.$this->name.'&itemid='.$item->id;
+		$this->_buffer = str_replace('{download}', htmlentities($zfdownloadcontent), $this->_buffer);
 
 
 		// for RSS feeds only
