@@ -30,11 +30,11 @@ class NewsItem {
 	}
 
 	public static function createFromFlatArray($source, $item, $isNewSpot = 0xFFFFFFFF) {
-		zf_debug('processing cached item', DBG_ITEM | DBG_FEED);
+		zf_debug('processing cached item '.$item['id'].' source '.$source->id, DBG_ITEM | DBG_FEED);
 		if (ZF_DEBUG & DBG_ITEM) var_dump($item);
 		$feedItem = new NewsItem($source);
 
-		zf_debug("new spot: $isNewSpot impressed on: ".$item['ts_impress'], DBG_ITEM | DBG_FEED);
+		zf_debug("new spot TS: $isNewSpot impressed on: ".$item['ts_impress'], DBG_ITEM | DBG_FEED);
 		$feedItem->isNew = $isNewSpot < $item['ts_impress'];
 		$enclosures = json_decode($item['enclosures']);
 		/* remove fields we dont need anymore */
@@ -46,7 +46,7 @@ class NewsItem {
 				$feedItem->$key = $value;
 		}
 
-        if (is_array($enclosures)) {
+		if (is_array($enclosures)) {
 			foreach ($enclosures as $enc) {
 				$newenc = new Enclosure();
 				foreach ($enc as $key => $value) {
@@ -56,10 +56,10 @@ class NewsItem {
 				$newenc->length = $enc['length'];
 				$newenc->type = $enc['type'];*/
 				array_push($feedItem->enclosures, $newenc);
-        	}
-        }
+ 			}
+		}
 
-		zf_debug('cached item after processing', DBG_FEED | DBG_ITEM); if (ZF_DEBUG & DBG_ITEM) var_dump($feedItem);
+		zf_debug('cached item after processing '.$feedItem->id, DBG_FEED | DBG_ITEM); if (ZF_DEBUG & DBG_ITEM) var_dump($feedItem);
 
 	    return $feedItem;
 	}
