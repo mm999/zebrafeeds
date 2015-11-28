@@ -20,7 +20,6 @@ class SourceProxy {
 
 	    $this->sp->set_feed_url($xmlurl);
 	    $this->sp->init();
-	    $this->sp->handle_content_type();
 
 	}
 
@@ -34,10 +33,10 @@ class SourceProxy {
 	    $source = null;
 	    if ($this->sp->data) {
         	$source = Source::create(
-        						strip_tags($this->sp->get_title()), 
-        						$this->sp->get_link(), 
-        						strip_tags($this->sp->get_description()), 
-        						$xmlurl);
+								strip_tags($this->sp->get_title()),
+								$this->sp->get_link(),
+								strip_tags($this->sp->get_description()),
+								$xmlurl);
 		}  else {
 			if ($this->sp->error()) {
 				$resultString = $this->sp->error() . " on ".$xmlurl;
