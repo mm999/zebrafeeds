@@ -73,7 +73,7 @@ class aggregator {
 	$tag: get feeds matching this tag
 	$aggregate: if true, merge all feeds into one, sorted by date.
 	$trim: shorten the news list to Xnews; Xdays or Xhours, or auto (=config or subscription setting).
-	$onlyNew: if true, will keep only new items
+	$onlyNew: if 1, will keep only new items
 
 	$result: array of feeds, single element if $aggregate = true, one element per subscription otherwise
 	 */
@@ -91,7 +91,7 @@ class aggregator {
 		$feeds = array();
 
 		$params1 = array();
-		if ($onlyNew)
+		if ($onlyNew==1)
 			$params1['impressedSince'] = time() - ZF_SESSION_DURATION;
 
 
@@ -128,7 +128,7 @@ class aggregator {
 	$channelId: identifier (from subscription list)
 	$updateMode: force, none, auto
 	$trim: shorten the news list to Xnews; Xdays or Xhours, or auto (=config or subscription setting).
-	$onlyNew: if true, will keep only new items
+	$onlyNew: if 1, will keep only new items
 
 	$result: single feed
 	 */
@@ -142,10 +142,11 @@ class aggregator {
 			$trim = $sub->shownItems.'news';
 		}
 		$params1 = array();
-		if ($onlyNew)
-			$params1['impressedSince'] = time() - 1800;
+		if ($onlyNew == 1) {
+			$params1['impressedSince'] = time() - ZF_SESSION_DURATION;
+		}
 		$params = array_merge($params1, $this->buildLimiterParam($trim));
-		$feed = $this->cache->getFeed($sub, $param);
+		$feed = $this->cache->getFeed($sub, $params);
 
 		return $feed;
 
