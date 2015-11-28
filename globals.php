@@ -50,5 +50,5 @@ define("ZF_TEMPLATESDIR", INITDIR.'/templates');
 define ('SSL_PORT', 443);
 define('ZF_VER', '2.1');
 define('ZF_USERAGENT',"ZebraFeeds/".ZF_VER." (http://www.cazalet.org/zebrafeeds)");
-
+define('ZF_HASHMETHOD', 'crc32b');
 

@@ -26,7 +26,7 @@ class Source {
 		$instance->link = $link;
 		$instance->description = $description;
 		$instance->title = $title;
-		$instance->id = zf_makeId($instance->xmlurl, '');
+		$instance->id = hash(ZF_HASHMETHOD, $instance->xmlurl);
 		return $instance;
 	}
 
@@ -50,7 +50,7 @@ class Source {
 		if ($attributes['DESCRIPTION'] != '') {
 			$instance->description = html2specialchars($attributes['DESCRIPTION']);
 		}
-		$instance->id = (string)zf_makeId($instance->xmlurl, '');
+		$instance->id = (string)hash(ZF_HASHMETHOD, $instance->xmlurl);
 
 		return $instance;
 	}

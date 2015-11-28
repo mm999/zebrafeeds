@@ -47,7 +47,7 @@ class FeedCache {
 
 		zf_debug('IDs in cache: ');if (ZF_DEBUG & DBG_FEED) var_dump($ids);
 		foreach ($feed->get_items() as $item) {
-			$id = zf_makeId($sourceId, $item->get_link().$item->get_title());
+			$id = hash(ZF_HASHMETHOD, $item->get_id(false));
 			$currentCache[] = $id;
 			zf_debug("must $id be recorded?",DBG_FEED);
 			// if this item not already cached
@@ -72,8 +72,11 @@ class FeedCache {
 	- impressedSince
 	*/
 	public function getFeed($sub, $params) {
-		zf_debug('getting feed from cache ', DBG_FEED);
-		if (ZF_DEBUG & DBG_FEED) var_dump($params);
+		zf_debug('getting feed from cache ', DBG_FEED); 
+		if (ZF_DEBUG & DBG_FEED) {
+			var_dump($sub);
+			var_dump($params);
+		}
 		if (is_array($sub)) {
 			$max = array_key_exists('max',$params)?$params['max']:1000;
 			/*foreach($sub as $subscription) {

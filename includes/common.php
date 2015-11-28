@@ -99,14 +99,6 @@ function zf_transcode($string, $enc='auto') {
 
 
 
-/* generate our unique ID for the news item */
-	// md5 of channel url+item url to avoid problem in case of
-	// duplicate items in different channels
-function zf_makeId($feedUrl, $itemLink) {
-	return hash('crc32b',$feedUrl . $itemLink);
-}
-
-
 // log in an area. If no area provided, log it anyway
 function zf_debug($msg, $area=DBG_ALL) {
 	if (ZF_DEBUG & $area) {
